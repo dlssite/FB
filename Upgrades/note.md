@@ -1,0 +1,1 @@
+note: you are to follow modules_guide.md to understand our bot archectecture, v2.md and resolveid().md to understnad how the v2 components works to avoid errors,
