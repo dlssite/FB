@@ -1,0 +1,31 @@
+{
+  "ban": {
+    "success": "🔴 **{{user}}** has been permanently banned from the server.",
+    "reason_log": "🔨 Ban Issued: {{reason}}"
+  },
+  "kick": {
+    "success": "👢 **{{user}}** has been kicked from the server.",
+    "reason_log": "👢 Kick Issued: {{reason}}"
+  },
+  "warn": {
+    "success": "⚠️ **{{user}}** has been warned. (Total Warnings: {{count}})",
+    "reason_log": "⚠️ Warning Issued: {{reason}}"
+  },
+  "timeout": {
+    "success": "⏳ **{{user}}** has been silenced for **{{duration}}**.",
+    "reason_log": "⏳ Timeout Issued: {{reason}} ({{duration}})"
+  },
+  "unwarn": {
+    "success": "✅ Successfully removed warning case **#{{id}}** for **{{user}}**."
+  },
+  "modactions": {
+    "title": "📜 Recent Moderation History",
+    "no_actions": "No recent actions found.",
+    "footer": "Showing last 10 actions."
+  },
+  "errors": {
+    "no_user": "❌ You must specify a valid user.",
+    "hierarchy": "❌ You cannot punish this user due to role hierarchy.",
+    "self_punish": "❌ You cannot punish yourself."
+  }
+}

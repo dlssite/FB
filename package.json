@@ -1,0 +1,36 @@
+{
+  "name": "fbt",
+  "version": "1.0.0",
+  "description": "Flameborn Bot Prototype",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.11.1",
+    "@openrouter/sdk": "^0.12.35",
+    "@prisma/client": "^5.14.0",
+    "canvas": "^3.2.3",
+    "chalk": "^4.1.2",
+    "discord.js": "^14.15.2",
+    "dotenv": "^16.4.5",
+    "genius-lyrics": "^4.4.7",
+    "hono": "^4.3.7",
+    "ioredis": "^5.10.1",
+    "openai": "^6.38.0",
+    "shoukaku": "^4.3.0",
+    "skia-canvas": "^3.0.8",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "prisma": "^5.14.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.5"
+  }
+}

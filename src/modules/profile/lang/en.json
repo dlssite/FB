@@ -1,0 +1,38 @@
+{
+  "view": {
+    "title": "👤 {{user}}'s Universal Profile",
+    "desc": "🏷️ **Title:** `{{title}}`\n📝 **Bio:** {{bio}}\n🎖️ **Key Roles:** {{roles}}",
+    "private_title": "🔒 Private Profile",
+    "private_desc": "This citizen's profile is shielded by Premium Privacy Mode.",
+    "no_roles": "None",
+    "no_bio": "*No bio set. Use `/profile bio` to set one!*"
+  },
+  "bio": {
+    "title": "📝 Bio Updated",
+    "desc": "Your profile bio has been successfully updated!\n\n```\n{{bio}}\n```"
+  },
+  "unlock": {
+    "title_success": "🔓 Premium Feature Unlocked",
+    "desc_success": "You have successfully unlocked **{{feature}}** for `{{price}} 💠`!\nUse `/profile customize` to configure it.",
+    "already_unlocked": "❌ You have already unlocked this feature.",
+    "insufficient_funds": "❌ You do not have enough Embers to unlock this feature. (Cost: `{{price}} 💠`)",
+    "features": {
+      "customColor": "Custom Accent Color",
+      "customBanner": "Custom Banner Image",
+      "privacyMode": "Premium Privacy Shield"
+    }
+  },
+  "customize": {
+    "title": "🎨 Profile Customized",
+    "color_success": "Successfully set your profile accent color to `{{color}}`.",
+    "banner_success": "Successfully set your profile banner image.",
+    "privacy_success": "Successfully toggled Privacy Mode to: **{{status}}**.",
+    "not_unlocked": "❌ You have not unlocked this feature yet. Use `/profile unlock` to buy it!"
+  },
+  "admintitle": {
+    "title": "🏷️ Admin Title Management",
+    "set_success": "Successfully assigned the title `{{title}}` to <@{{user}}>.",
+    "remove_success": "Successfully removed the admin title from <@{{user}}>.",
+    "no_permission": "❌ You do not have permission to manage admin titles."
+  }
+}

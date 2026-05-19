@@ -1,0 +1,2449 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
+}
+
+model activity_logs {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  date      DateTime @db.Date
+  messages  BigInt   @default(0)
+  voiceTime BigInt   @default(0)
+  media     BigInt   @default(0)
+  emojis    BigInt   @default(0)
+  reactions BigInt   @default(0)
+  links     BigInt   @default(0)
+  commands  BigInt   @default(0)
+
+  @@unique([guildId, userId, date, tenantId], map: "activity_logs_guild_user_date_tenant_unique")
+  @@index([guildId, date, tenantId], map: "activity_logs_guild_date_tenant_idx")
+}
+
+model activity_stats {
+  id             Int      @id @default(autoincrement())
+  guildId        String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  userId         String   @db.VarChar(255)
+  totalMessages  BigInt   @default(0)
+  totalVoiceTime BigInt   @default(0)
+  totalMedia     BigInt   @default(0)
+  totalEmojis    BigInt   @default(0)
+  totalReactions BigInt   @default(0)
+  totalLinks     BigInt   @default(0)
+  totalCommands  BigInt   @default(0)
+  createdAt      DateTime @db.Timestamptz(6)
+  updatedAt      DateTime @db.Timestamptz(6)
+
+  @@unique([guildId, userId, tenantId], map: "activity_stats_guild_user_tenant_unique")
+  @@index([guildId, totalMessages, tenantId], map: "activity_stats_guild_messages_tenant_idx")
+  @@index([guildId, totalVoiceTime, tenantId], map: "activity_stats_guild_voice_tenant_idx")
+}
+
+model user_channel_logs {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  channelId String   @db.VarChar(255)
+  date      DateTime @db.Date
+  messages  BigInt   @default(0)
+
+  @@unique([guildId, userId, channelId, date, tenantId], map: "user_channel_logs_unique")
+  @@index([guildId, channelId, date, tenantId], map: "user_channel_logs_idx")
+}
+
+model server_activity_logs {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  date      DateTime @db.Date
+  joins     BigInt   @default(0)
+  leaves    BigInt   @default(0)
+  peakVoice BigInt   @default(0)
+
+  @@unique([guildId, date, tenantId], map: "server_activity_logs_unique")
+  @@index([guildId, date, tenantId], map: "server_activity_logs_idx")
+}
+
+model adventure_characters {
+  id           Int      @id @default(autoincrement())
+  tenantId     String   @default("default") @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  description  String?
+  baseHp       Int?     @default(100)
+  baseStrength Int?     @default(10)
+  baseDefense  Int?     @default(5)
+  emoji        String?  @db.VarChar(255)
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+}
+
+model adventure_monsters {
+  id        Int      @id @default(autoincrement())
+  tenantId  String   @default("default") @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  hp        Int?     @default(50)
+  strength  Int?     @default(5)
+  goldDrop  Int?     @default(10)
+  xpDrop    Int?     @default(15)
+  emoji     String?  @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+}
+
+model audit_logs {
+  id        Int      @id @default(autoincrement())
+  guildId   String?  @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  action    String   @db.VarChar(255)
+  target    String?  @db.VarChar(255)
+  changes   Json?    @db.Json
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  tenantId  String   @default("default") @db.VarChar(255)
+
+  @@index([guildId, tenantId], map: "audit_logs_guild_id_tenant_id")
+}
+
+model auto_reacts {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(25)
+  tenantId  String   @db.VarChar(25)
+  userId    String   @db.VarChar(25)
+  trigger   String   @db.VarChar(255)
+  emoji     String   @db.VarChar(255)
+  type      String   @default("text") @db.VarChar(255)
+  createdAt DateTime @default(dbgenerated("'2026-05-01 16:05:24.747+00'::timestamp with time zone")) @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("'2026-05-01 16:05:24.748+00'::timestamp with time zone")) @db.Timestamptz(6)
+
+  @@unique([guildId, trigger, type, tenantId], map: "auto_reacts_guild_id_trigger_type_tenant_id")
+}
+
+model auto_replies {
+  id           Int      @id @default(autoincrement())
+  guildId      String   @db.VarChar(255)
+  tenantId     String   @db.VarChar(255)
+  userId       String   @db.VarChar(255)
+  trigger      String   @db.VarChar(255)
+  response     String?
+  media        String?  @db.VarChar(255)
+  useContainer Boolean? @default(false)
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+
+  @@unique([guildId, trigger, tenantId], map: "auto_replies_guildId_trigger_tenantId")
+}
+
+model birthday_settings {
+  guildId    String   @db.VarChar(25)
+  tenantId   String   @db.VarChar(25)
+  channelId  String?  @db.VarChar(25)
+  message    String?
+  roleId     String?  @db.VarChar(25)
+  pingRoleId String?  @db.VarChar(25)
+  showAge    Boolean? @default(true)
+  embedColor String?  @db.VarChar(10)
+  bgUrl      String?
+  bonusEmbers Int      @default(0)
+  createdAt  DateTime @default(dbgenerated("'2026-05-01 16:09:25.414+00'::timestamp with time zone")) @db.Timestamptz(6)
+  updatedAt  DateTime @default(dbgenerated("'2026-05-01 16:09:25.414+00'::timestamp with time zone")) @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model booster_settings {
+  guildId                   String   @db.VarChar(255)
+  tenantId                  String   @db.VarChar(255)
+  boosterOn                 Boolean? @default(false)
+  boosterChannelId          String?  @db.VarChar(255)
+  boosterEmbedText          String?
+  boosterEmbedColor         String?  @db.VarChar(255)
+  boosterBannerWidth        Int?
+  boosterBannerHeight       Int?
+  boosterBackgroundUrl      String?  @db.VarChar(255)
+  boosterForegroundUrl      String?  @db.VarChar(255)
+  boosterOverlayColor       String?  @db.VarChar(255)
+  boosterAvatarEnabled      Boolean? @default(true)
+  boosterAvatarSize         Int?
+  boosterAvatarShape        String?  @db.VarChar(255)
+  boosterAvatarYOffset      Int?
+  boosterAvatarBorderWidth  Int?
+  boosterAvatarBorderColor  String?  @db.VarChar(255)
+  boosterMainTextContent    String?
+  boosterMainTextFontFamily String?  @db.VarChar(255)
+  boosterMainTextFontWeight String?  @db.VarChar(255)
+  boosterMainTextColor      String?  @db.VarChar(255)
+  boosterMainTextYOffset    Int?
+  boosterSubTextContent     String?
+  boosterSubTextColor       String?  @db.VarChar(255)
+  boosterSubTextYOffset     Int?
+  boosterBorderColor        String?  @db.VarChar(255)
+  boosterBorderWidth        Int?
+  boosterShadowColor        String?  @db.VarChar(255)
+  boosterLayout             Json?    @db.Json
+  roleAnchorId              String?  @db.VarChar(255)
+  createdAt                 DateTime @db.Timestamptz(6)
+  updatedAt                 DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model bots_registry {
+  botId        String    @id @db.VarChar(255)
+  status       String?   @default("offline") @db.VarChar(255)
+  lastSeen     DateTime? @db.Timestamptz(6)
+  capabilities Json?     @db.Json
+  instanceId   String?   @db.VarChar(255)
+  createdAt    DateTime  @db.Timestamptz(6)
+  updatedAt    DateTime  @db.Timestamptz(6)
+  config       Json?     @db.Json
+  guildCount   Int       @default(0)
+  shardCount   Int       @default(1)
+  uptime       Int       @default(0)
+  guilds       Json?     @db.Json
+}
+
+model checklists {
+  id       Int     @id @default(autoincrement())
+  guildId  String? @db.VarChar(255)
+  userId   String? @db.VarChar(255)
+  tenantId String  @db.VarChar(255)
+  items    Json    @default("[]") @db.Json
+
+  @@index([guildId, userId, tenantId], map: "checklists_guild_id_user_id_tenant_id")
+}
+
+model dns_records {
+  id           Int                   @id @default(autoincrement())
+  subdomainId  Int
+  type         enum_dns_records_type
+  name         String                @db.VarChar(255)
+  value        String
+  cloudflareId String?               @db.VarChar(255)
+  subdomains   subdomains            @relation(fields: [subdomainId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model economy_transactions {
+  id        Int      @id @default(autoincrement())
+  tenantId  String   @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  type      String   @db.VarChar(255) // INCOME, LOSS, TRANSFER, ADMIN
+  category  String   @db.VarChar(255) // WORK, DAILY, ROBBERY, HACK, etc.
+  amount    BigInt
+  balance   BigInt   // New balance after transaction (pocket + vault)
+  reason    String?  // For admin or detailed notes
+  metadata  Json?    @db.Json // For related user IDs etc.
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId, tenantId], map: "economy_transactions_userId_tenantId")
+}
+
+model economy_items {
+  id          Int      @id @default(autoincrement())
+  itemKey     String   @unique @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String?
+  emoji       String?  @db.VarChar(255)
+  price       Int?     @default(0)
+  sellPrice   Int?     @default(0)
+  buyable     Boolean? @default(true)
+  category    String?  @default("utility") @db.VarChar(255)
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+}
+
+model economy_jobs {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  emoji        String?  @db.VarChar(255)
+  basePayMin   Int?     @default(10)
+  basePayMax   Int?     @default(20)
+  tier         Int?     @default(1)
+  requiredItem String?  @db.VarChar(255)
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+}
+
+model economy_mining_sessions {
+  id           Int      @id @default(autoincrement())
+  userId       String   @db.VarChar(255)
+  guildId      String   @db.VarChar(255)
+  channelId    String   @db.VarChar(255)
+  resourceName String   @db.VarChar(255)
+  yield        Float
+  startTime    DateTime @db.Timestamptz(6)
+  endTime      DateTime @db.Timestamptz(6)
+  status       String?  @default("active") @db.VarChar(255)
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+}
+
+model embed_builders {
+  id              Int      @id @default(autoincrement())
+  guildId         String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  createdBy       String   @db.VarChar(255)
+  name            String   @db.VarChar(255)
+  mode            String   @default("embed") @db.VarChar(255)
+  data            Json     @default("{}") @db.Json
+  messageId       String?  @db.VarChar(255)
+  channelId       String?  @db.VarChar(255)
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+  allowedMentions Json?    @db.Json
+
+  @@index([guildId, name, tenantId], map: "embed_builders_guild_id_name_tenant_id")
+  @@index([guildId, tenantId], map: "embed_builders_guild_id_tenant_id")
+}
+
+model favorites {
+  id         Int      @id @default(autoincrement())
+  userId     String   @db.VarChar(255)
+  tenantId   String   @db.VarChar(255)
+  identifier String   @db.VarChar(255)
+  title      String   @db.VarChar(255)
+  author     String   @db.VarChar(255)
+  length     BigInt
+  uri        String   @db.VarChar(255)
+  createdAt  DateTime @db.Timestamptz(6)
+  updatedAt  DateTime @db.Timestamptz(6)
+
+  @@unique([userId, identifier, tenantId], map: "favorites_user_id_identifier_tenant_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model flameborn_blacklists {
+  id       Int     @id @default(autoincrement())
+  type     String  @db.VarChar(255)
+  targetId String  @db.VarChar(255)
+  reason   String? @db.VarChar(255)
+}
+
+model flameborn_settings {
+  id      Int     @id @default(autoincrement())
+  guildId String? @db.VarChar(255)
+
+  @@index([guildId], map: "flameborn_settings_guildId")
+}
+
+model flameborn_teams {
+  id     Int     @id @default(autoincrement())
+  userId String  @db.VarChar(255)
+  name   String? @db.VarChar(255)
+}
+
+model flameborn_users {
+  userId           String    @db.VarChar(255)
+  tenantId         String    @db.VarChar(255)
+  isPremium        Boolean?  @default(false)
+  premiumType      String?   @default("personal") @db.VarChar(255)
+  premiumServerIds Json?     @db.Json
+  premiumExpiresAt DateTime? @db.Timestamptz(6)
+  embers           BigInt?   @default(0)
+  flamebornRuby    BigInt?   @default(0)
+  emberVault       BigInt?   @default(0)
+  bankType         String?   @default("solara_mutual") @db.VarChar(255)
+  hackMastered     Int?      @default(10)
+  careerMastered   Int?      @default(1)
+  lastDaily        DateTime? @db.Timestamptz(6)
+  lastBeg          DateTime? @db.Timestamptz(6)
+  lastLootbox      DateTime? @db.Timestamptz(6)
+  lastWork         DateTime? @db.Timestamptz(6)
+  lastRob          DateTime? @db.Timestamptz(6)
+  lastHack         DateTime? @db.Timestamptz(6)
+  votePoints       BigInt?   @default(0)
+  isVoted          Boolean?  @default(false)
+  voteExpiresAt    DateTime? @db.Timestamptz(6)
+  aiPersonality    String?   @db.VarChar(255)
+  lastMine         DateTime? @db.Timestamptz(6)
+  mineCharges      Int?      @default(2)
+
+  @@id([userId, tenantId])
+}
+
+model flameborn_voters {
+  userId   String   @db.VarChar(255)
+  votedAt  DateTime @db.Timestamptz(6)
+  tenantId String   @default("default") @db.VarChar(255)
+
+  @@id([userId, tenantId])
+}
+
+model fleet_routing_rules {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  botId     String   @db.VarChar(255)
+  addonName String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@unique([guildId, botId, addonName], map: "fleet_routing_rules_guild_bot_addon_unique")
+  @@index([guildId])
+}
+
+model friend_gifts {
+  id           Int       @id @default(autoincrement())
+  friendshipId Int
+  senderId     String    @db.VarChar(255)
+  itemId       String    @db.VarChar(255)
+  itemName     String    @db.VarChar(255)
+  itemWorth    Int
+  scoreBoost   Int
+  createdAt    DateTime? @db.Timestamptz(6)
+  updatedAt    DateTime? @db.Timestamptz(6)
+  tenantId     String    @default("default") @db.VarChar(255)
+
+  @@index([friendshipId, tenantId], map: "friend_gifts_friendship_id_tenant_id")
+}
+
+model friend_roles {
+  id           Int     @id @default(autoincrement())
+  guildId      String  @db.VarChar(255)
+  baseRoleId   String? @db.VarChar(255)
+  level1RoleId String? @db.VarChar(255)
+  level2RoleId String? @db.VarChar(255)
+  level3RoleId String? @db.VarChar(255)
+  level4RoleId String? @db.VarChar(255)
+  tiers        Json    @default("[]") @db.Json
+  tenantId     String  @default("default") @db.VarChar(255)
+
+  @@unique([guildId, tenantId], map: "friend_roles_guild_id_tenant_id")
+}
+
+model friends {
+  id          Int       @id @default(autoincrement())
+  tenantId    String    @db.VarChar(255)
+  user1Id     String    @db.VarChar(255)
+  user2Id     String    @db.VarChar(255)
+  status      String?   @default("pending") @db.VarChar(255)
+  createdAt   DateTime? @db.Timestamptz(6)
+  updatedAt   DateTime? @db.Timestamptz(6)
+  friendScore Int       @default(0)
+}
+
+model giveaways {
+  id           Int       @id @default(autoincrement())
+  guildId      String    @db.VarChar(255)
+  tenantId     String    @db.VarChar(255)
+  channelId    String    @db.VarChar(255)
+  messageId    String    @db.VarChar(255)
+  hostId       String    @db.VarChar(255)
+  sponsorId    String?   @db.VarChar(255)
+  duration     Int
+  winners      Int
+  prize        String    @db.VarChar(255)
+  participants Json?     @default("[]") @db.Json
+  ended        Boolean?  @default(false)
+  roleId       String?   @db.VarChar(255)
+  requirements Json?     @default("{}") @db.Json
+  color        String?   @db.VarChar(255)
+  endTime      DateTime? @db.Timestamptz(6)
+  description  String?
+  drop         Boolean?  @default(false)
+
+  @@index([guildId, tenantId], map: "giveaways_guild_id_tenant_id")
+  @@index([messageId, tenantId], map: "giveaways_message_id_tenant_id")
+}
+
+model giveaway_entries {
+  id          Int      @id @default(autoincrement())
+  giveawayId  Int
+  userId      String   @db.VarChar(255)
+  tenantId    String   @db.VarChar(255)
+  createdAt   DateTime @db.Timestamptz(6)
+
+  @@unique([giveawayId, userId, tenantId], map: "giveaway_entries_unique")
+  @@index([giveawayId], map: "giveaway_entries_giveaway_id")
+}
+
+model global_chats {
+  guildId         String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  globalChannelId String?  @db.VarChar(255)
+  webhookId       String?  @db.VarChar(255)
+  webhookToken    String?  @db.VarChar(255)
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model guild_actions {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  factionId Int
+  actorId   String   @db.VarChar(255)
+  actorTag  String   @db.VarChar(255)
+  targetId  String?  @db.VarChar(255)
+  targetTag String?  @db.VarChar(255)
+  action    String   @db.VarChar(255)
+  reason    String?
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([factionId, tenantId], map: "guild_actions_factionId_tenantId")
+  @@index([guildId, tenantId], map: "guild_actions_guildId_tenantId")
+}
+
+model guild_applications {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  factionId Int
+  userId    String   @db.VarChar(255)
+  status    String   @default("pending") @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([factionId, userId, tenantId], map: "guild_applications_factionId_userId_tenantId")
+  @@index([guildId, userId, tenantId], map: "guild_applications_guildId_userId_tenantId")
+}
+
+model guild_banks {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  factionId Int
+  balance   Int      @default(0)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@unique([factionId, tenantId], map: "guild_banks_factionId_tenantId")
+  @@index([guildId, tenantId], map: "guild_banks_guildId_tenantId")
+}
+
+model guild_battles {
+  id           Int       @id @default(autoincrement())
+  guildId      String    @db.VarChar(255)
+  tenantId     String    @db.VarChar(255)
+  challengerId Int
+  defenderId   Int
+  wager        Int       @default(0)
+  objective    String    @db.VarChar(255)
+  status       String    @default("pending") @db.VarChar(255)
+  winnerId     Int?
+  deadline     DateTime? @db.Timestamptz(6)
+  createdAt    DateTime  @db.Timestamptz(6)
+  updatedAt    DateTime  @db.Timestamptz(6)
+
+  @@index([challengerId, tenantId], map: "guild_battles_challengerId_tenantId")
+  @@index([defenderId, tenantId], map: "guild_battles_defenderId_tenantId")
+  @@index([guildId, tenantId], map: "guild_battles_guildId_tenantId")
+}
+
+model guild_members {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  factionId Int
+  userId    String   @db.VarChar(255)
+  rank      String   @default("member") @db.VarChar(255)
+  badge     String?  @db.VarChar(255)
+  joinedAt  DateTime @db.Timestamptz(6)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@unique([factionId, userId, tenantId], map: "guild_members_factionId_userId_tenantId")
+  @@unique([guildId, userId, tenantId], map: "guild_members_guildId_userId_tenantId")
+}
+
+model guild_quests {
+  id            Int       @id @default(autoincrement())
+  guildId       String    @db.VarChar(255)
+  tenantId      String    @db.VarChar(255)
+  factionId     Int
+  description   String    @db.VarChar(255)
+  targetAmount  Int
+  currentAmount Int       @default(0)
+  rewardGp      Int
+  type          String    @default("daily") @db.VarChar(255)
+  expiresAt     DateTime? @db.Timestamptz(6)
+  createdAt     DateTime  @db.Timestamptz(6)
+  updatedAt     DateTime  @db.Timestamptz(6)
+  isGlobal      Boolean   @default(false)
+  globalType    String?   @db.VarChar(255)
+  parentId      Int?
+  status        String    @default("active") @db.VarChar(255)
+
+  @@index([factionId, tenantId], map: "guild_quests_factionId_tenantId")
+  @@index([guildId, tenantId], map: "guild_quests_guildId_tenantId")
+}
+
+model guild_settings {
+  id                   Int      @default(autoincrement())
+  guildId              String   @db.VarChar(255)
+  tenantId             String   @db.VarChar(255)
+  creationCost         Int      @default(50000)
+  guildCategoryId      String?  @db.VarChar(255)
+  directoryChannelId   String?  @db.VarChar(255)
+  requestChannelId     String?  @db.VarChar(255)
+  leaderboardChannelId String?  @db.VarChar(255)
+  streakGp             Int      @default(5)
+  xpContributionPct    Float    @default(0.1)
+  miningRoleId         String?  @db.VarChar(255)
+  richestRoleId        String?  @db.VarChar(255)
+  factionHeaderRoleId  String?  @db.VarChar(255)
+  factionFooterRoleId  String?  @db.VarChar(255)
+  socialHeaderRoleId   String?  @db.VarChar(255)
+  socialFooterRoleId   String?  @db.VarChar(255)
+  createdAt            DateTime @db.Timestamptz(6)
+  updatedAt            DateTime @db.Timestamptz(6)
+
+  @@id([id, guildId, tenantId])
+  @@unique([guildId, tenantId], map: "guild_settings_guildId_tenantId")
+}
+
+model guild_tenant_map {
+  guildId             String   @id @db.VarChar(255)
+  tenantId            String   @db.VarChar(255)
+  forceDisabledAddons Json?    @default("[]") @db.Json
+  createdAt           DateTime @db.Timestamptz(6)
+  updatedAt           DateTime @db.Timestamptz(6)
+  tenants             tenants  @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+}
+
+model guilds {
+  id                    Int       @id @default(autoincrement())
+  guildId               String    @db.VarChar(255)
+  tenantId              String    @db.VarChar(255)
+  name                  String    @db.VarChar(255)
+  description           String?
+  masterId              String    @db.VarChar(255)
+  roleId                String?   @db.VarChar(255)
+  masterRoleId          String?   @db.VarChar(255)
+  officerRoleId         String?   @db.VarChar(255)
+  banRoleId             String?   @db.VarChar(255)
+  announcementChannelId String?   @db.VarChar(255)
+  textChannelId         String?   @db.VarChar(255)
+  voiceChannelId        String?   @db.VarChar(255)
+  directoryPostId       String?   @db.VarChar(255)
+  points                Int       @default(0)
+  xp                    Int       @default(0)
+  level                 Int       @default(1)
+  prestige              Int       @default(0)
+  reputation            Int       @default(0)
+  themeColor            String?   @db.VarChar(255)
+  perks                 Json      @default("[]") @db.Json
+  allowedChannels       Json?     @db.Json
+  status                String    @default("pending") @db.VarChar(255)
+  boostMultiplier       Float     @default(1)
+  boostExpiresAt        DateTime? @db.Timestamptz(6)
+  seasonTag             String?   @db.VarChar(255)
+  createdAt             DateTime  @db.Timestamptz(6)
+  updatedAt             DateTime  @db.Timestamptz(6)
+  requestedRoleName     String?   @db.VarChar(255)
+  requestedRoleColor    String?   @db.VarChar(255)
+  applicationChannelId  String?   @db.VarChar(255)
+
+  @@unique([guildId, name, tenantId], map: "guilds_guildId_name_tenantId")
+  @@index([guildId, status, tenantId], map: "guilds_guildId_status_tenantId")
+  @@index([guildId, tenantId], map: "guilds_guildId_tenantId")
+}
+
+model factions {
+  id              Int       @id @default(autoincrement())
+  tenantId        String    @db.VarChar(255)
+  guildId         String    @db.VarChar(255)
+  name            String    @db.VarChar(255)
+  motto           String?   @db.VarChar(255)
+  banner          String?   @db.VarChar(512)
+  masterId        String    @db.VarChar(255)
+  hqTerritoryId   Int?
+  leaderRoleName  String?   @db.VarChar(255)
+  memberRoleName  String?   @db.VarChar(255)
+  discordRoleId   String?   @db.VarChar(255)
+  discordLeaderId String?   @db.VarChar(255)
+  bankBalance     Int       @default(0)
+  perks           Json      @default("[]") @db.Json
+  vault           Json      @default("[]") @db.Json
+  ranks           Json      @default("{}") @db.Json
+  expedition      Json?     @db.Json
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([guildId, name, tenantId])
+  @@index([guildId, tenantId])
+}
+
+model faction_members {
+  id        Int      @id @default(autoincrement())
+  tenantId  String   @db.VarChar(255)
+  guildId   String   @db.VarChar(255)
+  factionId Int
+  userId    String   @db.VarChar(255)
+  rank      String   @default("member") @db.VarChar(255)
+  joinedAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([factionId, userId, tenantId])
+  @@index([guildId, tenantId])
+}
+
+model images {
+  id           Int      @id @default(autoincrement())
+  userId       String   @db.VarChar(255)
+  filename     String   @unique @db.VarChar(255)
+  originalName String   @db.VarChar(255)
+  fileId       String   @unique @db.VarChar(255)
+  storageUrl   String
+  mimetype     String   @db.VarChar(255)
+  fileSize     Int
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+
+  @@index([fileId], map: "images_file_id")
+  @@index([filename], map: "images_filename")
+  @@index([userId], map: "images_user_id")
+}
+
+model inventories {
+  id       Int    @id @default(autoincrement())
+  userId   String @db.VarChar(255)
+  tenantId String @db.VarChar(255)
+  itemName String @db.VarChar(255)
+
+  @@index([userId, tenantId], map: "inventories_userId_tenantId")
+}
+
+model inventory_adventures {
+  id       Int    @id @default(autoincrement())
+  userId   String @db.VarChar(255)
+  tenantId String @db.VarChar(255)
+  itemName String @db.VarChar(255)
+  quantity Int    @default(1)
+
+  @@unique([userId, itemName, tenantId], map: "unique_inventory_stack")
+}
+
+model invite_histories {
+  id         Int                            @id @default(autoincrement())
+  guildId    String                         @db.VarChar(255)
+  inviterId  String                         @db.VarChar(255)
+  tenantId   String                         @db.VarChar(255)
+  memberId   String                         @db.VarChar(255)
+  status     String?                        @default("active") @db.VarChar(255)
+  isFake     Boolean?                       @default(false)
+  createdAt  DateTime                       @db.Timestamptz(6)
+  updatedAt  DateTime                       @db.Timestamptz(6)
+  inviteCode String?                        @db.VarChar(255)
+  joinType   enum_invite_histories_joinType @default(unknown)
+
+  @@index([guildId, inviterId, tenantId], map: "invite_histories_guild_id_inviter_id_tenant_id")
+  @@index([guildId, memberId, tenantId], map: "invite_histories_guild_id_member_id_tenant_id")
+}
+
+model invite_settings {
+  guildId        String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  fakeThreshold  Int?     @default(7)
+  joinMessage    String?
+  leaveMessage   String?
+  milestoneRoles Json?    @default("[]") @db.Json
+  roleStack        Boolean? @default(false)
+  topInviterRoleId String?  @db.VarChar(255)
+  createdAt        DateTime @db.Timestamptz(6)
+  updatedAt        DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model invites {
+  id       Int    @id @default(autoincrement())
+  guildId  String @db.VarChar(255)
+  userId   String @db.VarChar(255)
+  tenantId String @db.VarChar(255)
+  invites  Int?   @default(0)
+  fake     Int?   @default(0)
+  leaves   Int?   @default(0)
+  bonus    Int    @default(0)
+  rejoins  Int    @default(0)
+
+  @@unique([guildId, userId, tenantId], map: "invites_guild_id_user_id_tenant_id")
+}
+
+model leveling_settings {
+  guildId               String   @db.VarChar(255)
+  tenantId              String   @db.VarChar(255)
+  messageXpEnabled      Boolean? @default(true)
+  messageXpMode         String?  @default("random") @db.VarChar(255)
+  messageXpMin          Int?     @default(15)
+  messageXpMax          Int?     @default(25)
+  messageXpCooldown     Int?     @default(60)
+  voiceXpEnabled        Boolean? @default(true)
+  voiceXpMin            Int?     @default(15)
+  voiceXpMax            Int?     @default(40)
+  voiceXpCooldown       Int?     @default(180)
+  voiceMinMembers       Int?     @default(2)
+  voiceAntiAfk          Boolean? @default(true)
+  reactionXpEnabled     Boolean? @default(false)
+  reactionXpAward       String?  @default("both") @db.VarChar(255)
+  reactionXpMin         Int?     @default(1)
+  reactionXpMax         Int?     @default(5)
+  reactionXpCooldown    Int?     @default(10)
+  threadXpEnabled       Boolean? @default(true)
+  forumXpEnabled        Boolean? @default(true)
+  textInVoiceXpEnabled  Boolean? @default(true)
+  slashCommandXpEnabled Boolean? @default(true)
+  levelingCurve         String?  @default("linear") @db.VarChar(255)
+  levelingMultiplier    Float?   @default(1)
+  levelingMaxLevel      Int?
+  xpBoosters            Json?    @default("[]") @db.Json
+  channelBoosters       Json?    @default("[]") @db.Json
+  stackBoosters         Boolean? @default(true)
+  noXpChannels          Json?    @default("[]") @db.Json
+  noXpRoles             Json?    @default("[]") @db.Json
+  autoResetXp           Boolean? @default(false)
+  roleRewards           Json?    @default("[]") @db.Json
+  roleRewardStack       Boolean? @default(false)
+  levelingChannelId     String?  @db.VarChar(255)
+  levelingMessage       String?  @default("GG {user.mention}, you reached level **{user.level}**!")
+  levelingImageEnabled  Boolean? @default(true)
+  levelingBackgroundUrl String?
+  levelingBorderColor   String?  @db.VarChar(255)
+  levelingBarColor      String?  @db.VarChar(255)
+  levelingUsernameColor String?  @db.VarChar(255)
+  levelingTagColor      String?  @db.VarChar(255)
+  levelingAccentColor   String?  @db.VarChar(255)
+  createdAt             DateTime @db.Timestamptz(6)
+  updatedAt             DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model market_orders {
+  orderId   Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(255)
+  assetId   String   @db.VarChar(255)
+  type      String   @db.VarChar(255)
+  side      String   @db.VarChar(255)
+  quantity  Float
+  price     Float
+  status    String   @default("open") @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([userId], map: "market_orders_user_id")
+  @@index([userId, assetId], map: "market_orders_user_id_asset_id")
+}
+
+model market_portfolios {
+  portfolioId Int    @id @default(autoincrement())
+  userId      String @db.VarChar(255)
+  assetId     String @db.VarChar(255)
+  quantity    Float
+  avgBuyPrice Float
+
+  @@unique([userId, assetId], map: "unique_user_asset")
+  @@index([userId], map: "market_portfolios_user_id")
+}
+
+model market_transactions {
+  transactionId Int      @id @default(autoincrement())
+  userId        String   @db.VarChar(255)
+  tenantId      String   @db.VarChar(255)
+  assetId       String   @db.VarChar(255)
+  type          String   @db.VarChar(255)
+  quantity      Float
+  price         Float
+  createdAt     DateTime @db.Timestamptz(6)
+  updatedAt     DateTime @db.Timestamptz(6)
+
+  @@index([userId, assetId, tenantId], map: "market_transactions_user_id_asset_id_tenant_id")
+  @@index([userId, tenantId], map: "market_transactions_user_id_tenant_id")
+}
+
+model marriage_gifts {
+  id         Int       @id @default(autoincrement())
+  marriageId Int
+  senderId   String    @db.VarChar(255)
+  itemName   String    @db.VarChar(255)
+  worth      Int?      @default(0)
+  emoji      String?   @db.VarChar(255)
+  giftedAt   DateTime? @db.Timestamptz(6)
+  tenantId   String    @default("default") @db.VarChar(255)
+
+  @@index([marriageId, tenantId], map: "marriage_gifts_marriage_id_tenant_id")
+}
+
+model marriage_roles {
+  id           Int     @id @default(autoincrement())
+  guildId      String  @unique @db.VarChar(255)
+  coupleRoleId String? @db.VarChar(255)
+  level1RoleId String? @db.VarChar(255)
+  level2RoleId String? @db.VarChar(255)
+  level3RoleId String? @db.VarChar(255)
+  level4RoleId String? @db.VarChar(255)
+  tiers        Json    @default("[]") @db.Json
+}
+
+model marriages {
+  id                 Int       @id @default(autoincrement())
+  tenantId           String    @db.VarChar(255)
+  user1Id            String    @db.VarChar(255)
+  user2Id            String    @db.VarChar(255)
+  marriedAt          DateTime? @db.Timestamptz(6)
+  status             String?   @default("pending") @db.VarChar(255)
+  lastKiss           DateTime? @db.Timestamptz(6)
+  loveScore          Int?      @default(0)
+  divorceRequesterId String?   @db.VarChar(255)
+}
+
+model math_scores {
+  id         Int     @id @default(autoincrement())
+  userId     String  @db.VarChar(255)
+  tenantId   String  @db.VarChar(255)
+  username   String? @db.VarChar(255)
+  bestScore  Int?    @default(0)
+  totalGames Int?    @default(0)
+
+  @@unique([userId, tenantId], map: "math_scores_user_tenant_unique")
+}
+
+model migrations {
+  id             Int       @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  batch          Int       @default(1)
+  migration_time DateTime? @db.Timestamptz(6)
+}
+
+model mod_logs {
+  id           Int      @id @default(autoincrement())
+  guildId      String   @db.VarChar(255)
+  tenantId     String   @db.VarChar(255)
+  moderatorId  String   @db.VarChar(255)
+  moderatorTag String   @db.VarChar(255)
+  targetId     String   @db.VarChar(255)
+  targetTag    String   @db.VarChar(255)
+  action       String   @db.VarChar(255)
+  reason       String?
+  channelId    String?  @db.VarChar(255)
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+  deleted      Boolean? @default(false)
+
+  @@index([guildId, tenantId], map: "mod_logs_guildId_tenantId")
+  @@index([targetId, tenantId], map: "mod_logs_targetId_tenantId")
+  @@index([moderatorId, tenantId], map: "mod_logs_moderatorId_tenantId")
+}
+
+
+
+model automod_settings {
+  guildId             String   @db.VarChar(255)
+  tenantId            String   @db.VarChar(255)
+  enabled             Boolean? @default(true)
+  antiInvite          Boolean? @default(false)
+  antiLink            Boolean? @default(false)
+  antiSpam            Boolean? @default(false)
+  antiNuke            Boolean? @default(false)
+  bannedWords         Json?    @default("[]") @db.Json
+  action              String?  @default("delete") @db.VarChar(255)
+  logChannelId        String?  @db.VarChar(255)
+  exemptRoles         Json?    @default("[]") @db.Json
+  exemptChannels      Json?    @default("[]") @db.Json
+  antiNukeMaxChannels Int?     @default(3)
+  antiNukeMaxBans     Int?     @default(5)
+  createdAt           DateTime @db.Timestamptz(6)
+  updatedAt           DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model moderation_settings {
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  enabled   Boolean? @default(true)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+
+
+model monitors {
+  userId     String                    @id @db.VarChar(255)
+  urlToPing  String                    @db.VarChar(255)
+  lastStatus enum_monitors_lastStatus? @default(PENDING)
+}
+
+model music_247_status {
+  guildId   String   @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  channelId String   @db.VarChar(255)
+  id        Int      @id @default(autoincrement())
+  tenantId  String   @default("default") @db.VarChar(255)
+
+  @@unique([guildId, tenantId], map: "music_247_status_guild_id_tenant_id")
+}
+
+model music_nodes {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  host      String   @db.VarChar(255)
+  port      Int?     @default(2333)
+  password  String?  @default("youshallnotpass") @db.VarChar(255)
+  secure    Boolean? @default(false)
+  status    String?  @default("unknown") @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+}
+
+model nsfw_users {
+  userId    String   @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  id        Int      @id @default(autoincrement())
+  isAllowed Boolean  @default(false)
+  tenantId  String   @default("default") @db.VarChar(255)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@unique([userId, tenantId], map: "nsfw_users_user_id_tenant_id")
+}
+
+model passwords {
+  id        Int    @id @default(autoincrement())
+  guildId   String @db.VarChar(255)
+  channelId String @unique @db.VarChar(255)
+  roleId    String @unique @db.VarChar(255)
+  password  String @db.VarChar(255)
+
+  @@index([guildId], map: "passwords_guildId")
+}
+
+model patron_actions {
+  id         Int      @id @default(autoincrement())
+  guildId    String   @db.VarChar(255)
+  nationId   Int
+  nationName String   @db.VarChar(255)
+  patronId   String   @db.VarChar(255)
+  patronTag  String   @db.VarChar(255)
+  targetId   String   @db.VarChar(255)
+  targetTag  String   @db.VarChar(255)
+  action     String   @db.VarChar(255)
+  reason     String?
+  createdAt  DateTime @db.Timestamptz(6)
+  updatedAt  DateTime @db.Timestamptz(6)
+
+  @@index([guildId], map: "patron_actions_guildId")
+  @@index([guildId, nationId], map: "patron_actions_guildId_nationId")
+  @@index([targetId], map: "patron_actions_targetId")
+}
+
+model patron_nations {
+  id              Int      @id @default(autoincrement())
+  guildId         String   @db.VarChar(255)
+  nationName      String   @db.VarChar(255)
+  categoryId      String   @db.VarChar(255)
+  nationRoleId    String   @db.VarChar(255)
+  patronRoleId    String   @db.VarChar(255)
+  travelBanRoleId String   @db.VarChar(255)
+  logChannelId    String?  @db.VarChar(255)
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  @@unique([guildId, categoryId], map: "patron_nations_guildId_categoryId")
+  @@index([guildId], map: "patron_nations_guildId")
+}
+
+model pets {
+  id             Int     @id @default(autoincrement())
+  tenantId       String  @default("default") @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  icon           String  @db.VarChar(255)
+  rarity         String? @default("common") @db.VarChar(255)
+  bonusType      String? @default("coin") @db.VarChar(255)
+  bonusValue     Int?    @default(0)
+  evolutionTo    Int?
+  evolutionLevel Int?    @default(0)
+  imageUrl       String? @db.VarChar(255)
+}
+
+model playlist_tracks {
+  id         Int       @id @default(autoincrement())
+  playlistId Int
+  title      String    @db.VarChar(255)
+  author     String    @db.VarChar(255)
+  createdAt  DateTime  @db.Timestamptz(6)
+  duration   BigInt
+  tenantId   String    @default("default") @db.VarChar(255)
+  updatedAt  DateTime  @db.Timestamptz(6)
+  url        String    @db.VarChar(255)
+  playlists  playlists @relation(fields: [playlistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([playlistId, tenantId], map: "playlist_tracks_playlist_id_tenant_id")
+}
+
+model playlists {
+  id              Int               @id @default(autoincrement())
+  userId          String            @db.VarChar(255)
+  tenantId        String            @db.VarChar(255)
+  name            String            @db.VarChar(255)
+  shareCode       String?           @unique @db.VarChar(255)
+  createdAt       DateTime          @db.Timestamptz(6)
+  updatedAt       DateTime          @db.Timestamptz(6)
+  playlist_tracks playlist_tracks[]
+}
+
+model quest_configs {
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  channelId String   @db.VarChar(255)
+  roleId    String?  @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model quest_guild_logs {
+  id       Int       @id @default(autoincrement())
+  guildId  String    @db.VarChar(255)
+  tenantId String    @db.VarChar(255)
+  questId  String    @db.VarChar(255)
+  sentAt   DateTime? @db.Timestamptz(6)
+
+  @@unique([guildId, questId, tenantId], map: "quest_guild_logs_guild_id_quest_id_tenant_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model reaction_role_panels {
+  id             Int              @id @default(autoincrement())
+  guildId        String           @db.VarChar(255)
+  tenantId       String           @db.VarChar(255)
+  channelId      String           @db.VarChar(255)
+  messageId      String?          @db.VarChar(255)
+  mode           String           @default("post_embed") @db.VarChar(255)
+  title          String?          @db.VarChar(255)
+  description    String?
+  whitelistRoles Json             @default("[]") @db.Json
+  blacklistRoles Json             @default("[]") @db.Json
+  messageType    String           @default("normal") @db.VarChar(255)
+  createdAt      DateTime         @db.Timestamptz(6)
+  updatedAt      DateTime         @db.Timestamptz(6)
+  layout         Json?            @db.Json
+  panelType      String           @default("reaction") @db.VarChar(255)
+  imageUrl       String?          @db.VarChar(255)
+  reaction_roles reaction_roles[]
+
+  @@index([guildId, messageId, tenantId], map: "rr_panels_guild_message_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model reaction_roles {
+  id                   Int                   @id @default(autoincrement())
+  guildId              String                @db.VarChar(255)
+  tenantId             String                @db.VarChar(255)
+  channelId            String                @db.VarChar(255)
+  messageId            String                @db.VarChar(255)
+  emoji                String                @db.VarChar(255)
+  roleId               String                @db.VarChar(255)
+  createdAt            DateTime              @db.Timestamptz(6)
+  updatedAt            DateTime              @db.Timestamptz(6)
+  panelId              Int?
+  label                String?               @db.VarChar(255)
+  reaction_role_panels reaction_role_panels? @relation(fields: [panelId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([guildId, messageId, emoji, tenantId], map: "reaction_roles_unique_constraint")
+}
+
+model resource_market_data {
+  id           Int      @id @default(autoincrement())
+  resourceId   String   @unique @db.VarChar(255)
+  currentPrice Float?   @default(100)
+  priceHistory Json?    @db.Json
+  createdAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @db.Timestamptz(6)
+}
+
+model server_settings {
+  guildId                   String   @db.VarChar(255)
+  tenantId                  String   @db.VarChar(255)
+  guildName                 String?  @db.VarChar(255)
+  lang                      String?  @default("en-US") @db.VarChar(255)
+  prefix                    String?  @db.VarChar(255)
+  whitelist                 Json?    @default("[]") @db.Json
+  badwords                  Json?    @default("[]") @db.Json
+  badwordWhitelist          Json?    @default("[]") @db.Json
+  admins                    Json?    @default("[]") @db.Json
+  ignoredChannels           Json?    @default("[]") @db.Json
+  modLogChannelId           String?  @db.VarChar(255)
+  auditLogChannelId         String?  @db.VarChar(255)
+  serverStats               Json?    @default("[]") @db.Json
+  serverStatsCategoryId     String?  @db.VarChar(255)
+  antiInviteOn              Boolean? @default(false)
+  antiLinkOn                Boolean? @default(false)
+  antiSpamOn                Boolean? @default(false)
+  antiBadwordOn             Boolean? @default(false)
+  antiMentionOn             Boolean? @default(false)
+  antiAllCapsOn             Boolean? @default(false)
+  antiEmojiSpamOn           Boolean? @default(false)
+  antiZalgoOn               Boolean? @default(false)
+  serverStatsOn             Boolean? @default(false)
+  adventureOn               Boolean? @default(false)
+  levelingOn                Boolean? @default(false)
+  minecraftStatsOn          Boolean? @default(false)
+  streakOn                  Boolean? @default(false)
+  invitesOn                 Boolean? @default(false)
+  rolePrefixOn              Boolean? @default(false)
+  boostLogOn                Boolean? @default(false)
+  minecraftIp               String?  @db.VarChar(255)
+  minecraftPort             Int?
+  minecraftIpChannelId      String?  @db.VarChar(255)
+  minecraftPortChannelId    String?  @db.VarChar(255)
+  minecraftStatusChannelId  String?  @db.VarChar(255)
+  minecraftPlayersChannelId String?  @db.VarChar(255)
+  aiChannelIds              Json?    @default("[]") @db.Json
+  testimonyChannelId        String?  @db.VarChar(255)
+  feedbackChannelId         String?  @db.VarChar(255)
+  testimonyCount            BigInt?  @default(0)
+  testimonyCountFormat      String?  @db.VarChar(255)
+  testimonyCountChannelId   String?  @db.VarChar(255)
+  openCloseType             String?  @db.VarChar(255)
+  openCloseChannelId        String?  @db.VarChar(255)
+  openChannelNameFormat     String?  @db.VarChar(255)
+  closeChannelNameFormat    String?  @db.VarChar(255)
+  openChannelMessageFormat  Json?    @default("[]") @db.Json
+  closeChannelMessageFormat Json?    @default("[]") @db.Json
+  streakRoleRewards         Json?    @default("[]") @db.Json
+  streakEmoji               String?  @db.VarChar(255)
+  streakMinimum             Int?     @default(3)
+  streakNickname            Boolean? @default(false)
+  announcementChannelId     String?  @db.VarChar(255)
+  inviteChannelId           String?  @db.VarChar(255)
+  boostLogChannelId         String?  @db.VarChar(255)
+  boostLogMessage           String?
+  richestRoleId             String?  @db.VarChar(255)
+  topLevelerRoleId          String?  @db.VarChar(255)
+  botName                   String?  @db.VarChar(255)
+  botAvatarUrl              String?  @db.VarChar(255)
+  botBannerUrl              String?  @db.VarChar(255)
+  botBio                    String?
+  activeAddons              Json     @default("{}") @db.Json
+  economySettings           Json     @default("{\"currencyName\":\"Coins\",\"currencySymbol\":\"🪙\",\"startBalance\":500,\"dailyReward\":250,\"workMin\":50,\"workMax\":150,\"crimeMin\":100,\"crimeMax\":300,\"taxRate\":0}") @db.Json
+  aiSystemPrompt            String?
+  aiCustomModel             String?  @db.VarChar(255)
+  aiTemperature             Float?   @default(0.7)
+  aiHistoryLength           Int?     @default(4)
+  musicDefaultVolume        Int?     @default(100)
+  musicDefaultPlatform      String?  @default("ytsearch") @db.VarChar(255)
+  music247Enabled           Boolean? @default(false)
+  adventureActive           Boolean? @default(true)
+  adventureDailyGold        Int?     @default(100)
+  adventureXpMultiplier     Float?   @default(1)
+  adventureDeathPenalty     Float?   @default(0.2)
+  automodOn                 Boolean? @default(false)
+  aiOn                      Boolean? @default(false)
+  welcomerOn                Boolean? @default(false)
+  economyOn                 Boolean? @default(false)
+  autoreactOn               Boolean? @default(false)
+  autoreplyOn               Boolean? @default(false)
+  birthdayOn                Boolean? @default(false)
+  boosterOn                 Boolean? @default(false)
+  checklistOn               Boolean? @default(false)
+  funOn                     Boolean? @default(false)
+  giveawayOn                Boolean? @default(false)
+  guildOn                   Boolean? @default(false)
+  minecraftOn               Boolean? @default(false)
+  modmailOn                 Boolean? @default(false)
+  petOn                     Boolean? @default(false)
+  reactionRoleOn            Boolean? @default(false)
+  socialAlertsOn            Boolean? @default(false)
+  tempvoiceOn               Boolean? @default(false)
+  ticketOn                  Boolean? @default(false)
+  verificationOn            Boolean? @default(false)
+  loggingOn                 Boolean? @default(true)
+  marriageOn                Boolean? @default(true)
+  moderationOn              Boolean? @default(true)
+  starboardOn               Boolean? @default(true)
+  suggestionOn              Boolean? @default(true)
+  utilityOn                 Boolean? @default(true)
+  voiceOn                   Boolean? @default(true)
+  whitelistOn               Boolean? @default(true)
+  activityOn                Boolean  @default(false)
+  disabledAddons            Json     @default("[]") @db.Json
+  patronPowerOn             Boolean  @default(true)
+  antiNukeConfig            String?
+  transportationOn          Boolean? @default(false)
+  miningRoleId              String?  @db.VarChar(255)
+  musicOn                   Boolean? @default(true)
+
+  @@id([guildId, tenantId])
+}
+
+model snipes {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  channelId String   @db.VarChar(255)
+  authorId  String   @db.VarChar(255)
+  content   String?
+  createdAt DateTime @db.Timestamptz(6)
+  image     String?  @db.VarChar(255)
+  tenantId  String   @default("default") @db.VarChar(255)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@index([guildId, channelId, tenantId], map: "snipes_guild_id_channel_id_tenant_id")
+}
+
+model social_alert_settings {
+  guildId       String   @db.VarChar(25)
+  tenantId      String   @db.VarChar(25)
+  mentionRoleId String?  @db.VarChar(25)
+  createdAt     DateTime @default(dbgenerated("'2026-05-01 16:34:35.572+00'::timestamp with time zone")) @db.Timestamptz(6)
+  updatedAt     DateTime @default(dbgenerated("'2026-05-01 16:34:35.572+00'::timestamp with time zone")) @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model social_alert_subscriptions {
+  id                  Int      @id @default(autoincrement())
+  guildId             String   @db.VarChar(25)
+  tenantId            String   @db.VarChar(25)
+  discordChannelId    String   @db.VarChar(25)
+  youtubeChannelId    String   @db.VarChar(50)
+  youtubeChannelName  String   @db.VarChar(100)
+  youtubeThumbnailUrl String?
+  message             String?
+  lastVideoId         String?  @db.VarChar(25)
+  createdAt           DateTime @default(dbgenerated("'2026-05-01 16:34:32.643+00'::timestamp with time zone")) @db.Timestamptz(6)
+  updatedAt           DateTime @default(dbgenerated("'2026-05-01 16:34:32.643+00'::timestamp with time zone")) @db.Timestamptz(6)
+  platform            String   @default("youtube") @db.VarChar(20)
+
+  @@unique([guildId, youtubeChannelId, tenantId], map: "social_alert_subscriptions_guild_id_youtube_channel_id_tenant_i")
+  @@index([guildId, tenantId], map: "social_alert_subscriptions_guild_id_tenant_id")
+}
+
+model sticky_messages {
+  id        Int     @id @default(autoincrement())
+  channelId String  @db.VarChar(255)
+  message   String
+  messageId String? @db.VarChar(255)
+
+  @@index([channelId], map: "sticky_messages_channelId")
+}
+
+model streaks {
+  id                 Int       @id @default(autoincrement())
+  guildId            String    @db.VarChar(255)
+  userId             String    @db.VarChar(255)
+  currentStreak      Int?      @default(0)
+  lastClaimTimestamp DateTime? @db.Timestamptz(6)
+  highestStreak      Int?      @default(0)
+  streakFreezes      Int       @default(0)
+  createdAt          DateTime  @db.Timestamptz(6)
+  updatedAt          DateTime  @db.Timestamptz(6)
+  isActive           Boolean   @default(false)
+  tenantId           String    @default("default") @db.VarChar(255)
+
+  @@unique([guildId, userId, tenantId], map: "streaks_guild_id_user_id_tenant_id")
+}
+
+model subdomains {
+  id          Int           @id @default(autoincrement())
+  userId      String        @db.VarChar(255)
+  name        String        @unique @db.VarChar(255)
+  createdAt   DateTime      @db.Timestamptz(6)
+  updatedAt   DateTime      @db.Timestamptz(6)
+  dns_records dns_records[]
+
+  @@index([userId], map: "subdomains_user_id")
+}
+
+model temp_voice_channels {
+  channelId            String   @id @db.VarChar(255)
+  guildId              String   @db.VarChar(255)
+  tenantId             String   @db.VarChar(255)
+  ownerId              String   @db.VarChar(255)
+  waitingRoomChannelId String?  @db.VarChar(255)
+  pendingJoinRequests  Json?    @default("{}") @db.Json
+  createdAt            DateTime @db.Timestamptz(6)
+  updatedAt            DateTime @db.Timestamptz(6)
+
+  @@index([guildId, tenantId], map: "temp_voice_channels_guild_id_tenant_id")
+  @@index([ownerId, tenantId], map: "temp_voice_channels_owner_id_tenant_id")
+}
+
+model temp_voice_configs {
+  guildId               String   @db.VarChar(255)
+  tenantId              String   @db.VarChar(255)
+  triggerChannelId      String   @db.VarChar(255)
+  controlPanelChannelId String?  @db.VarChar(255)
+  interfaceMessageId    String?  @db.VarChar(255)
+  categoryId            String   @db.VarChar(255)
+  createdAt             DateTime @db.Timestamptz(6)
+  updatedAt             DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model tenants {
+  tenantId            String             @id @db.VarChar(255)
+  name                String             @db.VarChar(255)
+  ownerId             String?            @db.VarChar(255)
+  forceDisabledAddons Json?              @default("[]") @db.Json
+  createdAt           DateTime           @db.Timestamptz(6)
+  updatedAt           DateTime           @db.Timestamptz(6)
+  guild_tenant_map    guild_tenant_map[]
+}
+
+model ticket_configs {
+  id                    Int     @id @default(autoincrement())
+  guildId               String  @db.VarChar(255)
+  tenantId              String  @db.VarChar(255)
+  panelMessageId        String  @db.VarChar(255)
+  typeName              String  @db.VarChar(255)
+  typeEmoji             String? @db.VarChar(255)
+  staffRoleId           String  @db.VarChar(255)
+  logsChannelId         String  @db.VarChar(255)
+  transcriptChannelId   String  @db.VarChar(255)
+  ticketCategoryId      String? @db.VarChar(255)
+  ticketOpenMessage     String?
+  ticketOpenImage       String? @db.VarChar(255)
+  askReason             String? @db.VarChar(255)
+  ticketStyle           String  @default("channel") @db.VarChar(255)
+  ticketThreadChannelId String? @db.VarChar(255)
+
+  @@index([panelMessageId, tenantId], map: "ticket_configs_panel_message_id_tenant_id")
+}
+
+model ticket_panels {
+  id          Int      @id @default(autoincrement())
+  guildId     String   @db.VarChar(255)
+  tenantId    String   @db.VarChar(255)
+  channelId   String   @db.VarChar(255)
+  messageId   String   @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  description String?
+  image       String?  @db.VarChar(255)
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  @@unique([messageId, tenantId], map: "ticket_panels_message_id_tenant_id")
+}
+
+model tickets {
+  id             Int       @id @default(autoincrement())
+  guildId        String    @db.VarChar(255)
+  tenantId       String    @db.VarChar(255)
+  userId         String    @db.VarChar(255)
+  channelId      String    @db.VarChar(255)
+  ticketConfigId String    @db.VarChar(255)
+  conversation   Json?     @default("[]") @db.Json
+  status         String?   @default("open") @db.VarChar(255)
+  openedAt       DateTime? @db.Timestamptz(6)
+  closedAt       DateTime? @db.Timestamptz(6)
+  closedByUserId String?   @db.VarChar(255)
+  closedReason   String?
+  createdAt      DateTime  @db.Timestamptz(6)
+  updatedAt      DateTime  @db.Timestamptz(6)
+
+  @@index([channelId, tenantId], map: "tickets_channel_id_tenant_id")
+  @@index([userId, tenantId], map: "tickets_user_id_tenant_id")
+}
+
+model transport_configs {
+  id            Int      @default(autoincrement())
+  guildId       String   @db.VarChar(255)
+  tenantId      String   @db.VarChar(255)
+  queenRoleId   String?  @db.VarChar(255)
+  patronRoleId  String?  @db.VarChar(255)
+  modRoleId     String?  @db.VarChar(255)
+  createdAt     DateTime @db.Timestamptz(6)
+  updatedAt     DateTime @db.Timestamptz(6)
+  shopBannerUrl String?  @db.VarChar(255)
+
+  @@id([id, guildId, tenantId])
+}
+
+model transport_nations {
+  id                Int      @id @default(autoincrement())
+  guildId           String   @db.VarChar(255)
+  tenantId          String   @db.VarChar(255)
+  name              String   @db.VarChar(255)
+  categoryId        String   @db.VarChar(255)
+  roleId            String   @db.VarChar(255)
+  logChannelId      String?  @db.VarChar(255)
+  arrivalChannelId  String?  @db.VarChar(255)
+  createdAt         DateTime @db.Timestamptz(6)
+  updatedAt         DateTime @db.Timestamptz(6)
+  banRoleId         String?  @db.VarChar(255)
+  patronRoleId      String?  @db.VarChar(255)
+  imageUrl          String?  @db.VarChar(255)
+  description       String?  @db.Text
+  resourceName      String?  @db.VarChar(255)
+  resourceBasePrice Int?     @default(100)
+  sovereignFactionId Int?
+  taxRate            Int      @default(5)
+  influence          Json     @default("{}") @db.Json
+
+  @@unique([guildId, categoryId, tenantId], map: "transport_nations_guildId_categoryId_tenantId")
+  @@index([guildId, tenantId], map: "transport_nations_guildId_tenantId")
+}
+
+model territory_buildings {
+  id          Int      @id @default(autoincrement())
+  tenantId    String   @db.VarChar(255)
+  guildId     String   @db.VarChar(255)
+  nationId    Int
+  ownerId     String   @db.VarChar(255)
+  buildingId  String   @db.VarChar(255)
+  condition   Int      @default(100)
+  builtAt     DateTime @default(now()) @db.Timestamptz(6)
+  metadata    Json?    @default("{}") @db.Json
+
+  @@index([nationId], map: "territory_buildings_nationId")
+  @@index([ownerId], map: "territory_buildings_ownerId")
+  @@index([guildId, tenantId], map: "territory_buildings_guildId_tenantId")
+}
+
+model transport_portals {
+  id                  Int       @id @default(autoincrement())
+  guildId             String    @db.VarChar(255)
+  tenantId            String    @db.VarChar(255)
+  name                String    @db.VarChar(255)
+  creatorId           String    @db.VarChar(255)
+  type                String    @db.VarChar(255)
+  channelId           String    @db.VarChar(255)
+  destinationNationId Int
+  maxUses             Int?      @default(10)
+  currentUses         Int?      @default(0)
+  status              String?   @default("open") @db.VarChar(255)
+  expirationTime      DateTime? @db.Timestamptz(6)
+  createdAt           DateTime  @db.Timestamptz(6)
+  updatedAt           DateTime  @db.Timestamptz(6)
+  messageId           String?   @db.VarChar(255)
+  title               String?   @db.VarChar(255)
+  description         String?
+  imageUrl            String?   @db.VarChar(255)
+
+  @@index([channelId, tenantId], map: "transport_portals_channelId_tenantId")
+  @@index([guildId, tenantId], map: "transport_portals_guildId_tenantId")
+}
+
+model transport_user_travel {
+  id            Int      @id @default(autoincrement())
+  guildId       String   @db.VarChar(255)
+  tenantId      String   @db.VarChar(255)
+  userId        String   @db.VarChar(255)
+  fromNationId      Int?
+  toNationId        Int
+  vehicleInstanceId String?  @db.VarChar(255)
+  departureTime     DateTime @db.Timestamptz(6)
+  arrivalTime   DateTime @db.Timestamptz(6)
+  status        String?  @default("traveling") @db.VarChar(255)
+  createdAt     DateTime @db.Timestamptz(6)
+  updatedAt     DateTime @db.Timestamptz(6)
+
+  @@index([guildId, userId, tenantId], map: "transport_user_travel_guildId_userId_tenantId")
+  @@index([status, tenantId], map: "transport_user_travel_status_tenantId")
+}
+
+// --- SOCIAL ENGINE MODELS ---
+
+model social_friends {
+  id          Int      @id @default(autoincrement())
+  tenantId    String   @db.VarChar(255)
+  guildId     String   @db.VarChar(255)
+  user1Id     String   @db.VarChar(255)
+  user2Id     String   @db.VarChar(255)
+  status      String   @default("pending") @db.VarChar(255) // pending, accepted, rivals
+  bondScore   Int      @default(0)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @db.Timestamptz(6)
+  metadata    Json?    @default("{}") @db.Json
+
+  @@unique([user1Id, user2Id, guildId, tenantId])
+  @@index([user1Id, guildId, tenantId])
+  @@index([user2Id, guildId, tenantId])
+}
+
+model social_marriages {
+  id              Int      @id @default(autoincrement())
+  tenantId        String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  user1Id         String   @db.VarChar(255)
+  user2Id         String   @db.VarChar(255)
+  status          String   @default("pending") @db.VarChar(255) // pending, married, divorce_pending
+  resonanceScore  Int      @default(0)
+  vaultBalance    BigInt   @default(0)
+  marriedAt       DateTime? @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @db.Timestamptz(6)
+  metadata        Json?    @default("{}") @db.Json
+
+  @@unique([user1Id, user2Id, guildId, tenantId])
+  @@index([user1Id, guildId, tenantId])
+  @@index([user2Id, guildId, tenantId])
+}
+
+model social_marriage_history {
+  id              Int      @id @default(autoincrement())
+  tenantId        String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  user1Id         String   @db.VarChar(255)
+  user2Id         String   @db.VarChar(255)
+  peakResonance   Int      @default(0)
+  marriedAt       DateTime @db.Timestamptz(6)
+  divorcedAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([user1Id, guildId, tenantId])
+  @@index([user2Id, guildId, tenantId])
+}
+
+model social_families {
+  id              Int      @id @default(autoincrement())
+  tenantId        String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  name            String   @db.VarChar(255)
+  head1Id         String   @db.VarChar(255)
+  head2Id         String?  @db.VarChar(255) // Usually the marriage partner
+  treasuryBalance BigInt   @default(0)
+  nationId        Int?     // Claimed nation
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @db.Timestamptz(6)
+  metadata        Json?    @default("{}") @db.Json
+  members         social_family_members[]
+
+  @@unique([name, guildId, tenantId])
+  @@index([guildId, tenantId])
+}
+
+model social_family_members {
+  id        Int      @id @default(autoincrement())
+  familyId  Int
+  userId    String   @db.VarChar(255)
+  role      String   @default("member") @db.VarChar(255) // head, elder, member
+  status    String   @default("accepted") @db.VarChar(255) // pending, accepted
+  joinedAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  family    social_families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, userId])
+  @@index([userId])
+}
+
+model social_family_rivalries {
+  id              Int      @id @default(autoincrement())
+  tenantId        String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  family1Id       Int
+  family2Id       Int
+  status          String   @default("pending") @db.VarChar(255) // pending, active
+  startedAt       DateTime? @db.Timestamptz(6)
+  metadata        Json?    @default("{}") @db.Json
+
+  @@unique([family1Id, family2Id, guildId, tenantId])
+  @@index([guildId, tenantId])
+}
+
+model transport_vehicle_types {
+  id         Int      @id @default(autoincrement())
+  guildId    String   @db.VarChar(255)
+  tenantId   String   @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  type       String   @db.VarChar(255)
+  price      Int?     @default(0)
+  travelTime Int
+  createdAt  DateTime @db.Timestamptz(6)
+  updatedAt  DateTime @db.Timestamptz(6)
+  imageUrl   String?  @db.VarChar(255)
+}
+
+model transport_vehicles {
+  id              Int       @id @default(autoincrement())
+  guildId         String    @db.VarChar(255)
+  tenantId        String    @db.VarChar(255)
+  ownerId         String    @db.VarChar(255)
+  vehicleTypeId   Int
+  lastMaintenance DateTime? @db.Timestamptz(6)
+  condition       Int?      @default(100)
+  createdAt       DateTime  @db.Timestamptz(6)
+  updatedAt       DateTime  @db.Timestamptz(6)
+
+  @@index([guildId, ownerId, tenantId], map: "transport_vehicles_guildId_ownerId_tenantId")
+}
+
+model user_adventures {
+  id              Int     @default(autoincrement())
+  userId          String  @db.VarChar(255)
+  tenantId        String  @db.VarChar(255)
+  level           Int?    @default(1)
+  xp              Int?    @default(0)
+  hp              Int?    @default(100)
+  maxHp           Int?    @default(100)
+  gold            Int?    @default(50)
+  strength        Int?    @default(10)
+  defense         Int?    @default(5)
+  characterId     String? @db.VarChar(255)
+  monsterName     String? @db.VarChar(255)
+  monsterHp       Int?    @default(0)
+  monsterStrength Int?    @default(0)
+  monsterGoldDrop Int?    @default(0)
+  monsterXpDrop   Int?    @default(0)
+  guildId         String? @db.VarChar(255)
+
+  @@id([id, userId, tenantId])
+  @@unique([userId, guildId, tenantId], map: "user_adventures_user_guild_tenant_unique")
+}
+
+model user_afks {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(255)
+  reason    String   @default("No reason provided.") @db.VarChar(255)
+  timestamp DateTime @db.Timestamptz(6)
+  tenantId  String   @default("default") @db.VarChar(255)
+
+  @@index([userId, tenantId], map: "user_afks_user_id_tenant_id")
+}
+
+model user_birthdays {
+  id                 Int      @id @default(autoincrement())
+  guildId            String   @db.VarChar(25)
+  tenantId           String   @db.VarChar(25)
+  userId             String   @db.VarChar(25)
+  day                Int
+  month              Int
+  year               Int?
+  lastCelebratedYear Int?
+  streakCount        Int      @default(0)
+  createdAt          DateTime @default(dbgenerated("'2026-05-01 16:09:21.839+00'::timestamp with time zone")) @db.Timestamptz(6)
+  updatedAt          DateTime @default(dbgenerated("'2026-05-01 16:09:21.839+00'::timestamp with time zone")) @db.Timestamptz(6)
+
+  @@unique([guildId, userId, tenantId], map: "user_birthdays_guild_id_user_id_tenant_id")
+  @@index([guildId, month, day, tenantId], map: "user_birthdays_guild_id_month_day_tenant_id")
+}
+
+model user_facts {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(255)
+  fact      String
+  type      String   @default("other") @db.VarChar(255)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+  tenantId  String   @default("default") @db.VarChar(255)
+
+  @@index([userId, tenantId], map: "user_facts_user_id_tenant_id")
+}
+
+model user_pets {
+  id        Int       @id @default(autoincrement())
+  userId    String    @db.VarChar(255)
+  tenantId  String    @db.VarChar(255)
+  petId     Int
+  level     Int?      @default(1)
+  petName   String    @db.VarChar(255)
+  hunger    Int?      @default(100)
+  happiness Int?      @default(100)
+  lastUse   DateTime? @db.Timestamptz(6)
+  lastGacha DateTime? @db.Timestamptz(6)
+  isDead    Boolean?  @default(false)
+
+  @@index([userId, tenantId], map: "user_pets_user_id_tenant_id")
+}
+
+model users {
+  id          Int       @id @default(autoincrement())
+  guildId     String    @db.VarChar(255)
+  userId      String    @db.VarChar(255)
+  tenantId    String    @db.VarChar(255)
+  level       Int?      @default(1)
+  xp          Int?      @default(0)
+  prestige    Int?      @default(0)
+  lastMessage DateTime? @db.Timestamptz(6)
+  warnings    Json?     @default("\"[]\"") @db.Json
+
+  @@index([userId, guildId, tenantId], map: "users_userId_guildId_tenantId")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model verification_configs {
+  guildId               String   @db.VarChar(30)
+  tenantId              String   @db.VarChar(30)
+  verifiedRoleId        String?  @db.VarChar(30)
+  unverifiedRoleId      String?  @db.VarChar(30)
+  channelId             String?  @db.VarChar(30)
+  captchaType           String   @default("math") @db.VarChar(255)
+  maxAttempts           Int      @default(3)
+  timeoutSeconds        Int      @default(180)
+  kickOnFail            Boolean  @default(false)
+  kickOnTimeout         Boolean  @default(false)
+  dmFallback            Boolean  @default(true)
+  welcomeMessage        String?
+  logChannelId          String?  @db.VarChar(30)
+  createdAt             DateTime @db.Timestamptz(6)
+  updatedAt             DateTime @db.Timestamptz(6)
+  panelMessageId        String?  @db.VarChar(30)
+  panelConfig           String?
+  whitelistedCategories String   @default("[]")
+
+  @@id([guildId, tenantId])
+}
+
+model user_timezones {
+  userId    String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  timezone  String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([userId, tenantId])
+}
+
+model user_nsfw_profiles {
+  userId    String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  totalViews Int     @default(0)
+  karma     Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([userId, tenantId])
+}
+
+model user_nsfw_vault {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  mediaUrl  String   @db.Text
+  provider  String   @db.VarChar(50)
+  tags      String?  @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId, tenantId])
+}
+
+model verification_sessions {
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  roles     String   @default("[]")
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId, userId])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model welcome_settings {
+  guildId                      String   @db.VarChar(255)
+  tenantId                     String   @db.VarChar(255)
+  welcomeInOn                  Boolean? @default(false)
+  welcomeOutOn                 Boolean? @default(false)
+  welcomeDmOn                  Boolean? @default(false)
+  welcomeRoleId                String?  @db.VarChar(255)
+  welcomeInChannelId           String?  @db.VarChar(255)
+  welcomeOutChannelId          String?  @db.VarChar(255)
+  welcomeInEmbedText           String?
+  welcomeInEmbedColor          String?  @db.VarChar(255)
+  welcomeInBannerWidth         Int?
+  welcomeInBannerHeight        Int?
+  welcomeInBackgroundUrl       String?  @db.VarChar(255)
+  welcomeInForegroundUrl       String?  @db.VarChar(255)
+  welcomeInOverlayColor        String?  @db.VarChar(255)
+  welcomeInAvatarEnabled       Boolean? @default(true)
+  welcomeInAvatarSize          Int?
+  welcomeInAvatarShape         String?  @db.VarChar(255)
+  welcomeInAvatarYOffset       Int?
+  welcomeInAvatarBorderWidth   Int?
+  welcomeInAvatarBorderColor   String?  @db.VarChar(255)
+  welcomeInMainTextContent     String?
+  welcomeInMainTextFontFamily  String?  @db.VarChar(255)
+  welcomeInMainTextFontWeight  String?  @db.VarChar(255)
+  welcomeInMainTextColor       String?  @db.VarChar(255)
+  welcomeInMainTextYOffset     Int?
+  welcomeInSubTextContent      String?
+  welcomeInSubTextColor        String?  @db.VarChar(255)
+  welcomeInSubTextYOffset      Int?
+  welcomeInBorderColor         String?  @db.VarChar(255)
+  welcomeInBorderWidth         Int?
+  welcomeInShadowColor         String?  @db.VarChar(255)
+  welcomeInLayout              Json?    @db.Json
+  welcomeOutEmbedText          String?
+  welcomeOutEmbedColor         String?  @db.VarChar(255)
+  welcomeOutBannerWidth        Int?
+  welcomeOutBannerHeight       Int?
+  welcomeOutBackgroundUrl      String?  @db.VarChar(255)
+  welcomeOutForegroundUrl      String?  @db.VarChar(255)
+  welcomeOutOverlayColor       String?  @db.VarChar(255)
+  welcomeOutAvatarEnabled      Boolean? @default(true)
+  welcomeOutAvatarSize         Int?
+  welcomeOutAvatarShape        String?  @db.VarChar(255)
+  welcomeOutAvatarYOffset      Int?
+  welcomeOutAvatarBorderWidth  Int?
+  welcomeOutAvatarBorderColor  String?  @db.VarChar(255)
+  welcomeOutMainTextContent    String?
+  welcomeOutMainTextFontFamily String?  @db.VarChar(255)
+  welcomeOutMainTextFontWeight String?  @db.VarChar(255)
+  welcomeOutMainTextColor      String?  @db.VarChar(255)
+  welcomeOutMainTextYOffset    Int?
+  welcomeOutSubTextContent     String?
+  welcomeOutSubTextColor       String?  @db.VarChar(255)
+  welcomeOutSubTextYOffset     Int?
+  welcomeOutBorderColor        String?  @db.VarChar(255)
+  welcomeOutBorderWidth        Int?
+  welcomeOutLayout             Json?    @db.Json
+  welcomeDmText                String?
+  createdAt                    DateTime @db.Timestamptz(6)
+  updatedAt                    DateTime @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model afk_status {
+  guildId   String   @db.VarChar(255)
+  userId    String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  reason    String?  @default("AFK")
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([guildId, userId, tenantId])
+}
+
+model reports {
+  id         Int      @id @default(autoincrement())
+  guildId    String   @db.VarChar(255)
+  tenantId   String   @db.VarChar(255)
+  reporterId String   @db.VarChar(255)
+  targetId   String   @db.VarChar(255)
+  reason     String
+  status     String?  @default("pending") @db.VarChar(50)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([guildId, tenantId])
+  @@index([targetId, tenantId])
+  @@index([reporterId, tenantId])
+}
+
+enum enum_dns_records_type {
+  A
+  CNAME
+  TXT
+  MX
+}
+
+enum enum_invite_histories_joinType {
+  new
+  rejoin
+  fake
+  vanity
+  oauth
+  unknown
+}
+
+enum enum_monitors_lastStatus {
+  UP
+  DOWN
+  PENDING
+}
+
+model auto_triggers {
+  id          String   @id @default(uuid())
+  tenantId    String   @db.VarChar(255)
+  guildId     String   @db.VarChar(255)
+  
+  // Identification
+  name        String   @db.VarChar(255)
+  
+  // Trigger Logic
+  trigger     String   @db.VarChar(255)
+  matchType   String   @default("CONTAINS") @db.VarChar(50) // EXACT, CONTAINS, STARTS_WITH, REGEX
+  ignoreCase  Boolean  @default(true)
+  
+  // Filtering
+  channels    String[] @default([]) // Array of allowed Channel IDs (empty = all)
+  roles       String[] @default([]) // Array of allowed Role IDs (empty = all)
+  
+  // Actions (Can do both!)
+  replyTexts  String[] @default([]) // Array of text replies (Bot picks one at random - Roulette)
+  replyMedia  String?  @db.VarChar(255)
+  useEmbed    Boolean  @default(false)
+  reactions   String[] @default([]) // Array of emoji strings (e.g., ["🔥", "👍"])
+  
+  // Advanced Dynamics
+  cooldown    Int      @default(0)   // Seconds before this can trigger again
+  chance      Int      @default(100) // 1-100% probability to execute
+  
+  // Audit
+  createdBy   String   @db.VarChar(255)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  
+  @@index([tenantId, guildId], map: "auto_triggers_tenant_guild_idx")
+}
+
+model birthday_wishes {
+  id          Int      @id @default(autoincrement())
+  tenantId    String   @db.VarChar(255)
+  guildId     String   @db.VarChar(255)
+  recipientId String   @db.VarChar(255) // Birthday person
+  senderId    String   @db.VarChar(255) // Wisher
+  year        Int      // Celebration year (groups wishes per birthday)
+  message     String   @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([recipientId, guildId, year])
+}
+
+model booster_roles {
+  id          Int       @id @default(autoincrement())
+  tenantId    String    @db.VarChar(255)
+  guildId     String    @db.VarChar(255)
+  ownerId     String    @db.VarChar(255) // The user who boosted
+  roleId      String    @db.VarChar(255) // The created Discord Role ID
+  buddyId     String?   @db.VarChar(255) // The shared friend
+  
+  isGrace     Boolean   @default(false)
+  graceUntil  DateTime? @db.Timestamptz(6)
+  
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@unique([guildId, ownerId, tenantId])
+}
+
+model modmail_settings {
+  guildId        String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  enabled        Boolean  @default(false)
+  categoryId     String?  @db.VarChar(255)
+  logChannelId   String?  @db.VarChar(255)
+  defaultPingRoleId String? @db.VarChar(255)
+  aiTriage       Boolean  @default(true)
+  csatEnabled    Boolean  @default(true)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model modmail_tickets {
+  id             Int       @id @default(autoincrement())
+  guildId        String    @db.VarChar(255)
+  tenantId       String    @db.VarChar(255)
+  userId         String    @db.VarChar(255)
+  threadId       String?   @db.VarChar(255)
+  status         String    @default("open") @db.VarChar(50)
+  claimedById    String?   @db.VarChar(255)
+  category       String?   @db.VarChar(100)
+  rating         Int?      
+  ratingComment  String?   @db.Text
+  lastThreadMessageId String? @db.VarChar(255)
+  lastUserMessageId   String? @db.VarChar(255)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  closedAt       DateTime? @db.Timestamptz(6)
+
+  @@index([guildId, tenantId])
+  @@index([userId, tenantId])
+}
+
+model modmail_messages {
+  id             Int      @id @default(autoincrement())
+  ticketId       Int
+  senderId       String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  content        String   @db.Text
+  isInternal     Boolean  @default(false)
+  maskedIdentity String?  @db.VarChar(100)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([ticketId, tenantId])
+}
+
+model modmail_snippets {
+  id             Int      @id @default(autoincrement())
+  guildId        String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  name           String   @db.VarChar(100)
+  content        String   @db.Text
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([guildId, tenantId, name])
+}
+
+model modmail_categories {
+  id          Int      @id @default(autoincrement())
+  guildId     String   @db.VarChar(255)
+  tenantId    String   @db.VarChar(255)
+  name        String   @db.VarChar(100)
+  pingRoleId  String?  @db.VarChar(255)
+  
+  @@unique([guildId, tenantId, name])
+}
+
+model verification_settings {
+  guildId            String   @db.VarChar(255)
+  tenantId           String   @db.VarChar(255)
+  enabled            Boolean  @default(false)
+  panicMode          Boolean  @default(false)
+  verifiedRoleId     String?  @db.VarChar(255)
+  unverifiedRoleId   String?  @db.VarChar(255)
+  minAccountAgeDays  Int      @default(0)
+  captchaType        String   @default("none") @db.VarChar(50) // none, math, color, access_code
+  rulesContent       String?  @db.Text
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model verification_access_codes {
+  id        Int      @id @default(autoincrement())
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  code      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([guildId, tenantId])
+}
+
+model verification_groups {
+  id           Int      @id @default(autoincrement())
+  guildId      String   @db.VarChar(255)
+  tenantId     String   @db.VarChar(255)
+  name         String   @db.VarChar(100)
+  description  String?  @db.VarChar(255)
+  headerRoleId String?  @db.VarChar(255)
+  minSelect    Int      @default(0)
+  maxSelect    Int      @default(1)
+  order        Int      @default(0)
+  
+  roles        verification_roles[]
+
+  @@unique([guildId, tenantId, name])
+}
+
+model verification_roles {
+  id         Int      @id @default(autoincrement())
+  groupId    Int
+  roleId     String   @db.VarChar(255)
+  label      String   @db.VarChar(100)
+  emoji      String?  @db.VarChar(50)
+  description String? @db.VarChar(255)
+
+  group      verification_groups @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model verification_backups {
+  userId    String   @db.VarChar(255)
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  roleIds   String   @db.Text
+  
+  @@id([userId, guildId, tenantId])
+}
+
+model territory_actions {
+  id         Int      @id @default(autoincrement())
+  guildId    String   @db.VarChar(255)
+  tenantId   String   @db.VarChar(255)
+  nationId   Int
+  nationName String   @db.VarChar(255)
+  patronId   String   @db.VarChar(255)
+  patronTag  String   @db.VarChar(255)
+  targetId   String   @db.VarChar(255)
+  targetTag  String   @db.VarChar(255)
+  action     String   @db.VarChar(50)
+  reason     String?  @db.Text
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([guildId, tenantId], map: "territory_actions_guildId_tenantId")
+  @@index([guildId, nationId, tenantId], map: "territory_actions_guildId_nationId_tenantId")
+  @@index([targetId, tenantId], map: "territory_actions_targetId_tenantId")
+}
+
+// ==========================================
+// SHOP & LIVING ECONOMY ENGINE (V3 Modular)
+// ==========================================
+
+model shop_inventory {
+  id                 String   @id @default(uuid()) // UUID because items are unique instances
+  tenantId           String   @db.VarChar(255)
+  guildId            String   @db.VarChar(255)
+  userId             String   @db.VarChar(255)
+  itemIdentifier     String   @db.VarChar(255) // Link to the Code-Driven Registry (e.g. 'wreckage_scrap_metal')
+  rarity             String   @default("common") @db.VarChar(50) // common, rare, epic, legendary
+  condition          Int      @default(100)
+  metadata_modifiers Json?    @db.Json // E.g., { "speed_bonus": 5 }
+  acquiredAt         DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([guildId, userId, tenantId])
+  @@index([itemIdentifier])
+}
+
+model shop_storefronts {
+  id          Int      @id @default(autoincrement())
+  tenantId    String   @db.VarChar(255)
+  guildId     String   @db.VarChar(255)
+  ownerId     String   @db.VarChar(255) // User who owns the storefront
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  listings    shop_storefront_listings[]
+
+  @@unique([guildId, ownerId, tenantId])
+}
+
+model shop_storefront_listings {
+  id           Int      @id @default(autoincrement())
+  tenantId     String   @db.VarChar(255)
+  guildId      String   @db.VarChar(255)
+  storefrontId Int
+  inventoryId  String   @unique // The exact instance being sold from shop_inventory
+  price        Int      // Price in Embers
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  storefront   shop_storefronts @relation(fields: [storefrontId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, tenantId])
+}
+
+model shop_auctions {
+  id           Int      @id @default(autoincrement())
+  tenantId     String   @db.VarChar(255)
+  guildId      String   @db.VarChar(255)
+  inventoryId  String   @unique // The exact instance being auctioned from shop_inventory
+  sellerId     String   @db.VarChar(255)
+  startingBid  Int
+  currentBid   Int      @default(0)
+  highestBidder String? @db.VarChar(255)
+  endTime      DateTime @db.Timestamptz(6)
+  status       String   @default("active") @db.VarChar(50) // active, completed, cancelled
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([guildId, status, tenantId])
+}
+model shop_settings {
+  guildId        String   @db.VarChar(255)
+  tenantId       String   @db.VarChar(255)
+  newsChannelId  String?  @db.VarChar(255)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model tempvoice_hubs {
+  id               String   @id @default(cuid())
+  tenantId         String   @db.VarChar(255)
+  guildId          String   @db.VarChar(255)
+  triggerChannelId String   @db.VarChar(255)
+  categoryId       String   @db.VarChar(255)
+  hubName          String   @db.VarChar(255)
+  defaultLimit     Int      @default(0)
+  defaultBitrate   Int      @default(64000)
+  creationCost     Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  @@index([guildId, tenantId])
+}
+
+model tempvoice_sessions {
+  channelId        String   @id @db.VarChar(255)
+  tenantId         String   @db.VarChar(255)
+  guildId          String   @db.VarChar(255)
+  hubId            String
+  ownerId          String   @db.VarChar(255)
+  waitingRoomId    String?  @db.VarChar(255)
+  status           String   @default("active") // active, grace, inherited
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([guildId, tenantId])
+}
+
+model tempvoice_profiles {
+  id               String   @id @default(cuid())
+  tenantId         String   @db.VarChar(255)
+  userId           String   @db.VarChar(255)
+  preferredName    String?  @db.VarChar(255)
+  preferredLimit   Int      @default(0)
+  autoLock         Boolean  @default(false)
+  trustedUsers     Json     @default("[]") // Array of User IDs
+  blockedUsers     Json     @default("[]") // Array of User IDs
+
+  @@unique([userId, tenantId])
+}
+
+model tod_settings {
+  guildId      String @db.VarChar(255)
+  tenantId     String @db.VarChar(255)
+  panelChannelId String? @db.VarChar(255)
+  maxIntensity String @default("SOFT") // SOFT, PARTY, SPICY
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model tod_player_stats {
+  userId          String @db.VarChar(255)
+  tenantId        String @db.VarChar(255)
+  bravePoints     Int    @default(0)
+  truthsAnswered  Int    @default(0)
+  daresCompleted  Int    @default(0)
+  chickens        Int    @default(0) // Times they refused
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([userId, tenantId])
+}
+
+model streak_settings {
+  guildId           String   @db.VarChar(255)
+  tenantId          String   @db.VarChar(255)
+  enabled           Boolean  @default(true)
+  baseXpReward      Int      @default(50)
+  baseEmberReward   Int      @default(100)
+  streakMultiplier  Float    @default(0.1) // 10% bonus per streak day
+  topStreakRoleId   String?  @db.VarChar(255)
+  milestoneRoles    Json?    @default("[]") @db.Json // [{ day: 7, roleId: "..." }]
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model streak_users {
+  userId          String    @db.VarChar(255)
+  guildId         String    @db.VarChar(255)
+  tenantId        String    @db.VarChar(255)
+  currentStreak   Int       @default(0)
+  longestStreak   Int       @default(0)
+  lastClaimedAt   DateTime? @db.Timestamptz(6)
+  freezesUsed     Int       @default(0)
+
+  @@unique([userId, guildId, tenantId])
+  @@index([guildId, currentStreak(sort: Desc), tenantId])
+}
+
+model counting_settings {
+  guildId           String   @db.VarChar(255)
+  tenantId          String   @db.VarChar(255)
+  channelId         String?  @db.VarChar(255)
+  currentCount      Int      @default(0)
+  highestCount      Int      @default(0)
+  lastUserId        String?  @db.VarChar(255)
+  topRoleId         String?  @db.VarChar(255)
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model counting_users {
+  userId          String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  totalCounts     Int      @default(0)
+  ruinedCounts    Int      @default(0)
+  savesUsed       Int      @default(0)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([userId, guildId, tenantId])
+  @@index([guildId, totalCounts(sort: Desc), tenantId])
+  @@index([guildId, ruinedCounts(sort: Desc), tenantId])
+}
+
+// --- SYMPHONY MUSIC ENGINE ---
+
+model music_settings {
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  isLocked  Boolean? @default(false)
+  autoResume Boolean? @default(true)
+  channelId String?  @db.VarChar(255)
+  djRoleId  String?  @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model music_user_stats {
+  userId          String   @db.VarChar(255)
+  guildId         String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  totalListenTime BigInt   @default(0)
+  tracksRequested Int      @default(0)
+  xpEarned        BigInt   @default(0)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([userId, guildId, tenantId])
+}
+
+model music_playlists {
+  id        String   @id @default(uuid())
+  userId    String   @db.VarChar(255)
+  guildId   String   @db.VarChar(255)
+  tenantId  String   @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  tracks    Json     @db.Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([userId, tenantId], map: "music_playlists_userId_tenantId")
+}
+
+// --- COGNITIVE ENGINE (AI) ---
+
+model ai_settings {
+  guildId         String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  enabled         Boolean  @default(true)
+  boundChannels   Json?    @default("[]") @db.Json // Array of channel IDs
+  persona         String?
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  @@id([guildId, tenantId])
+}
+
+model ai_memories {
+  id         Int      @id @default(autoincrement())
+  tenantId   String   @db.VarChar(255)
+  guildId    String   @db.VarChar(255)
+  userId     String   @db.VarChar(255)
+  factType   String   @db.VarChar(255) // "preference", "relationship", "history"
+  factKey    String   @db.VarChar(255) // e.g. "music.genre"
+  factValue  String
+  confidence Float    @default(1.0)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([userId, tenantId])
+  @@index([guildId, tenantId])
+}
+
+// --- PROFILE SYSTEM MODULE ---
+
+model user_profiles {
+  userId          String   @db.VarChar(255)
+  tenantId        String   @db.VarChar(255)
+  bio             String?  @db.VarChar(255)
+  adminTitle      String?  @db.VarChar(255)
+  customColor     String?  @db.VarChar(10)
+  customBanner    String?  @db.VarChar(255)
+  privacyMode     Boolean  @default(false)
+  unlockedColor   Boolean  @default(false)
+  unlockedBanner  Boolean  @default(false)
+  unlockedPrivacy Boolean  @default(false)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([userId, tenantId])
+  @@index([userId, tenantId])
+}

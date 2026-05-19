@@ -1,0 +1,17 @@
+{
+  "streak": {
+    "claimed": "Your daily devotion has been recorded. 🔥 You have reached a massive **{{streak}}** day streak!",
+    "already_claimed": "Your streak is already secured for today. Return to the terminal later!",
+    "lost": "The flames have died out. Your legendary streak of {{lost}} days was broken. 😔 You are now starting over at day 1.",
+    "frozen": "A crisis averted! You missed your check-in, but your **Streak Freeze** activated and saved your {{streak}} day streak! ❄️",
+    "rewards": "\n\n**Acquired Rewards:**\n✦ `+{{xp}} XP`\n✦ `+{{embers}} Embers`",
+    "info": {
+      "title": "🔥 Master Streak Terminal",
+      "desc": "Track your daily devotion and secure compounding rewards across the ecosystem."
+    },
+    "leaderboard": {
+      "title": "🏆 Ecosystem Streaks",
+      "desc": "The most dedicated and consistent citizens currently active in the database."
+    }
+  }
+}

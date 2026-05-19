@@ -1,0 +1,29 @@
+{
+  "music": {
+    "play": {
+      "searching": "🎶 Symphony | Now Loading...",
+      "added": "Successfully added **{{query}}** to the queue.",
+      "no_vc": "❌ You must be in a voice channel to use the music engine."
+    },
+    "skip": {
+      "success": "⏭️ The current track has been skipped by <@{{user}}>."
+    },
+    "stats": {
+      "title": "📊 Music Stats | {{user}}",
+      "desc": "Analytics for <@{{user}}>'s listening habits in this server.",
+      "time": "Total Listen Time",
+      "requests": "Tracks Requested",
+      "xp": "Ecosystem XP Earned"
+    },
+    "trivia": {
+      "title": "🎮 Symphony | Music Trivia",
+      "question": "Who is the original artist of the song currently playing?",
+      "correct": "Correct! You earned a bonus XP boost! 🔥",
+      "wrong": "Wrong answer! Better luck next track. 😔"
+    },
+    "effects": {
+      "applied": "🎛️ The **{{filter}}** filter has been engaged.",
+      "reset": "🎛️ All audio filters have been cleared."
+    }
+  }
+}

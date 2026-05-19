@@ -1,0 +1,34 @@
+{
+  "levelup": {
+    "title": "🧬 Neural Synchronization Advanced",
+    "desc": "Congratulations {{user}}! You have reached **Level {{level}}**.\n\n*Your neural capacity has expanded. New capabilities may have been unlocked.*"
+  },
+  "rank": {
+    "title": "{{user}}'s Neural Rank",
+    "status": "**Status**: Neural Core Synchronized",
+    "level": "**Level**: {{level}}",
+    "xp": "**Experience**: {{xp}} / {{needed}}",
+    "prestige": "PRESTIGE {{prestige}}"
+  },
+  "leaderboard": {
+    "title": "🏆 Neural Supremacy Leaderboard",
+    "desc": "The most synchronized citizens in the server:\n\n{{lines}}",
+    "empty": "🏆 The neural registry is currently empty."
+  },
+  "admin": {
+    "no_permission": "❌ You do not have permission to manage leveling.",
+    "settings_updated": "⚙️ Leveling Settings Updated",
+    "rewards_updated": "🎭 Level Rewards Updated",
+    "blacklist_updated": "🚫 Blacklist Updated",
+    "hotspot_updated": "🔥 XP Hotspot Updated",
+    "toggle_on": "🧬 Module Enabled",
+    "toggle_off": "🧬 Module Disabled",
+    "toggle_desc": "The Neural Progression system has been **{{state}}** for this server.",
+    "override_success": "🛠️ Neural Override Successful"
+  },
+  "prestige": {
+    "title": "✨ Neural Ascension Complete",
+    "desc": "Behold, {{user}} has ascended to **Prestige Rank {{prestige}}**!\n\nTheir neural pathways have been reset and reinforced. The cycle begins anew, but with greater potential.",
+    "not_ready": "❌ You must reach **Level 100** to ascend. Your current level is **{{level}}**."
+  }
+}

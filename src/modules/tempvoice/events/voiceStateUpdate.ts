@@ -1,0 +1,29 @@
+import { VoiceState } from 'discord.js';
+import { TempVoiceService } from '../services/TempVoiceService';
+import { flamebornConfig } from '../../../config/flameborn.config';
+import { Logger } from '../../../utils/logger';
+
+export default {
+  name: 'voiceStateUpdate',
+  once: false,
+  async execute(oldState: VoiceState, newState: VoiceState) {
+    const member = newState.member || oldState.member;
+    if (!member || member.user.bot) return; // Ignore bots
+
+    const tenantId = flamebornConfig.bot.tenant.id;
+
+    try {
+      // User Joined a Channel (or moved to a new one)
+      if (newState.channelId && newState.channelId !== oldState.channelId) {
+        await TempVoiceService.handleUserJoin(tenantId, member, newState);
+      }
+
+      // User Left a Channel (or moved to a new one)
+      if (oldState.channelId && oldState.channelId !== newState.channelId) {
+        await TempVoiceService.handleUserLeave(tenantId, member, oldState);
+      }
+    } catch (error) {
+      Logger.error(`TempVoice Error processing voiceStateUpdate for ${member.id}`, error);
+    }
+  }
+};

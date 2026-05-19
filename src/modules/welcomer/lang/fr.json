@@ -1,0 +1,11 @@
+{
+  "welcome": {
+    "title": "Bienvenue sur {{guild}} !",
+    "desc": "Bienvenue {{user}} ! Vous êtes notre **{{count}}** membre.",
+    "footer": "Envoyé par {{botName}}"
+  },
+  "leave": {
+    "title": "Au revoir !",
+    "desc": "**{{user}}** a quitté le serveur. Nous avons maintenant {{count}} membres."
+  }
+}

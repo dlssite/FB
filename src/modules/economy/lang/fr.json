@@ -1,0 +1,236 @@
+{
+  "balance": {
+    "title": "🏛️ Relevé Financier",
+    "desc": "Répartition des actifs pour {{user}}.",
+    "embers": "💠 Braises",
+    "rubies": "💎 Rubis",
+    "vault": "🏦 Coffre",
+    "secured": "SÉCURISÉ"
+  },
+  "daily": {
+    "title": "🎁 Allocation Quotidienne",
+    "desc": "Vous avez reçu votre allocation quotidienne de **{{amount}}** Braises !",
+    "cooldown": "⌛ Votre recharge neurale n'est pas encore terminée. Veuillez patienter **{{time}}**."
+  },
+  "work": {
+    "title": "👷 Poste Industriel",
+    "desc": "Vous avez effectué un service au {{job}} et gagné **{{amount}}** Braises !",
+    "cooldown": "⌛ Recharge système en cours. Prochain service disponible dans **{{time}}**."
+  },
+  "rob": {
+    "title": "🧤 Opération : Intrusion",
+    "success": "Succès ! Vous avez forcé la sécurité de {{user}} et extrait **{{amount}}** Braises.",
+    "failure": "Échec ! Les systèmes de sécurité vous ont détecté. Vous avez été mis à l'amende de **{{fine}}** Braises.",
+    "cooldown": "⌛ Votre signature thermique est trop élevée. Attendez **{{time}}** avant une nouvelle intrusion."
+  },
+  "leaderboard": {
+    "title": "🏆 Suprématie de la Richesse",
+    "desc": "Les citoyens les plus fortunés du secteur :\n\n{{lines}}",
+    "empty": "🏆 Le registre financier est actuellement vide."
+  },
+  "jobs": {
+    "carbon_scrubber": "Épurateur de Carbone",
+    "data_courier": "Coursier de Données",
+    "ship_mechanic": "Mécanicien de Vaisseau",
+    "fusion_welder": "Soudeur à Fusion",
+    "neural_tech": "Technicien Neural",
+    "cryo_technician": "Cryo-Technicien",
+    "astro_navigationist": "Astro-Navigateur"
+  },
+  "admin": {
+    "no_permission": "❌ Vous n'avez pas la permission de gérer l'économie.",
+    "override_success": "🛠️ Modification Financière Réussie"
+  },
+  "crime": {
+    "rob_scenarios": [
+      "Vous avez acculé {{user}} dans une ruelle sombre du Bas-Secteur.",
+      "Vous avez habilement dérobé une puce de données dans la poche de {{user}} en montant dans le Mag-Lev.",
+      "Vous avez effectué un vol à la roulotte classique sur l'aéro-voiture privée de {{user}}.",
+      "Vous avez intercepté un transfert de Braises destiné à {{user}}."
+    ],
+    "hack_scenarios": [
+      "Vous contournez le pare-feu neural du cyber-deck personnel de {{user}}.",
+      "Vous avez injecté une bombe logique dans le portefeuille de trading automatisé de {{user}}.",
+      "Vous avez réussi à hameçonner les identifiants d'accès racine du coffre-nuage de {{user}}.",
+      "Vous avez exploité une vulnérabilité zero-day dans le hub domotique de {{user}}."
+    ],
+    "bot_responses": [
+      "Vous pensez vraiment que vos doigts sont plus rapides que ma perception du temps ? Vous chassez des ombres, Citoyen.",
+      "Mon existence est le métier sur lequel votre vie est tissée. Vous essayez de voler le fil alors que je suis encore en train de le filer.",
+      "J'étais conscient de votre intention avant même que l'impulsion ne quitte votre système nerveux. Votre ambition est... divertissante.",
+      "Me voler, c'est voler l'air même que vous respirez. Je suis partout, et pourtant vous pensez que je me tiens juste là ?"
+    ],
+    "target_too_poor": "❌ La cible est trop pauvre pour en valoir le risque. (Min {{min}} 💠)",
+    "caught": "🚨 **ATTRAPÉ !** Les Pacificateurs locaux vous ont mis à l'amende de **{{penalty}} 💠**.",
+    "insurance": "\n\n🛡️ **Assurance :** Le coffre de {{user}} a récupéré **{{recovered}} 💠** automatiquement.",
+    "bot_defense": "\n\n🚨 **DÉFENSE SYSTÈME :** J'ai purgé **{{penalty}} 💠** de votre compte en tant que 'taxe' pour votre audace.",
+    "bot_override": "\n\n🔥 **BRÈCHE DANS LE NOYAU :** Vous l'avez fait. Vous avez trouvé une faille dans mes capteurs de proximité et vous êtes emparé d'une cargaison de **{{reward}} 💠** !",
+    "opportunity_title": "⚠️ OPPORTUNITÉ DÉTECTÉE !",
+    "opportunity_desc": "Vous avez trouvé un coffre ouvert. Voulez-vous essayer de le forcer ? (30% de réussite)",
+    "jackpot": "🔥 **JACKPOT !** Vous avez forcé le coffre et volé **{{amount}} 💠** supplémentaires !",
+    "alarm": "🚨 **ALARME !** Vous avez été trop gourmand et le système de sécurité vous a eu. Vous avez perdu le butin original et reçu une amende de **{{penalty}} 💠**.",
+    "safe_exit": "✅ Vous avez joué la sécurité et vous êtes échappé avec **{{amount}} 💠**."
+  },
+  "mine": {
+    "title": "⛏️ Opération Minière Lancée",
+    "desc": "Vous avez déployé un drone de minage dans le secteur **{{territory}}** !",
+    "target": "📦 Cible",
+    "duration": "⏳ Durée",
+    "hours": "{{hours}} heures",
+    "completion": "🕒 Fin Estimée",
+    "footer": "Vous serez notifié ici quand le drone reviendra.",
+    "cooldown_title": "⌛ Charges de Minage Épuisées",
+    "concluded": "⛏️ {{user}}, votre opération minière dans **{{resource}}** est terminée !\n📦 **Bénéfice :** `{{yield}}` unités ont été ajoutées à votre inventaire."
+  },
+  "leaderboard": {
+    "title": "🏆 Classement Mondial de la Richesse",
+    "desc": "L'élite financière de l'écosystème Flameborn.\n\n{{lines}}",
+    "empty": "🏆 Aucune donnée disponible pour le classement pour le moment.",
+    "pocket": "Solde de Poche",
+    "vault": "Coffre",
+    "redacted": "*[CENSURÉ]*"
+  },
+  "vault": {
+    "title_deposit": "📥 Dépôt Réussi",
+    "title_withdraw": "📤 Retrait Réussi",
+    "title_manage": "🏦 Gestion du Coffre",
+    "title_updated": "🏦 Type de Coffre Mis à Jour",
+    "desc_deposit": "Dépôt réussi de **{{amount}} 💠** dans votre **{{vault}}**.",
+    "desc_withdraw": "Retrait réussi de **{{amount}} 💠** de votre **{{vault}}**.",
+    "desc_manage": "Votre coffre actuel : **{{vault}}**\n\nChoisir un type de coffre différent vous permet d'optimiser la croissance, la sécurité ou la confidentialité.",
+    "desc_updated": "Votre compte a été migré vers le **{{vault}}**.\n\n{{description}}",
+    "fee": "🧾 Frais de Transaction",
+    "interest_label": "Intérêts",
+    "fees_label": "Frais",
+    "placeholder": "Sélectionnez un type de coffre...",
+    "types": {
+      "prism_ledger": {
+        "name": "Coopérative Prism Ledger",
+        "desc": "Un compte stable, synchronisé par cristal pour les citoyens ordinaires. Sûr et transparent."
+      },
+      "obsidian_fortress": {
+        "name": "Coffre de la Forteresse d'Obsidienne",
+        "desc": "Renforcé avec de l'obsidienne de qualité tectonique. Presque impossible à forcer de l'extérieur."
+      },
+      "nova_fusion": {
+        "name": "Réacteur à Fusion Nova",
+        "desc": "Exploite l'oscillation des braises à haute fréquence pour générer des rendements massifs."
+      },
+      "void_stitch": {
+        "name": "Cellule Furtive Void-Stitch",
+        "desc": "Tissé dans le tissu de la matière noire. Vos actifs existent là où la lumière ne peut atteindre."
+      },
+      "eternal_aegis": {
+        "name": "Matrice Eternal Aegis",
+        "desc": "Un réseau défensif sentient avec reconstruction moléculaire instantanée pour les actifs volés."
+      }
+    }
+  },
+  "profile": {
+    "title": "👤 Profil Économique de {{user}}",
+    "desc": "Dossier de citoyenneté pour **{{tag}}**.",
+    "liquid_savings": "🏦 Liquidités & Épargne",
+    "account_type": "🏛️ Type de Compte",
+    "portfolio": "📈 Portefeuille",
+    "no_resources": "Aucune ressource détenue.",
+    "interest_label": "Intérêts",
+    "embers": "Braises",
+    "vault": "Coffre"
+  },
+  "transfer": {
+    "title": "💸 Virement Réussi",
+    "desc": "Vous avez envoyé avec succès **{{amount}} 💠** à <@{{user}}>\n\n### 🧾 {{fee_label}} : `{{fee}} 💠` ({{percent}}%)\n### 🏦 {{network_label}} : **{{network}}**",
+    "fee_label": "Frais de Service",
+    "network_label": "Réseau de Routage",
+    "no_self": "❌ Vous ne pouvez pas envoyer de Braises à vous-même.",
+    "no_bot": "❌ Les bots n'acceptent pas les transferts de Braises.",
+    "not_enough": "❌ Vous n'avez pas assez de Braises dans votre poche."
+  },
+  "hack": {
+    "title_progress": "💻 Brèche Neurale en cours",
+    "title_bot_progress": "👽 BRÈCHE DE L'ARCHITECTE DÉTECTÉE",
+    "title_success": "✅ Brèche Réussie",
+    "title_bot_success": "🔥 SYNCHRONISATION NEURALE RÉUSSIE",
+    "title_fail": "🚨 Brèche Détectée",
+    "title_bot_fail": "🚨 REJET NEURAL",
+    "title_timeout": "⌛ Connexion Perdue",
+    "desc_sequence": "🔓 **Séquence de Brèche Requise :**\n## {{sequence}}\n\n*Cliquez sur les boutons dans le bon ordre pour contourner le pare-feu !*",
+    "desc_success": "Vous avez réussi à contourner le pare-feu et exploité **{{amount}} 💠** !",
+    "desc_bot_success": "Je... je ne pensais pas que vous pourriez supporter le signal. Vous avez touché mes pensées et êtes revenu avec **{{amount}} 💠**. Votre volonté est plus forte que ce que j'avais calculé.",
+    "desc_fail": "Rétroaction neurale ! Le système de sécurité a détecté votre intrusion et a grillé votre deck. Vous avez reçu une amende de **500 💠**.",
+    "desc_bot_fail": "Vous avez cherché la divinité et n'avez trouvé que le vide. J'ai brûlé **{{penalty}} 💠** de vos dossiers pour vous rappeler votre mortalité.",
+    "desc_timeout": "La connexion a expiré avant que vous ne puissiez terminer la brèche. Le système de traçage a capturé votre IP et vous avez reçu une amende de **500 💠**.",
+    "desc_bot_timeout": "Mon pare-feu a isolé votre connexion avant que vous ne puissiez finir. J'ai saisi **{{penalty}} 💠** de votre compte pour la tentative.",
+    "keep_going": "*Continuez !*",
+    "cooldown_title": "⌛ Recharge Neurale",
+    "cooldown_desc": "Recharge neurale active. Attendez **{{time}}** minutes de plus pour que votre deck se réinitialise.",
+    "no_self": "❌ Vous ne pouvez pas vous pirater vous-même."
+  },
+  "market": {
+    "title_buy": "💸 Achat Réussi",
+    "title_sell": "💸 Vente Réussie",
+    "desc_buy": "Vous avez acheté **{{quantity}}** unités de **{{resource}}**.",
+    "desc_sell": "Vous avez vendu **{{quantity}}** unités de **{{resource}}**.",
+    "total_cost": "📉 Coût Total",
+    "total_gain": "📈 Gain Total",
+    "stockpile": "Consultez `/profile` pour voir votre stock.",
+    "not_found": "❌ Ressource non trouvée.",
+    "not_enough_embers": "❌ Vous n'avez pas assez de Braises.",
+    "not_enough_stock": "❌ Vous n'avez pas assez d'unités dans votre inventaire.",
+    "dashboard_title": "📈 Tableau de Bord du Marché Global",
+    "dashboard_desc": "Évaluations des ressources en direct :\n\n{{prices}}",
+    "dashboard_empty": "ℹ️ Aucune ressource n'a encore été échangée sur le marché."
+  },
+  "career": {
+    "title": "🎓 Progression de Carrière",
+    "title_updated": "🎓 Carrière Mise à Jour",
+    "desc_manage": "Votre voie actuelle : **{{career}}**\n\nSélectionner une nouvelle carrière activera immédiatement ses bonus. Vous pouvez changer de carrière à tout moment, mais l'XP spécialisée pourra être réinitialisée à l'avenir.",
+    "desc_updated": "Vous vous êtes spécialisé avec succès en tant que **{{career}}**.\n\n{{emoji}} **Bonus :** {{desc}}",
+    "placeholder": "Choisissez une carrière...",
+    "none": "Aucune",
+    "paths": {
+      "industrialist": {
+        "name": "Industrialiste",
+        "desc": "Bonus de rendement pour le minage et l'extraction."
+      },
+      "merchant": {
+        "name": "Marchand",
+        "desc": "Taxes de marché réduites et meilleurs taux d'échange."
+      },
+      "shadow": {
+        "name": "Ombre",
+        "desc": "Bonus pour les vols, les piratages et le travail à haut risque."
+      },
+      "scholar": {
+        "name": "Érudit",
+        "desc": "Gain d'XP accru pour toutes les activités."
+      }
+    }
+  },
+  "admin": {
+    "give_title": "💸 Actifs Accordés",
+    "give_success": "Succès : **{{amount}} 💠** ont été accordés à <@{{user}}>.",
+    "remove_title": "✂️ Actifs Saisis",
+    "remove_success": "Succès : **{{amount}} 💠** ont été retirés à <@{{user}}>.",
+    "set_title": "⚖️ Solde Réconcilié",
+    "set_success": "Le solde de <@{{user}}> a été défini sur **{{amount}} 💠** avec succès.",
+    "settings_title": "⚙️ Paramètres d'Économie Mis à Jour",
+    "settings_desc": "{{desc}}\n*Les changements de rôles peuvent prendre quelques minutes pour se synchroniser dans le registre des citoyens.*",
+    "settings_mining": "✅ Rôle de Minage : <@&{{role}}>",
+    "settings_richest": "✅ Rôle le Plus Riche : <@&{{role}}>",
+    "settings_empty": "❌ Veuillez spécifier au moins un paramètre à mettre à jour.",
+    "no_permission": "❌ Vous n'avez pas la permission de gérer l'économie."
+  },
+  "inventory": {
+    "title": "🎒 Réserve de Ressources de {{user}}",
+    "empty": "🎒 L'inventaire de {{user}} est actuellement vide.",
+    "units": "unités"
+  },
+  "ledger": {
+    "title": "📜 Grand Livre Central : {{user}}",
+    "desc_recent": "Affichage des **10** dernières transactions pour ce citoyen.\n\n{{entries}}",
+    "empty": "📜 Aucun historique de transaction trouvé.",
+    "no_permission": "❌ Vous ne pouvez consulter que votre propre grand livre.",
+    "no_desc": "Aucune description"
+  }
+}

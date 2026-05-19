@@ -1,0 +1,8 @@
+{
+  "ticket_opened": "Your ticket has been opened successfully.",
+  "ticket_closed": "Your ticket has been closed.",
+  "modmail_disabled": "Modmail is currently disabled for this server.",
+  "rating_submitted": "Thank you for your feedback! You rated the support {rating} stars.",
+  "error_not_thread": "This command must be used within a Modmail thread.",
+  "error_claimed": "This ticket is claimed by someone else."
+}

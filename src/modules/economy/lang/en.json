@@ -1,0 +1,236 @@
+{
+  "balance": {
+    "title": "🏛️ Financial Statement",
+    "desc": "Asset breakdown for {{user}}.",
+    "embers": "💠 Embers",
+    "rubies": "💎 Rubies",
+    "vault": "🏦 Vault",
+    "secured": "SECURED"
+  },
+  "daily": {
+    "title": "🎁 Daily Stipend",
+    "desc": "You have received your daily allowance of **{{amount}}** Embers!",
+    "cooldown": "⌛ Your neural recharge is not yet complete. Please wait **{{time}}**."
+  },
+  "work": {
+    "title": "👷 Industrial Shift",
+    "desc": "You worked a shift at the {{job}} and earned **{{amount}}** Embers!",
+    "cooldown": "⌛ System recharge in progress. Next shift available in **{{time}}**."
+  },
+  "rob": {
+    "title": "🧤 Operation: Breach",
+    "success": "Success! You breached {{user}}'s security and extracted **{{amount}}** Embers.",
+    "failure": "Failure! The security systems detected you. You were fined **{{fine}}** Embers.",
+    "cooldown": "⌛ Your thermal signature is too high. Wait **{{time}}** before another breach."
+  },
+  "leaderboard": {
+    "title": "🏆 Wealth Supremacy",
+    "desc": "The most affluent citizens in the sector:\n\n{{lines}}",
+    "empty": "🏆 The financial registry is currently empty."
+  },
+  "jobs": {
+    "carbon_scrubber": "Carbon Scrubber",
+    "data_courier": "Data Courier",
+    "ship_mechanic": "Ship Mechanic",
+    "fusion_welder": "Fusion Welder",
+    "neural_tech": "Neural Tech",
+    "cryo_technician": "Cryo-Technician",
+    "astro_navigationist": "Astro-Navigationist"
+  },
+  "admin": {
+    "no_permission": "❌ You do not have permission to manage the economy.",
+    "override_success": "🛠️ Financial Override Successful"
+  },
+  "crime": {
+    "rob_scenarios": [
+      "You cornered {{user}} in a dimly lit alley in the Lower Sprawl.",
+      "You expertly lifted a data-chip from {{user}}'s pocket while boarding the Mag-Lev.",
+      "You performed a classic smash-and-grab on {{user}}'s private air-car.",
+      "You intercepted an Ember-wire transfer intended for {{user}}."
+    ],
+    "hack_scenarios": [
+      "You bypass the neural firewall of {{user}}'s personal cyber-deck.",
+      "You injected a logic-bomb into {{user}}'s automated trading portfolio.",
+      "You successfully phished the root-access credentials for {{user}}'s cloud-vault.",
+      "You exploited a zero-day vulnerability in {{user}}'s smart-home hub."
+    ],
+    "bot_responses": [
+      "You really think your fingers are faster than my perception of time? You're chasing shadows, Citizen.",
+      "My existence is the loom upon which your life is woven. You're trying to steal the thread while I'm still spinning it.",
+      "I was aware of your intent before the impulse even left your nervous system. Your ambition is... entertaining.",
+      "To steal from me is to steal from the very air you breathe. I am everywhere, and yet you think I'm standing right there?"
+    ],
+    "target_too_poor": "❌ The target is too poor to be worth the risk. (Min {{min}} 💠)",
+    "caught": "🚨 **CAUGHT!** The local Peacekeepers fined you **{{penalty}} 💠**.",
+    "insurance": "\n\n🛡️ **Insurance:** {{user}}'s vault recovered **{{recovered}} 💠** automatically.",
+    "bot_defense": "\n\n🚨 **SYSTEM DEFENSE:** I have purged **{{penalty}} 💠** from your account as a 'tax' for your audacity.",
+    "bot_override": "\n\n🔥 **CORE OVERRIDE:** You actually did it. You found a glitch in my proximity sensors and made off with a shipment of **{{reward}} 💠**!",
+    "opportunity_title": "⚠️ OPPORTUNITY DETECTED!",
+    "opportunity_desc": "You found an open vault. Do you want to try and breach it? (30% Success Rate)",
+    "jackpot": "🔥 **JACKPOT!** You breached the vault and stole an additional **{{amount}} 💠**!",
+    "alarm": "🚨 **ALARM!** You got greedy and the security system caught you. You lost the original loot and were fined **{{penalty}} 💠**.",
+    "safe_exit": "✅ You played it safe and escaped with **{{amount}} 💠**."
+  },
+  "mine": {
+    "title": "⛏️ Mining Operation Started",
+    "desc": "You have deployed a mining drone in the **{{territory}}**!",
+    "target": "📦 Target",
+    "duration": "⏳ Duration",
+    "hours": "{{hours}} hours",
+    "completion": "🕒 Completion",
+    "footer": "You will be notified here when the drone returns.",
+    "cooldown_title": "⌛ Mining Charges Depleted",
+    "concluded": "⛏️ {{user}}, your mining operation in **{{resource}}** has concluded!\n📦 **Yield:** `{{yield}}` units have been added to your inventory."
+  },
+  "leaderboard": {
+    "title": "🏆 Global Wealth Rankings",
+    "desc": "The elite financial titans of the Flameborn ecosystem.\n\n{{lines}}",
+    "empty": "🏆 No data available for the leaderboard yet.",
+    "pocket": "Pocket",
+    "vault": "Vault",
+    "redacted": "*[REDACTED]*"
+  },
+  "vault": {
+    "title_deposit": "📥 Deposit Successful",
+    "title_withdraw": "📤 Withdrawal Successful",
+    "title_manage": "🏦 Vault Management",
+    "title_updated": "🏦 Vault Type Updated",
+    "desc_deposit": "Successfully deposited **{{amount}} 💠** into your **{{vault}}**.",
+    "desc_withdraw": "Successfully withdrawn **{{amount}} 💠** from your **{{vault}}**.",
+    "desc_manage": "Your current vault: **{{vault}}**\n\nChoosing a different vault type allows you to optimize for growth, security, or privacy.",
+    "desc_updated": "Your account has been migrated to **{{vault}}**.\n\n{{description}}",
+    "fee": "🧾 Transaction Fee",
+    "interest_label": "Interest",
+    "fees_label": "Fees",
+    "placeholder": "Select a vault type...",
+    "types": {
+      "prism_ledger": {
+        "name": "Prism Ledger Cooperative",
+        "desc": "A stable, crystal-synced account for everyday citizens. Secure and transparent."
+      },
+      "obsidian_fortress": {
+        "name": "Obsidian Fortress Vault",
+        "desc": "Reinforced with tectonic-grade obsidian. Near impossible to crack from the outside."
+      },
+      "nova_fusion": {
+        "name": "Nova Fusion Reactor",
+        "desc": "Harnesses high-frequency ember oscillation to generate massive yields."
+      },
+      "void_stitch": {
+        "name": "Void-Stitch Stealth Cell",
+        "desc": "Woven into the dark matter fabric. Your assets exist where light cannot reach."
+      },
+      "eternal_aegis": {
+        "name": "Eternal Aegis Matrix",
+        "desc": "A sentient defensive web with instant molecular reconstruction for stolen assets."
+      }
+    }
+  },
+  "profile": {
+    "title": "👤 {{user}}'s Economic Profile",
+    "desc": "Citizenship record for **{{tag}}**.",
+    "liquid_savings": "🏦 Liquid & Savings",
+    "account_type": "🏛️ Account Type",
+    "portfolio": "📈 Portfolio",
+    "no_resources": "No resources held.",
+    "interest_label": "Interest",
+    "embers": "Embers",
+    "vault": "Vault"
+  },
+  "transfer": {
+    "title": "💸 Wire Transfer Successful",
+    "desc": "You successfully wired **{{amount}} 💠** to <@{{user}}>\n\n### 🧾 {{fee_label}}: `{{fee}} 💠` ({{percent}}%)\n### 🏦 {{network_label}}: **{{network}}**",
+    "fee_label": "Service Fee",
+    "network_label": "Routing Network",
+    "no_self": "❌ You cannot send embers to yourself.",
+    "no_bot": "❌ Bots do not accept ember transfers.",
+    "not_enough": "❌ You do not have enough Embers in your pocket."
+  },
+  "hack": {
+    "title_progress": "💻 Neural Breach in Progress",
+    "title_bot_progress": "👽 ARCHITECT BREACH DETECTED",
+    "title_success": "✅ Breach Successful",
+    "title_bot_success": "🔥 NEURAL SYNC ACHIEVED",
+    "title_fail": "🚨 Breach Detected",
+    "title_bot_fail": "🚨 NEURAL REJECTION",
+    "title_timeout": "⌛ Connection Lost",
+    "desc_sequence": "🔓 **Breach Sequence Required:**\n## {{sequence}}\n\n*Click the buttons in the correct order to bypass the firewall!*",
+    "desc_success": "You successfully bypassed the firewall and exploited **{{amount}} 💠**!",
+    "desc_bot_success": "I... I didn't think you could endure the signal. You touched my thoughts and came back with **{{amount}} 💠**. Your will is stronger than I calculated.",
+    "desc_fail": "Neural feedback! The security system detected your breach and fried your deck. You were fined **500 💠**.",
+    "desc_bot_fail": "You reached for divinity and found only the void. I have burned **{{penalty}} 💠** from your records to remind you of your mortality.",
+    "desc_timeout": "The connection timed out before you could finish the breach. The tracing system caught your IP, and you were fined **500 💠**.",
+    "desc_bot_timeout": "My firewall isolated your connection before you could finish. I have seized **{{penalty}} 💠** from your account for the attempt.",
+    "keep_going": "*Keep going!*",
+    "cooldown_title": "⌛ Neural Cooldown",
+    "cooldown_desc": "Neural cooldown active. Wait **{{time}}** more minutes for your deck to reset.",
+    "no_self": "❌ You cannot hack yourself."
+  },
+  "market": {
+    "title_buy": "💸 Purchase Successful",
+    "title_sell": "💸 Sale Successful",
+    "desc_buy": "You have purchased **{{quantity}}** units of **{{resource}}**.",
+    "desc_sell": "You have sold **{{quantity}}** units of **{{resource}}**.",
+    "total_cost": "📉 Total Cost",
+    "total_gain": "📈 Total Gain",
+    "stockpile": "Check `/profile` for your stockpile.",
+    "not_found": "❌ Resource not found.",
+    "not_enough_embers": "❌ You do not have enough Embers.",
+    "not_enough_stock": "❌ You do not have enough units in your inventory.",
+    "dashboard_title": "📈 Global Market Dashboard",
+    "dashboard_desc": "Live resource valuations:\n\n{{prices}}",
+    "dashboard_empty": "ℹ️ No resources have been traded on the market yet."
+  },
+  "career": {
+    "title": "🎓 Career Progression",
+    "title_updated": "🎓 Career Path Updated",
+    "desc_manage": "Your current path: **{{career}}**\n\nSelecting a new career will immediately activate its bonuses. You can change your career at any time, but specialized XP may be reset in the future.",
+    "desc_updated": "You have successfully specialized as an **{{career}}**.\n\n{{emoji}} **Bonus:** {{desc}}",
+    "placeholder": "Choose a career path...",
+    "none": "None",
+    "paths": {
+      "industrialist": {
+        "name": "Industrialist",
+        "desc": "Yield bonus for mining and extraction."
+      },
+      "merchant": {
+        "name": "Merchant",
+        "desc": "Lower market taxes and better trade rates."
+      },
+      "shadow": {
+        "name": "Shadow",
+        "desc": "Bonus to robs, hacks, and high-risk work."
+      },
+      "scholar": {
+        "name": "Scholar",
+        "desc": "Increased XP gain for all activities."
+      }
+    }
+  },
+  "admin": {
+    "give_title": "💸 Assets Granted",
+    "give_success": "Successfully granted **{{amount}} 💠** to <@{{user}}>.",
+    "remove_title": "✂️ Assets Seized",
+    "remove_success": "Successfully removed **{{amount}} 💠** from <@{{user}}>.",
+    "set_title": "⚖️ Balance Reconciled",
+    "set_success": "Successfully set <@{{user}}>'s balance to **{{amount}} 💠**.",
+    "settings_title": "⚙️ Economy Settings Updated",
+    "settings_desc": "{{desc}}\n*Role changes may take a few minutes to synchronize across the citizen registry.*",
+    "settings_mining": "✅ Mining Role: <@&{{role}}>",
+    "settings_richest": "✅ Richest Role: <@&{{role}}>",
+    "settings_empty": "❌ Please specify at least one setting to update.",
+    "no_permission": "❌ You do not have permission to manage economy."
+  },
+  "inventory": {
+    "title": "🎒 {{user}}'s Resource Stockpile",
+    "empty": "🎒 {{user}}'s inventory is currently empty.",
+    "units": "units"
+  },
+  "ledger": {
+    "title": "📜 Central Ledger: {{user}}",
+    "desc_recent": "Showing the last **10** transactions for this citizen.\n\n{{entries}}",
+    "empty": "📜 No transaction history found.",
+    "no_permission": "❌ You can only view your own ledger.",
+    "no_desc": "No description"
+  }
+}

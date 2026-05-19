@@ -1,0 +1,17 @@
+{
+  "start_success": "Giveaway successfully started!",
+  "end_success": "Giveaway successfully ended!",
+  "cancel_success": "Giveaway cancelled.",
+  "reroll_success": "Giveaway rerolled! Winners will be announced shortly.",
+  "error_not_found": "Giveaway not found.",
+  "error_no_entries": "No valid entries were found.",
+  "error_active": "This giveaway is still active.",
+  "error_ended": "This giveaway has already ended.",
+  "error_duration": "Invalid duration provided.",
+  "error_requirements": "You do not meet the requirements to enter.",
+  "join_success": "You have successfully entered the giveaway!",
+  "join_removed": "You have left the giveaway.",
+  "drop_claimed": "⚡ You successfully claimed the drop!",
+  "drop_full": "Sorry, all the drops have been claimed!",
+  "claim_success": "You claimed the drop!"
+}

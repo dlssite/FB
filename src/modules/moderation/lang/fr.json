@@ -1,0 +1,31 @@
+{
+  "ban": {
+    "success": "🔴 **{{user}}** a été banni définitivement du serveur.",
+    "reason_log": "🔨 Bannissement Émis : {{reason}}"
+  },
+  "kick": {
+    "success": "👢 **{{user}}** a été expulsé du serveur.",
+    "reason_log": "👢 Expulsion Émise : {{reason}}"
+  },
+  "warn": {
+    "success": "⚠️ **{{user}}** a été averti. (Total des avertissements : {{count}})",
+    "reason_log": "⚠️ Avertissement Émis : {{reason}}"
+  },
+  "timeout": {
+    "success": "⏳ **{{user}}** a été réduit au silence pendant **{{duration}}**.",
+    "reason_log": "⏳ Exclusion Émise : {{reason}} ({{duration}})"
+  },
+  "unwarn": {
+    "success": "✅ Avertissement **#{{id}}** supprimé avec succès pour **{{user}}**."
+  },
+  "modactions": {
+    "title": "📜 Historique de Modération Récent",
+    "no_actions": "Aucune action récente trouvée.",
+    "footer": "Affichage des 10 dernières actions."
+  },
+  "errors": {
+    "no_user": "❌ Vous devez spécifier un utilisateur valide.",
+    "hierarchy": "❌ Vous ne pouvez pas punir cet utilisateur en raison de la hiérarchie des rôles.",
+    "self_punish": "❌ Vous ne pouvez pas vous punir vous-même."
+  }
+}

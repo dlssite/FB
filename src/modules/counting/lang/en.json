@@ -1,0 +1,27 @@
+{
+  "setup": {
+    "success": "✅ Counting system activated in <#{{channel}}>. Top Role set to: {{role}}",
+    "no_changes": "⚠️ No settings were provided."
+  },
+  "stats": {
+    "title": "📊 Counting Reliability: {{user}}",
+    "desc": "Accuracy is calculated based on successful contributions vs shattered chains."
+  },
+  "leaderboard": {
+    "title": "🏆 Top Counters",
+    "desc": "The most reliable mathematicians in the server."
+  },
+  "shames": {
+    "title": "🤡 The Hall of Shame",
+    "desc": "Users who have ruined the count the most times."
+  },
+  "messages": {
+    "ruined": "⚠️ **<@{{user}}>**, that's the wrong number! The next number is **{{next}}**. You've been added to the **Hall of Shame** and lost **500 XP**.",
+    "ruined_math": "⚠️ **<@{{user}}>**, you failed the math test! The correct answer was **{{next}}**. You've been added to the **Hall of Shame** and lost **500 XP**.",
+    "ruined_double": "⚠️ **<@{{user}}>**, you tried to count twice in a row! You've been added to the **Hall of Shame** and lost **500 XP**. The next number is still **{{next}}**.",
+    "saved": "⏳ **A rift in time opened!** **<@{{user}}>**'s mistake was undone by a **Temporal Rewind**! The count remains at **{{count}}**.",
+    "cursed": "☠️ **CURSED NUMBER!** **{{user}}** bravely counted the cursed number **{{count}}** and took a hit for the server, but earned a legendary bounty!",
+    "blessed": "✨ **BLESSED NUMBER!** **{{user}}** counted the blessed number **{{count}}** and received a massive Ember drop!",
+    "milestone": "🎉 **MILESTONE REACHED!** We have successfully reached **{{count}}**!"
+  }
+}

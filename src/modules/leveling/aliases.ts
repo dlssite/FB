@@ -1,0 +1,20 @@
+export const levelingAliases = {
+  'rank': 'level:rank',
+  'level': 'level:rank',
+  'lvl': 'level:rank',
+  'top': 'level:leaderboard',
+  'lb': 'level:leaderboard',
+  'leaderboard': 'level:leaderboard',
+  'xp': 'level:rank',
+  'progress': 'level:rank',
+  'roles': 'level:list',
+  'rewards': 'level:list',
+  'progression': 'level:list',
+  'levelset': 'level:settings',
+  'levelroles': 'level:roles',
+  'setxp': 'level:manage',
+  'setlevel': 'level:manage',
+  'setlvl': 'level:manage',
+  'managelevel': 'level:manage',
+  'leveltoggle': 'level:toggle'
+};

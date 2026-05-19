@@ -1,0 +1,32 @@
+{
+  "ping": {
+    "title": "🏓 Pong!",
+    "latency": "📡 API Latency",
+    "heartbeat": "💓 Heartbeat",
+    "tenant": "🏢 Tenant ID",
+    "status": "🟢 Status",
+    "operational": "Operational"
+  },
+  "afk": {
+    "success": "💤 I've set your AFK status to: **{{reason}}**. I will notify others when they mention you.",
+    "welcome_back": "👋 Welcome back, <@{{user}}>! I've removed your AFK status.",
+    "notify": "💤 **{{user}}** is currently AFK: **{{reason}}** ({{time}})"
+  },
+  "steal": {
+    "no_emoji_reply": "❌ No custom emojis found in the replied message.",
+    "processed_multiple": "✅ Processed **{{total}}** emojis: Added **{{added}}**, Skipped **{{skipped}}** duplicates.",
+    "provide_emoji": "❌ Provide an emoji/URL or reply to a message!",
+    "duplicate": "❌ An emoji with that name already exists!",
+    "success_single": "✅ Successfully stolen: {{emoji}}",
+    "fail": "❌ Failed to upload. Check server space or image validity."
+  },
+  "help": {
+    "title": "📚 {{botName}} Command Atlas",
+    "desc": "Welcome to the command directory. Select a category below to view detailed documentation and usage examples.",
+    "categories": "📂 Categories",
+    "footer": "Tip: You can use shorthand prefix aliases for many commands!",
+    "not_for_you": "❌ This help menu is not for you.",
+    "not_found": "❌ Command not found.",
+    "guide_title": "📖 {{category}} Guide"
+  }
+}

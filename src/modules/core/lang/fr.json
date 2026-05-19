@@ -1,0 +1,5 @@
+{
+  "lang": {
+    "success": "✅ La langue a été changée avec succès en : **{{lang}}**."
+  }
+}

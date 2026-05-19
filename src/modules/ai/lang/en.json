@@ -1,0 +1,13 @@
+{
+  "system": {
+    "refusal": "I can't do that because this action requires {{role}} permissions."
+  },
+  "commands": {
+    "ai": {
+      "name": "ai",
+      "description": "Configure the Cognitive Engine.",
+      "persona_set": "AI Persona has been successfully updated.",
+      "channel_bound": "This channel has been bound to the AI."
+    }
+  }
+}

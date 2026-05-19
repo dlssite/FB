@@ -1,0 +1,23 @@
+{
+  "ping": {
+    "title": "🏓 Pong !",
+    "latency": "📡 Latence API",
+    "heartbeat": "💓 Battement de cœur",
+    "tenant": "🏢 ID Locataire",
+    "status": "🟢 État",
+    "operational": "Opérationnel"
+  },
+  "afk": {
+    "success": "💤 J'ai défini votre statut AFK sur : **{{reason}}**. J'informerai les autres quand ils vous mentionneront.",
+    "welcome_back": "👋 Bon retour, <@{{user}}> ! J'ai supprimé votre statut AFK.",
+    "notify": "💤 **{{user}}** est actuellement AFK : **{{reason}}** ({{time}})"
+  },
+  "help": {
+    "title": "📚 Atlas des Commandes {{botName}}",
+    "desc": "Bienvenue dans le répertoire des commandes. Sélectionnez une catégorie ci-dessous pour voir la documentation détaillée.",
+    "categories": "📂 Catégories",
+    "footer": "Astuce : Vous pouvez utiliser des alias pour de nombreuses commandes !",
+    "not_for_you": "❌ Ce menu d'aide n'est pas pour vous.",
+    "guide_title": "📖 Guide {{category}}"
+  }
+}

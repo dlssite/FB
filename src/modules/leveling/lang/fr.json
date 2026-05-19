@@ -1,0 +1,34 @@
+{
+  "levelup": {
+    "title": "🧬 Synchronisation Neurale Avancée",
+    "desc": "Félicitations {{user}} ! Vous avez atteint le **Niveau {{level}}**.\n\n*Votre capacité neurale s'est étendue. De nouvelles aptitudes ont peut-être été débloquées.*"
+  },
+  "rank": {
+    "title": "Rang Neural de {{user}}",
+    "status": "**Statut**: Noyau Neural Synchronisé",
+    "level": "**Niveau**: {{level}}",
+    "xp": "**Expérience**: {{xp}} / {{needed}}",
+    "prestige": "PRESTIGE {{prestige}}"
+  },
+  "leaderboard": {
+    "title": "🏆 Tableau de Suprématie Neurale",
+    "desc": "Les citoyens les plus synchronisés du serveur :\n\n{{lines}}",
+    "empty": "🏆 Le registre neural est actuellement vide."
+  },
+  "admin": {
+    "no_permission": "❌ Vous n'avez pas la permission de gérer le système de niveaux.",
+    "settings_updated": "⚙️ Paramètres de Niveau Mis à Jour",
+    "rewards_updated": "🎭 Récompenses de Niveau Mises à Jour",
+    "blacklist_updated": "🚫 Liste Noire Mise à Jour",
+    "hotspot_updated": "🔥 Zone d'XP Intense Mise à Jour",
+    "toggle_on": "🧬 Module Activé",
+    "toggle_off": "🧬 Module Désactivé",
+    "toggle_desc": "Le système de Progression Neurale a été **{{state}}** pour ce serveur.",
+    "override_success": "🛠️ Modification Neurale Réussie"
+  },
+  "prestige": {
+    "title": "✨ Ascension Neurale Terminée",
+    "desc": "Voyez, {{user}} a atteint le **Rang de Prestige {{prestige}}** !\n\nLeurs voies neurales ont été réinitialisées et renforcées. Le cycle recommence, mais avec un potentiel accru.",
+    "not_ready": "❌ Vous devez atteindre le **Niveau 100** pour l'ascension. Votre niveau actuel est **{{level}}**."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "tod": {
+    "arena": {
+      "title": "🎭 Truth or Dare Arena",
+      "description": "Select your path below. May the truth set you free, or the dare break you.",
+      "footer": "Tap a button to receive your challenge. Are you brave?",
+      "no_permissions": "❌ You need **Manage Server** permissions to use this command.",
+      "panel_sent": "✅ The Truth or Dare Arena panel has been posted to {{channel}}."
+    },
+    "lobby": {
+      "title": "🎮 Royal Spin — Lobby",
+      "description": "**Host:** {{host}}\n\n**Players ({{count}}/10):**\n{{players}}",
+      "footer": "Minimum 2 players required to start.",
+      "already_active": "❌ A Truth or Dare session is already running in this server.",
+      "not_host": "❌ Only the host can start the game!",
+      "not_enough_players": "❌ You need at least 2 players to start!"
+    },
+    "game": {
+      "spinning": "🌀 The Bottle is Spinning...",
+      "chosen": "🎯 The Chosen One!",
+      "chosen_desc": "The bottle pointed at {{victim}}!\n\nChoose your destiny...",
+      "challenge_selected": "🤔 Challenge Selected",
+      "challenge_desc": "{{victim}} chose **{{type}}**!\n\n**Built-in Prompt:**\n> {{text}}\n\nPlayers, you can now propose your own questions!",
+      "proposal_submitted": "✅ Your proposal has been submitted!"
+    },
+    "stats": {
+      "title": "{{user}}'s Brave Profile",
+      "points": "🔥 Brave Points",
+      "truths": "💡 Truths Answered",
+      "dares": "✅ Dares Completed",
+      "chickens": "🐔 Chickens (Refusals)"
+    }
+  }
+}

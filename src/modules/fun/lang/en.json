@@ -1,0 +1,49 @@
+{
+  "general": {
+    "module_disabled": "❌ The Fun module is currently disabled on this server.",
+    "invalid_user": "❌ Could not find that user.",
+    "error": "❌ An error occurred while executing the fun command."
+  },
+  "fact": {
+    "title": "🧠 Random Fact",
+    "did_you_know": "Did you know?"
+  },
+  "joke": {
+    "title": "🎭 Random Joke"
+  },
+  "riddle": {
+    "title": "🤔 Riddle Me This",
+    "reveal_btn": "Reveal Answer",
+    "answer_title": "💡 The Answer"
+  },
+  "math": {
+    "title": "🧮 Math Solver",
+    "expression": "Expression",
+    "result": "Result",
+    "error_title": "❌ Math Error",
+    "invalid_expression": "Invalid mathematical expression provided."
+  },
+  "roast": {
+    "title": "🔥 ROASTED!",
+    "footer": "Don't take it personally... or do."
+  },
+  "coinflip": {
+    "title": "🪙 Coin Flip",
+    "heads": "Heads",
+    "tails": "Tails",
+    "result": "The coin landed on **{{result}}**!"
+  },
+  "8ball": {
+    "title": "🎱 Magic 8-Ball",
+    "question": "Question",
+    "answer": "Answer"
+  },
+  "trivia": {
+    "title": "❓ Trivia Time!",
+    "difficulty": "Difficulty",
+    "category": "Category",
+    "correct_msg": "✅ Correct! Great job!",
+    "wrong_msg": "❌ Wrong! The correct answer was **{{answer}}**.",
+    "timeout": "⏳ Time's up! The correct answer was **{{answer}}**."
+  }
+}

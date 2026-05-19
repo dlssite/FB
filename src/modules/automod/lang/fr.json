@@ -1,0 +1,17 @@
+{
+  "logs": {
+    "title": "🛡️ Violation Automod Détectée",
+    "user": "Utilisateur",
+    "type": "Type de Violation",
+    "action": "Action Prise",
+    "details": "Détails",
+    "deleted": "Message Supprimé",
+    "warned": "Utilisateur Averti",
+    "types": {
+      "spam": "Anti-Spam",
+      "link": "Anti-Lien",
+      "invite": "Anti-Invitation",
+      "nuke": "Anti-Nuke"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "general": {
+    "module_disabled": "❌ The Activity module is currently disabled on this server.",
+    "invalid_user": "❌ Could not find that user.",
+    "error": "❌ An error occurred while executing the activity command."
+  },
+  "user": {
+    "title": "📊 Activity Report: {{username}}",
+    "persona": "👤 Persona: **{{persona}}**",
+    "stats_title": "📈 Overall Statistics",
+    "messages": "💬 Messages Sent",
+    "media": "🖼️ Media Uploads",
+    "emojis": "😀 Emojis Used",
+    "links": "🔗 Links Shared",
+    "reactions": "❤️ Reactions Given",
+    "commands": "🤖 Commands Run",
+    "voice": "🔊 Voice Call Time",
+    "distribution_title": "🗺️ Active Channel Breakdown"
+  },
+  "server": {
+    "title": "🌐 Server Telemetry Dashboard",
+    "growth_title": "👥 Growth & Joins/Leaves",
+    "joins": "📥 Joins",
+    "leaves": "📤 Leaves",
+    "peak_voice": "🔊 Peak Voice Users",
+    "hotspots_title": "🔥 Active Channels Ranking",
+    "dead_channels_title": "❄️ Dead Channels Alert (14 days idle)"
+  },
+  "leaderboard": {
+    "title": "🏆 Activity Leaderboard",
+    "nav_first": "First",
+    "nav_prev": "Prev",
+    "nav_next": "Next",
+    "nav_last": "Last",
+    "empty": "No activity data found for this category and timeframe.",
+    "entry": "{{medal}} <@{{userId}}>: **{{value}}**",
+    "channels_entry": "{{medal}} **#{{channelName}}**: **{{value}} messages**",
+    "filter_category": "Category",
+    "filter_timeframe": "Timeframe"
+  }
+}
