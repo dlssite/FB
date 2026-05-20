@@ -77,7 +77,7 @@ export class EmbedService {
     return ContainerService.create({
       title: 'Something went wrong',
       description: displayMessage,
-      media: [flamebornConfig.assets.errorBanner],
+      media: flamebornConfig.assets.errorBanner ? [flamebornConfig.assets.errorBanner] : [],
       color: '#EA5455',
       footer: `Support ID: ${supportId}`,
       components

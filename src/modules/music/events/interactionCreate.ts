@@ -15,7 +15,7 @@ export default {
     const { RoutingService } = await import('../../../services/RoutingService');
     const tenantId = await RoutingService.resolveTenantId(guildId, 'music');
 
-    await tenantStorage.run({ tenantId, guildId }, async () => {
+    await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
       const userId = interaction.user.id;
 
     // --- TRIVIA HANDLER ---

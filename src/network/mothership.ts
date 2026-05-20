@@ -18,8 +18,6 @@ export class MothershipConnection {
       },
       reconnection: true,
       reconnectionAttempts: Infinity,
-      pingTimeout: 45000,
-      pingInterval: 30000,
     });
 
     this.registerEvents();

@@ -12,6 +12,11 @@ export default {
        .addIntegerOption(opt => opt.setName('uses').setDescription('Number of times the portal can be used (Energy)').setMinValue(1)),
 
   async execute(interaction: any) {
+    const guild = interaction.guild;
+    const member = interaction.member;
+    const channel = interaction.channel;
+    const options = interaction.options;
+
     const guildId = guild.id;
     const tenantId = await RoutingService.resolveTenantId(guildId, 'economy');
 

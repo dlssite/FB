@@ -69,7 +69,7 @@ export class AddonService {
         // 2b. Legacy Fallback: Individual boolean flags
         switch (moduleName.toLowerCase()) {
           case 'welcomer':
-            if (settings.welcomeInOn === false) return { enabled: false, reason: 'ADMIN' };
+            if (settings.welcomerOn === false) return { enabled: false, reason: 'ADMIN' };
             break;
           case 'automod':
             if (settings.antiInviteOn === false && settings.antiLinkOn === false) {

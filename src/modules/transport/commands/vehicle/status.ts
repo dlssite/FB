@@ -1,3 +1,4 @@
+import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { ContainerService, replyV2 } from '../../../../utils/container';
 import { InventoryService } from '../../../shop/services/InventoryService';
 import { RoutingService } from '../../../../services/RoutingService';

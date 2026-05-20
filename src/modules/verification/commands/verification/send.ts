@@ -36,7 +36,7 @@ export default {
       components: [row]
     });
 
-    await (interaction.channel as any)?.send(containerData.send);
+    await (interaction.channel as any)?.send(containerData);
     
     await interaction.editReply({ content: '✅ Verification prompt sent.' });
   }

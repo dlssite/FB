@@ -13,6 +13,7 @@ export class GuildRepository {
   }
 
   static async upsertGuildSettings(tenantId: string, guildId: string, prefix: string = '!') {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {
@@ -30,6 +31,7 @@ export class GuildRepository {
   }
 
   static async updateDisabledAddons(tenantId: string, guildId: string, disabledAddons: string[]) {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {
@@ -47,6 +49,7 @@ export class GuildRepository {
   }
 
   static async updateMiningRole(tenantId: string, guildId: string, roleId: string) {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {
@@ -64,6 +67,7 @@ export class GuildRepository {
   }
 
   static async updateRichestRole(tenantId: string, guildId: string, roleId: string) {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {
@@ -81,6 +85,7 @@ export class GuildRepository {
   }
 
   static async updateTopLevelerRole(tenantId: string, guildId: string, roleId: string) {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {
@@ -98,6 +103,7 @@ export class GuildRepository {
   }
 
   static async updateInviteChannel(tenantId: string, guildId: string, channelId: string) {
+    const now = new Date();
     return await prisma.server_settings.upsert({
       where: {
         guildId_tenantId: {

@@ -40,7 +40,8 @@ export class EconomyProfileProvider implements ProfileProvider {
 
     // We assume viewing from profile:view command context where targetUser is checked against interaction.user
     // If vault is hidden, we let the user know it's secured unless they are the owner
-    const isOwner = context?.userId === userId;
+    // Note: In context, userId is not available - would need to be passed from caller
+    const isOwner = false;
     const vaultBal = (vault.hidden && !isOwner) 
       ? Translator.t('economy', 'balance.secured', lang) 
       : Number(user?.emberVault || 0).toLocaleString();

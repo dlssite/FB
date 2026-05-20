@@ -29,13 +29,16 @@ export default {
     }
 
     if (stack !== null) {
+      const now = new Date();
       await prisma.leveling_settings.upsert({
         where: { guildId_tenantId: { guildId: context.guildId, tenantId: context.tenantId } },
-        update: { roleRewardStack: stack },
+        update: { roleRewardStack: stack, updatedAt: now },
         create: {
           guildId: context.guildId,
           tenantId: context.tenantId,
-          roleRewardStack: stack
+          roleRewardStack: stack,
+          createdAt: now,
+          updatedAt: now
         }
       });
       description += `✅ Role Stacking: **${stack ? 'Enabled' : 'Disabled'}**\n`;

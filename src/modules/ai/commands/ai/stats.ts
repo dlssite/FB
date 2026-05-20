@@ -26,9 +26,7 @@ export default {
       description: 'Real-time health and rotation statistics for the AI LLM providers.',
       color: '#7367F0',
       fields: [
-        { name: 'Groq (Primary)', value: formatProvider(stats.groq) },
-        { name: 'Gemini (Fallback 1)', value: formatProvider(stats.gemini) },
-        { name: 'OpenAI (Fallback 2)', value: formatProvider(stats.openai) }
+        { name: 'OpenRouter (Primary)', value: formatProvider(stats.openrouter) }
       ],
       footer: true,
       interaction

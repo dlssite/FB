@@ -92,6 +92,8 @@ export class AutomodService {
     try {
       await message.delete().catch(() => {});
       
+      if (!('send' in message.channel)) return;
+
       const warnMsg = await message.channel.send({
         content: `⚠️ ${message.author}, your message was removed by Automod: **${reason}**.`
       });

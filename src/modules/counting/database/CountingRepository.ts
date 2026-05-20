@@ -10,8 +10,9 @@ export class CountingRepository {
     });
 
     if (!settings) {
+      const now = new Date();
       settings = await prisma.counting_settings.create({
-        data: { guildId, tenantId }
+        data: { guildId, tenantId, createdAt: now, updatedAt: now }
       });
     }
     return settings;
@@ -21,10 +22,11 @@ export class CountingRepository {
    * Updates the counting settings (e.g. current count, last user).
    */
   static async updateSettings(tenantId: string, guildId: string, data: any) {
+    const now = new Date();
     return await prisma.counting_settings.upsert({
       where: { guildId_tenantId: { guildId, tenantId } },
-      update: data,
-      create: { guildId, tenantId, ...data }
+      update: { ...data, updatedAt: now },
+      create: { guildId, tenantId, ...data, createdAt: now, updatedAt: now }
     });
   }
 
@@ -32,12 +34,13 @@ export class CountingRepository {
    * Fetches a user's counting statistics.
    */
   static async getUser(tenantId: string, guildId: string, userId: string) {
+    const now = new Date();
     return await prisma.counting_users.upsert({
       where: {
         userId_guildId_tenantId: { userId, guildId, tenantId }
       },
       update: {},
-      create: { userId, guildId, tenantId }
+      create: { userId, guildId, tenantId, createdAt: now, updatedAt: now }
     });
   }
 
@@ -55,18 +58,21 @@ export class CountingRepository {
     if (type === 'ruin') updateData.ruinedCounts = { increment: 1 };
     if (type === 'save') updateData.savesUsed = { increment: 1 };
 
+    const now = new Date();
     return await prisma.counting_users.upsert({
       where: {
         userId_guildId_tenantId: { userId, guildId, tenantId }
       },
-      update: updateData,
+      update: { ...updateData, updatedAt: now },
       create: { 
         userId, 
         guildId, 
         tenantId, 
         totalCounts: type === 'success' ? 1 : 0,
         ruinedCounts: type === 'ruin' ? 1 : 0,
-        savesUsed: type === 'save' ? 1 : 0
+        savesUsed: type === 'save' ? 1 : 0,
+        createdAt: now,
+        updatedAt: now
       }
     });
   }

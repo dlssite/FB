@@ -46,6 +46,7 @@ export default {
     }
 
     // Create the trigger
+    const now = new Date();
     const newTrigger = await prisma.auto_triggers.create({
       data: {
         tenantId: context.tenantId,
@@ -53,7 +54,8 @@ export default {
         name,
         trigger: triggerPattern,
         matchType,
-        createdBy: interaction.user.id
+        createdBy: interaction.user.id,
+        createdAt: now
       }
     });
 

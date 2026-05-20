@@ -31,10 +31,10 @@ export default {
       multipliers[channel.id] = multiplier;
     }
 
-    await prisma.leveling_settings.update({
-      where: { guildId_tenantId: { guildId: context.guildId, tenantId: context.tenantId } },
-      data: { xpMultipliers: multipliers }
-    });
+     await prisma.leveling_settings.update({
+       where: { guildId_tenantId: { guildId: context.guildId, tenantId: context.tenantId } },
+       data: { channelBoosters: multipliers }
+     });
 
     const response = ContainerService.create({
       title: '🔥 XP Hotspot Updated',

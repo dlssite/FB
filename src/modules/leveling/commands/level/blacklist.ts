@@ -34,7 +34,7 @@ export default {
       
       await prisma.leveling_settings.update({
         where: { guildId_tenantId: { guildId: context.guildId, tenantId: context.tenantId } },
-        data: { ignoredChannels: ignored }
+        data: { noXpChannels: ignored }
       });
       description += `✅ Channel **<#${channel.id}>** ${remove ? 'removed from' : 'added to'} blacklist.\n`;
     }
@@ -46,7 +46,7 @@ export default {
       
       await prisma.leveling_settings.update({
         where: { guildId_tenantId: { guildId: context.guildId, tenantId: context.tenantId } },
-        data: { ignoredRoles: ignored }
+        data: { noXpRoles: ignored }
       });
       description += `✅ Role **<@&${role.id}>** ${remove ? 'removed from' : 'added to'} blacklist.\n`;
     }

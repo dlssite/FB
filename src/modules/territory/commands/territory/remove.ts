@@ -18,7 +18,7 @@ export default {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.memberPermissions?.has('ManageGuild')) {
       return await interaction.editReply(
-        ContainerService.simple().reply
+        ContainerService.simple('❌ You need ManageGuild permission to use this command.')
       );
     }
 
@@ -31,7 +31,7 @@ export default {
     const existing = await TerritoryRepository.getByCategoryId(tenantId, guildId, category.id);
     if (!existing) {
       return await interaction.editReply(
-        ContainerService.simple().reply
+        ContainerService.simple('❌ Nation not found in this category.')
       );
     }
 
@@ -41,6 +41,6 @@ export default {
       `✅ Successfully removed the Nation registration for **${existing.name}**.`
     );
 
-    await interaction.editReply(response.reply);
+    await interaction.editReply(response);
   }
 };

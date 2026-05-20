@@ -61,8 +61,11 @@ export default {
             ? `❌ The **${command.module.toUpperCase()}** module is currently disabled by Mother.`
             : `❌ The **${command.module.toUpperCase()}** module is currently disabled by a server administrator.`;
           
-          if (interaction.deferred) await interaction.editReply({ content: message });
-          else await interaction.reply({ content: message, flags: [MessageFlags.Ephemeral] });
+          // Only reply if this is a ChatInputCommand (not Autocomplete)
+          if (interaction.isChatInputCommand()) {
+            if (interaction.deferred) await interaction.editReply({ content: message });
+            else await interaction.reply({ content: message, flags: [MessageFlags.Ephemeral] });
+          }
           return;
         }
       }
@@ -86,11 +89,13 @@ export default {
           );
           
           const isEphemeral = (command as any)?.ephemeral === true;
-          if (interaction.deferred) await interaction.editReply({ components: ratelimitContainer.components });
-          else await interaction.reply({ 
-            components: ratelimitContainer.components, 
-            flags: isEphemeral ? MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral : MessageFlags.IsComponentsV2 
-          });
+          if (interaction.isChatInputCommand()) {
+            if (interaction.deferred) await interaction.editReply({ components: ratelimitContainer.components });
+            else await interaction.reply({ 
+              components: ratelimitContainer.components, 
+              flags: isEphemeral ? MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral : MessageFlags.IsComponentsV2 
+            });
+          }
           return;
         }
       }

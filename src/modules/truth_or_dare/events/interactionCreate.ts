@@ -120,7 +120,7 @@ export default {
       const [_, typeRaw, currentTier] = interaction.customId.split('_');
       await interaction.deferUpdate();
 
-      const settings = await TodRepository.getSettings(tenantId, interaction.guild.id);
+      const settings = await TodRepository.getSettings(tenantId, interaction.guild!.id);
       const tiers: any = { SOFT: 0, PARTY: 1, SPICY: 2 };
       
       let targetTier = currentTier as any;

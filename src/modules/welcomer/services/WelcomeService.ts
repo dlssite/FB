@@ -30,7 +30,7 @@ export class WelcomeService {
     const messageText = PlaceholderService.parse(settings.welcomeInEmbedText || 'Welcome {user.mention} to {server.name}!', { member });
 
     // 3. Prepare Message
-    if (settings.welcomeInEmbedOn || true) { // Default to true for polish
+    if (settings.welcomeInOn || true) { // Default to true for polish
       const welcomeContainer = ContainerService.create({
         description: messageText,
         color: settings.welcomeInEmbedColor as any || '#7367F0',

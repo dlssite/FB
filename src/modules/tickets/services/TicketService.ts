@@ -92,7 +92,7 @@ export class TicketService {
     // Send Welcome Container
     const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
     
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId(`ticket_close_${ticket.id}`).setLabel('Close Ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒')
     );
 
@@ -218,7 +218,7 @@ export class TicketService {
       const options: any = { limit: 100 };
       if (lastId) options.before = lastId;
 
-      const batch = await channel.messages.fetch(options);
+      const batch = await channel.messages.fetch(options) as any;
       if (batch.size === 0) break;
 
       messages = messages.concat(Array.from(batch.values()));

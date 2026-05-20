@@ -25,7 +25,7 @@ export default {
     if (membership?.role !== 'head') return await replyV2(interaction, ContainerService.simple('❌ Only family heads can initiate territory claims.'));
 
     // 2. Check if nation exists
-    const nation = await prisma.territory_nations.findUnique({ where: { id: nationId } });
+    const nation = await prisma.transport_nations.findUnique({ where: { id: nationId } });
     if (!nation) return await replyV2(interaction, ContainerService.simple('❌ This nation does not exist.'));
 
     // 3. Initiate Vote

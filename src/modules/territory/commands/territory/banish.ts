@@ -24,7 +24,7 @@ export default {
 
     const actor = interaction.member as GuildMember;
     const target = await interaction.guild?.members.fetch(targetUser.id);
-    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.').reply);
+    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.'));
 
     // 1. Resolve which territory to act on
     const governed = await TerritoryPowerService.resolveGovernedTerritories(tenantId, guildId, actor);
@@ -56,14 +56,14 @@ export default {
 
     if (!territory) {
       if (governed.length > 1) {
-        return interaction.editReply(ContainerService.simple(`⚠️ You govern multiple territories. Please specify one: ${governed.map(t => `\`${t.name}\``).join(', ')}`).reply);
+        return interaction.editReply(ContainerService.simple(`⚠️ You govern multiple territories. Please specify one: ${governed.map(t => `\`${t.name}\``).join(', ')}`));
       }
-      return interaction.editReply(ContainerService.simple('❌ You do not have Patron authority over any such territory.').reply);
+      return interaction.editReply(ContainerService.simple('❌ You do not have Patron authority over any such territory.'));
     }
 
     // 2. Hierarchy Check
     const check = await TerritoryPowerService.canGovernTarget(actor, target, territory);
-    if (!check.allowed) return interaction.editReply(ContainerService.simple(`❌ ${check.reason}`).reply);
+    if (!check.allowed) return interaction.editReply(ContainerService.simple(`❌ ${check.reason}`));
 
     // 3. Execution
     try {
@@ -77,9 +77,9 @@ export default {
         footer: true,
         interaction
       });
-      await interaction.editReply(response.reply);
+      await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error executing banishment: ${err.message}`).reply);
+      await interaction.editReply(ContainerService.simple(`❌ Error executing banishment: ${err.message}`));
     }
   }
 };

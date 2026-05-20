@@ -21,12 +21,12 @@ export default {
 
     const actor = interaction.member as GuildMember;
     const target = await interaction.guild?.members.fetch(targetUser.id);
-    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.').reply);
+    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.'));
 
     const governed = await TerritoryPowerService.resolveGovernedTerritories(tenantId, guildId, actor);
     let territory = territoryName ? governed.find(t => t.name.toLowerCase() === territoryName.toLowerCase()) : (governed.length === 1 ? governed[0] : null);
 
-    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.').reply);
+    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.'));
 
     try {
       await TerritoryPowerService.executeUnsilence(target, territory);
@@ -39,9 +39,9 @@ export default {
         footer: true,
         interaction
       });
-      await interaction.editReply(response.reply);
+      await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`).reply);
+      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`));
     }
   }
 };

@@ -39,8 +39,14 @@ export default {
       let typingInterval: NodeJS.Timeout | null = null;
 
       try {
-        await message.channel.sendTyping();
-        typingInterval = setInterval(() => message.channel.sendTyping(), 8000);
+        if ('sendTyping' in message.channel) {
+          await message.channel.sendTyping();
+          typingInterval = setInterval(() => {
+            if ('sendTyping' in message.channel) {
+              message.channel.sendTyping().catch(() => {});
+            }
+          }, 8000);
+        }
 
         const highestRoleName = message.member?.roles.highest.name || 'Member';
         const isAdmin = message.member?.permissions.has('Administrator') || false;

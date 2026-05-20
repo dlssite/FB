@@ -41,7 +41,7 @@ export default {
     const isModalTrigger = customId.startsWith('verify_math_modal_trigger_') || customId === 'verify_access_code_modal_trigger';
     if (!isModalTrigger) {
       if (customId.startsWith('verify_start_')) {
-        await (interaction as ButtonInteraction).deferReply({ flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2] }).catch(() => {});
+        await (interaction as ButtonInteraction).deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
       } else {
         await (interaction as ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction).deferUpdate().catch(() => {});
       }
@@ -78,7 +78,7 @@ export default {
           .setRequired(true);
 
         modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
-        await interaction.showModal(modal);
+        if (interaction.isButton()) await interaction.showModal(modal);
       }
 
       // --- STEP 2: CAPTCHA (ACCESS CODE MODAL TRIGGER) ---
@@ -94,7 +94,7 @@ export default {
           .setRequired(true);
 
         modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
-        await interaction.showModal(modal);
+        if (interaction.isButton()) await interaction.showModal(modal);
       }
 
       else if (customId.startsWith('verify_captcha_color_')) {

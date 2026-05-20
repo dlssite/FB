@@ -57,14 +57,14 @@ export default {
 
           const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
 
-          const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          const row1 = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('tv_static_lock').setLabel('Lock').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
             new ButtonBuilder().setCustomId('tv_static_unlock').setLabel('Unlock').setStyle(ButtonStyle.Secondary).setEmoji('🔓'),
             new ButtonBuilder().setCustomId('tv_static_hide').setLabel('Hide (Ghost)').setStyle(ButtonStyle.Secondary).setEmoji('👻'),
             new ButtonBuilder().setCustomId('tv_static_show').setLabel('Show').setStyle(ButtonStyle.Secondary).setEmoji('👀')
           );
 
-          const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          const row2 = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('tv_static_rename').setLabel('Rename').setStyle(ButtonStyle.Primary).setEmoji('📝'),
             new ButtonBuilder().setCustomId('tv_static_limit').setLabel('Set Limit').setStyle(ButtonStyle.Primary).setEmoji('👥'),
             new ButtonBuilder().setCustomId('tv_static_transfer').setLabel('Transfer').setStyle(ButtonStyle.Danger).setEmoji('👑')

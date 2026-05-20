@@ -22,6 +22,30 @@ export default {
     const { tenantId, guildId } = getTenantContext();
     const settings = await AutomodRepository.getSettings(tenantId, guildId);
 
+    const menu = new ActionRowBuilder<StringSelectMenuBuilder>()
+      .addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('automod_menu')
+          .setPlaceholder('Select a setting to configure...')
+          .addOptions([
+            { label: 'Anti-Invite', value: 'anti_invite' },
+            { label: 'Anti-Link', value: 'anti_link' },
+            { label: 'Anti-Spam', value: 'anti_spam' }
+          ])
+      );
+
+    const buttons = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('automod_save')
+          .setLabel('Save')
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId('automod_cancel')
+          .setLabel('Cancel')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
     const automodContainer = ContainerService.create({
       title: '🛡️ Automod Control Panel',
       description: 'Configure your server\'s automatic defense systems. Select a category below to get started.',

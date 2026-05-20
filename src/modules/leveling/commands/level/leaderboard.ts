@@ -22,7 +22,7 @@ export default {
 
     const lines = top.map((u, i) => {
       const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : '🔹'));
-      return `**${medal}** <@${u.userId}> • **Level ${u.level}** (${u.xp.toLocaleString()} XP)`;
+      return `**${medal}** <@${u.userId}> • **Level ${u.level}** (${(u.xp || 0).toLocaleString()} XP)`;
     }).join('\n');
 
     const response = ContainerService.create({

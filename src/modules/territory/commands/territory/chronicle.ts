@@ -36,13 +36,13 @@ export default {
       territory = governed[0];
     }
 
-    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.').reply);
+    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.'));
 
     try {
       const history = await TerritoryPowerRepository.getHistoryByNation(tenantId, guildId, territory.id, limit);
 
       if (history.length === 0) {
-        return interaction.editReply(ContainerService.simple(`ℹ️ No actions recorded for **${territory.name}** yet.`).reply);
+        return interaction.editReply(ContainerService.simple(`ℹ️ No actions recorded for **${territory.name}** yet.`));
       }
 
       const list = history.map(h => {
@@ -57,9 +57,9 @@ export default {
         footer: true,
         interaction
       });
-      await interaction.editReply(response.reply);
+      await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`).reply);
+      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`));
     }
   }
 };

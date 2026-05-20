@@ -19,13 +19,13 @@ export default {
 
     // 1. Permission Check (Moderator Level)
     if (!member.permissions.has(PermissionFlagsBits.ManageRoles) && !member.permissions.has(PermissionFlagsBits.ManageGuild)) {
-      return interaction.editReply(ContainerService.simple('❌ You do not have permission to use staff teleportation.').reply);
+      return interaction.editReply(ContainerService.simple('❌ You do not have permission to use staff teleportation.'));
     }
 
     // 2. Resolve Nation
     const allNations = await TerritoryRepository.listByGuild(tenantId, guildId);
     const nation = allNations.find(n => n.name.toLowerCase() === nationName.toLowerCase());
-    if (!nation) return interaction.editReply(ContainerService.simple(`❌ Nation **${nationName}** not found.`).reply);
+    if (!nation) return interaction.editReply(ContainerService.simple(`❌ Nation **${nationName}** not found.`));
 
     // 3. Teleport Logic
     const targetMember = await guild.members.fetch(targetUser.id);
@@ -47,6 +47,6 @@ export default {
       null
     ).catch(() => {});
 
-    return interaction.editReply(ContainerService.simple(`✅ Successfully teleported **${targetUser.tag}** to **${nation.name}**.`).reply);
+    return interaction.editReply(ContainerService.simple(`✅ Successfully teleported **${targetUser.tag}** to **${nation.name}**.`));
   }
 };

@@ -142,7 +142,7 @@ export default {
       const marriage = await prisma.social_marriages.findUnique({ where: { id: marriageId } });
       if (!marriage || marriage.status !== 'married') return await replyV2(interaction, ContainerService.simple('❌ This marriage record is no longer active.'));
 
-      if (marriage.status === 'divorce_pending') {
+      if (marriage.status === 'married') {
         // Second partner confirming
         if (interaction.user.id === (marriage.metadata as any)?.divorceRequesterId) {
           return await replyV2(interaction, ContainerService.simple('❌ You have already confirmed. Waiting for your partner.'));

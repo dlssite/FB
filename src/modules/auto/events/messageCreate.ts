@@ -16,7 +16,7 @@ export default {
     
     await tenantStorage.run({ tenantId, guildId: message.guild.id, lang: 'en' }, async () => {
       // Retrieve cached triggers for this guild
-      const triggers = await AutoService.getTriggers(tenantId, message.guild.id);
+      const triggers = await AutoService.getTriggers(tenantId, message.guild!.id);
       if (!triggers.length) return;
 
       Logger.debug(`[AUTO] Evaluating ${triggers.length} triggers against content: "${message.content}"`, 'ACTION_ENGINE' as any);

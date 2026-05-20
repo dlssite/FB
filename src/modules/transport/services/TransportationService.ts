@@ -131,21 +131,21 @@ export class TransportationService {
     // Find portal record
     const portal = await TransportationRepository.getPortalByMessage(guildId, message.id, nationId);
     if (!portal || portal.status !== 'open') {
-      return interaction.editReply(ContainerService.simple('❌ This portal rift has collapsed.').reply);
+      return interaction.editReply(ContainerService.simple('❌ This portal rift has collapsed.'));
     }
 
-    if (portal.currentUses >= portal.maxUses) {
-      return interaction.editReply(ContainerService.simple('❌ This portal has run out of energy.').reply);
+    if ((portal.currentUses ?? 0) >= (portal.maxUses ?? 10)) {
+      return interaction.editReply(ContainerService.simple('❌ This portal has run out of energy.'));
     }
 
     const nation = await TerritoryRepository.listByGuild(portal.tenantId, guildId)
       .then(list => list.find(n => n.id === nationId));
     
-    if (!nation) return interaction.editReply(ContainerService.simple('❌ Destination nation no longer exists.').reply);
+    if (!nation) return interaction.editReply(ContainerService.simple('❌ Destination nation no longer exists.'));
 
     // Permission check for travel ban
     if (nation.banRoleId && member.roles.cache.has(nation.banRoleId)) {
-      return interaction.editReply(ContainerService.simple(`🚫 You are banned from **${nation.name}**.`).reply);
+      return interaction.editReply(ContainerService.simple(`🚫 You are banned from **${nation.name}**.`));
     }
 
     // TELEPORT
@@ -161,7 +161,7 @@ export class TransportationService {
     await TransportationRepository.incrementPortalUses(portal.id);
 
     // UPDATE PORTAL UI (Stability Feedback)
-    await this.updatePortalEmbed(interaction, portal.messageId);
+    await this.updatePortalEmbed(interaction, portal.messageId!);
 
     // Notify
     await TerritoryPowerService.logAndNotify(
@@ -174,7 +174,7 @@ export class TransportationService {
       null
     ).catch(() => {});
 
-    return interaction.editReply(ContainerService.simple(`✅ Dimensional Rift stabilized! Welcome to **${nation.name}**.`).reply);
+    return interaction.editReply(ContainerService.simple(`✅ Dimensional Rift stabilized! Welcome to **${nation.name}**.`));
   }
 
   /**
@@ -266,8 +266,8 @@ export class TransportationService {
 
     const fields = portals.map(p => {
       const n = nationList.find(nl => nl.id === p.destinationNationId);
-      const remaining = p.maxUses - p.currentUses;
-      const pct = (remaining / p.maxUses) * 100;
+      const remaining = (p.maxUses ?? 10) - (p.currentUses ?? 0);
+      const pct = (remaining / (p.maxUses ?? 10)) * 100;
       let status = 'Stable';
       if (pct < 25) status = 'CRITICAL';
       else if (pct < 50) status = 'Unstable';
@@ -279,8 +279,8 @@ export class TransportationService {
       };
     });
 
-    const overallMax = portals.reduce((acc, p) => acc + p.maxUses, 0);
-    const overallUsed = portals.reduce((acc, p) => acc + p.currentUses, 0);
+    const overallMax = portals.reduce((acc, p) => acc + (p.maxUses ?? 10), 0);
+    const overallUsed = portals.reduce((acc, p) => acc + (p.currentUses ?? 0), 0);
     const overallPct = ((overallMax - overallUsed) / overallMax) * 100;
     
     const color = overallPct < 25 ? '#EA5455' : (overallPct < 50 ? '#FF9F43' : '#7367F0');
@@ -293,7 +293,7 @@ export class TransportationService {
         currentRow = new ActionRowBuilder<ButtonBuilder>();
       }
       const n = nationList.find(nl => nl.id === p.destinationNationId);
-      const isDisabled = p.currentUses >= p.maxUses;
+      const isDisabled = (p.currentUses ?? 0) >= (p.maxUses ?? 10);
       currentRow.addComponents(
         new ButtonBuilder()
           .setCustomId(`transport_portal_${p.destinationNationId}`)

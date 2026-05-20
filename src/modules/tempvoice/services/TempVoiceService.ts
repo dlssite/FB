@@ -222,7 +222,7 @@ export class TempVoiceService {
     const { ContainerService, sendV2 } = await import('../../../utils/container');
     const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
 
-    const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    const row1 = new ActionRowBuilder().addComponents(
       // We use the same 'static' custom IDs here so interactionCreate doesn't need duplicates.
       // It will look up the session by user ID just like the global panel.
       new ButtonBuilder().setCustomId(`tv_static_lock`).setLabel('Lock').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
@@ -231,7 +231,7 @@ export class TempVoiceService {
       new ButtonBuilder().setCustomId(`tv_static_show`).setLabel('Show').setStyle(ButtonStyle.Secondary).setEmoji('👀')
     );
 
-    const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    const row2 = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId(`tv_static_rename`).setLabel('Rename').setStyle(ButtonStyle.Primary).setEmoji('📝'),
       new ButtonBuilder().setCustomId(`tv_static_limit`).setLabel('Set Limit').setStyle(ButtonStyle.Primary).setEmoji('👥'),
       new ButtonBuilder().setCustomId(`tv_static_transfer`).setLabel('Transfer').setStyle(ButtonStyle.Danger).setEmoji('👑')
@@ -296,7 +296,9 @@ export class TempVoiceService {
         if (!currentSession || currentSession.status !== 'grace') return; // Handled or deleted
 
         const currentChannel = await member.guild.channels.fetch(channel.id).catch(() => null);
-        if (!currentChannel || currentChannel.members.size === 0) return;
+        // Type guard: Only voice channels have a members Collection
+        if (!currentChannel || !('members' in currentChannel && 'isVoiceBased' in currentChannel)) return;
+        if (!currentChannel.isVoiceBased() || currentChannel.members.size === 0) return;
 
         // Has owner returned?
         if (currentChannel.members.has(session.ownerId)) {
@@ -316,15 +318,17 @@ export class TempVoiceService {
           });
           
           // Update permissions
-          await currentChannel.permissionOverwrites.create(nextOwner.id, {
-            ManageChannels: true,
-            MoveMembers: true,
-            ViewChannel: true,
-            Connect: true,
-            Speak: true
-          }).catch(() => {});
-          
-          await currentChannel.permissionOverwrites.delete(session.ownerId).catch(() => {});
+          if ('permissionOverwrites' in currentChannel) {
+            await currentChannel.permissionOverwrites.create(nextOwner.id, {
+              ManageChannels: true,
+              MoveMembers: true,
+              ViewChannel: true,
+              Connect: true,
+              Speak: true
+            }).catch(() => {});
+            
+            await currentChannel.permissionOverwrites.delete(session.ownerId).catch(() => {});
+          }
 
           if (currentChannel.isTextBased()) {
             await currentChannel.send(`👑 <@${session.ownerId}> didn't return. Ownership transferred to <@${nextOwner.id}>.`).catch(() => {});

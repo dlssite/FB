@@ -15,8 +15,8 @@ export default {
     const lang = settings?.lang || 'en';
     
     // Pass to service within context
-    await tenantStorage.run({ tenantId, guildId: message.guildId, lang }, async () => {
-      await CountingService.handleCount(tenantId, message.guildId, message.author.id, message.content, message);
+    await tenantStorage.run({ tenantId, guildId: message.guildId!, lang }, async () => {
+      await CountingService.handleCount(tenantId, message.guildId!, message.author.id, message.content, message);
     });
   },
 };

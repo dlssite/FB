@@ -3,6 +3,7 @@ import { CrimeService } from '../../services/CrimeService';
 import { EconomyRepository } from '../../database/EconomyRepository';
 import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
+import { Translator } from '../../../../core/Translator';
 import { flamebornConfig } from '../../../../config/flameborn.config';
 
 export default {

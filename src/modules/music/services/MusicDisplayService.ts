@@ -147,10 +147,10 @@ export class MusicDisplayService {
     // Use replyV2 to update the message via REST
     try {
       await replyV2(interaction, { components: [container] });
-    } catch (err) {
-      Logger.error(`[Music-Display] Update failed for ${guildId}. Error: ${err.message}`, err);
+    } catch (err: any) {
+      Logger.error(`[Music-Display] Update failed for ${guildId}. Error: ${err?.message || 'Unknown'}`, err);
       // Only stop if it's a fatal interaction error
-      if (err.message.includes('Unknown Interaction') || err.message.includes('expired')) {
+      if (err?.message?.includes('Unknown Interaction') || err?.message?.includes('expired')) {
         this.stop(guildId);
       }
     }
@@ -170,7 +170,7 @@ export class MusicDisplayService {
         Logger.error(`[Music-Display] updateTrack trigger failed`, err);
       });
     } else {
-      Logger.warn(`[Music-Display] updateTrack called for ${guildId} but no active message found.`, 'MusicDisplayService' as any);
+      Logger.warn(`[Music-Display] updateTrack called for ${guildId} but no active message found.`);
     }
   }
 }

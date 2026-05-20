@@ -133,7 +133,7 @@ const shutdown = async (reason?: string) => {
   try {
     if (apiServer) {
       await new Promise<void>((resolve, reject) => {
-        apiServer.close((error) => {
+        apiServer!.close((error) => {
           if (error) {
             reject(error);
           } else {

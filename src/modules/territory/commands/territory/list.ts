@@ -19,7 +19,7 @@ export default {
 
     if (territories.length === 0) {
       return await interaction.editReply(
-        ContainerService.simple().reply
+        ContainerService.simple('❌ No nations registered in this server yet.')
       );
     }
 
@@ -35,6 +35,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(response.reply);
+    await interaction.editReply(response);
   }
 };

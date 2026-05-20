@@ -147,6 +147,11 @@ export interface FlamebornConfig {
       openBanner: string;
     }
   };
+  nsfw: {
+    assets: {
+      banner: string;
+    }
+  };
   tod: {
     assets: {
       panelBanner: string;
@@ -592,7 +597,7 @@ export const flamebornConfig: FlamebornConfig = {
   },
   nsfw: {
     assets: {
-      banner: 'https://placehold.co/800x300.png?text=NSFW+BROWSER',
+      banner: 'https://placehold.co/800x300.png?text=NSFW+Content+Browser'
     }
   },
   tod: {

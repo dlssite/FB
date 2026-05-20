@@ -17,8 +17,8 @@ export default {
       Logger.tenant(tenantId, `[Booster] ${newMember.user.tag} started boosting ${newMember.guild.name}.`);
       
       const settings = await BoosterRepository.getSettings(tenantId, newMember.guild.id);
-      if (settings?.announceChan) {
-        const channel = newMember.guild.channels.cache.get(settings.announceChan) as any;
+      if (settings?.boosterChannelId) {
+        const channel = newMember.guild.channels.cache.get(settings.boosterChannelId) as any;
         if (channel && channel.send) {
           const container = ContainerService.create({
             title: `🚀 Server Boost Detected!`,

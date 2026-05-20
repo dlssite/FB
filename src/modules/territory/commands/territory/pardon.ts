@@ -23,7 +23,7 @@ export default {
 
     const actor = interaction.member as GuildMember;
     const target = await interaction.guild?.members.fetch(targetUser.id);
-    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.').reply);
+    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.'));
 
     const governed = await TerritoryPowerService.resolveGovernedTerritories(tenantId, guildId, actor);
     let territory = null;
@@ -46,7 +46,7 @@ export default {
       territory = governed[0];
     }
 
-    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.').reply);
+    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.'));
 
     if (territory.banRoleId && target.roles.cache.has(territory.banRoleId)) {
       try {
@@ -60,12 +60,12 @@ export default {
           footer: true,
           interaction
         });
-        await interaction.editReply(response.reply);
+        await interaction.editReply(response);
       } catch (err: any) {
-        await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`).reply);
+        await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`));
       }
     } else {
-      await interaction.editReply(ContainerService.simple(`⚠️ **${target.user.tag}** does not have a travel ban in this territory.`).reply);
+      await interaction.editReply(ContainerService.simple(`⚠️ **${target.user.tag}** does not have a travel ban in this territory.`));
     }
   }
 };
