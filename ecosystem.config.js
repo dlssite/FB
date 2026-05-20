@@ -8,21 +8,23 @@
  * 
  * 📚 USAGE:
  * 
- * Start all bots:
+ * Deploy all bots:
+ *   ./deploy.sh
+ * 
+ * Deploy single bot (recommended for testing):
+ *   ./deploy-single.sh kai
+ * 
+ * Start all bots (after deploy):
  *   pm2 start ecosystem.config.js
  * 
  * Start specific bot:
- *   pm2 start ecosystem.config.js --only flameborn-ember
  *   pm2 start ecosystem.config.js --only flameborn-kai
- *   pm2 start ecosystem.config.js --only flameborn-saphy
- *   pm2 start ecosystem.config.js --only flameborn-liber
  * 
  * Monitor status:
  *   pm2 monit
  *   pm2 status
  * 
  * View logs:
- *   pm2 logs flameborn-ember
  *   pm2 logs flameborn-kai
  * 
  * Restart all:
@@ -35,6 +37,11 @@
  *   pm2 delete ecosystem.config.js
  */
 
+const path = require('path');
+
+// Get the absolute path to the project root
+const projectRoot = __dirname;
+
 module.exports = {
   apps: [
     /**
@@ -44,17 +51,17 @@ module.exports = {
     {
       name: 'flameborn-ember',
       script: 'dist/index.js',
-      cwd: './',
+      cwd: projectRoot,
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         FLAMEBORN_CONFIG: 'ember',
       },
-      env_file: '.env.ember',
-      error_file: 'logs/ember.error.log',
-      out_file: 'logs/ember.out.log',
-      log_file: 'logs/ember.combined.log',
+      env_file: path.join(projectRoot, '.env.ember'),
+      error_file: path.join(projectRoot, 'logs/ember.error.log'),
+      out_file: path.join(projectRoot, 'logs/ember.out.log'),
+      log_file: path.join(projectRoot, 'logs/ember.combined.log'),
       time: true,
       autorestart: true,
       max_restarts: 10,
@@ -71,17 +78,17 @@ module.exports = {
     {
       name: 'flameborn-kai',
       script: 'dist/index.js',
-      cwd: './',
+      cwd: projectRoot,
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         FLAMEBORN_CONFIG: 'kai',
       },
-      env_file: '.env.kai',
-      error_file: 'logs/kai.error.log',
-      out_file: 'logs/kai.out.log',
-      log_file: 'logs/kai.combined.log',
+      env_file: path.join(projectRoot, '.env.kai'),
+      error_file: path.join(projectRoot, 'logs/kai.error.log'),
+      out_file: path.join(projectRoot, 'logs/kai.out.log'),
+      log_file: path.join(projectRoot, 'logs/kai.combined.log'),
       time: true,
       autorestart: true,
       max_restarts: 10,
@@ -98,17 +105,17 @@ module.exports = {
     {
       name: 'flameborn-saphy',
       script: 'dist/index.js',
-      cwd: './',
+      cwd: projectRoot,
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         FLAMEBORN_CONFIG: 'saphy',
       },
-      env_file: '.env.saphy',
-      error_file: 'logs/saphy.error.log',
-      out_file: 'logs/saphy.out.log',
-      log_file: 'logs/saphy.combined.log',
+      env_file: path.join(projectRoot, '.env.saphy'),
+      error_file: path.join(projectRoot, 'logs/saphy.error.log'),
+      out_file: path.join(projectRoot, 'logs/saphy.out.log'),
+      log_file: path.join(projectRoot, 'logs/saphy.combined.log'),
       time: true,
       autorestart: true,
       max_restarts: 10,
@@ -119,23 +126,23 @@ module.exports = {
     },
 
     /**
-     * 🎭 LIBER - The Chaos Agent
-     * Free-spirited, fun, rebellious
+     * 🎭 LIBER - The Keeper of Knowledge
+     * Calm, wise, scholarly
      */
     {
       name: 'flameborn-liber',
       script: 'dist/index.js',
-      cwd: './',
+      cwd: projectRoot,
       instances: 1,
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         FLAMEBORN_CONFIG: 'liber',
       },
-      env_file: '.env.liber',
-      error_file: 'logs/liber.error.log',
-      out_file: 'logs/liber.out.log',
-      log_file: 'logs/liber.combined.log',
+      env_file: path.join(projectRoot, '.env.liber'),
+      error_file: path.join(projectRoot, 'logs/liber.error.log'),
+      out_file: path.join(projectRoot, 'logs/liber.out.log'),
+      log_file: path.join(projectRoot, 'logs/liber.combined.log'),
       time: true,
       autorestart: true,
       max_restarts: 10,
@@ -156,7 +163,7 @@ module.exports = {
       ref: 'origin/main',
       repo: 'git@github.com:your-repo/flameborn.git',
       path: '/var/www/flameborn',
-      'post-deploy': 'npm install && npm run build && pm2 startOrRestart ecosystem.config.js --env production',
+      'post-deploy': 'npm install && npm run build && ./deploy.sh',
     },
   },
 };
