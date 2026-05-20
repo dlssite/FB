@@ -56,8 +56,9 @@ fi
 echo -e "${GREEN}✓${NC} Environment loaded"
 echo ""
 
-echo -e "${YELLOW}[STEP 2]${NC} Building project (if needed)..."
-npm run build
+echo -e "${YELLOW}[STEP 2]${NC} Building project (clean build)..."
+rm -rf dist/
+npx tsc
 echo -e "${GREEN}✓${NC} Build complete"
 echo ""
 

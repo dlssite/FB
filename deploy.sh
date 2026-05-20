@@ -42,8 +42,9 @@ for bot in "${BOTS[@]}"; do
 done
 echo ""
 
-echo -e "${YELLOW}[STEP 2]${NC} Building project..."
-npm run build
+echo -e "${YELLOW}[STEP 2]${NC} Building project (clean build)..."
+rm -rf dist/
+npx tsc
 echo -e "${GREEN}✓${NC} Build complete"
 echo ""
 

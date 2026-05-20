@@ -1,0 +1,138 @@
+═══════════════════════════════════════════════════════════════════════════════
+                            COMMAND LOADING ERROR FIX
+═══════════════════════════════════════════════════════════════════════════════
+
+ISSUE:
+  Cannot find module 'file:///home/ember/apps/bots/FB/dist/modules/activity/commands/activity.js'
+  Cannot find module 'file:///home/ember/apps/bots/FB/dist/modules/ai/commands/ai/_command.js'
+
+ROOT CAUSE:
+  TypeScript files in src/modules/*/commands/ not compiling to dist/modules/*/commands/
+  This happens with incremental builds - some files are skipped
+
+FIX:
+  Do a CLEAN build instead of incremental build
+
+───────────────────────────────────────────────────────────────────────────────
+QUICK FIX ON SERVER (CHOOSE ONE)
+───────────────────────────────────────────────────────────────────────────────
+
+Option 1: Use new quick-fix script (EASIEST)
+  $ chmod +x quick-fix.sh
+  $ ./quick-fix.sh kai
+
+Option 2: Manual clean rebuild
+  $ rm -rf dist/
+  $ npx tsc
+  $ ./deploy-single.sh kai
+
+Option 3: Full clean deployment
+  $ rm -rf dist/ node_modules/
+  $ npm ci
+  $ ./deploy-single.sh kai
+  $ ./deploy-single.sh ember
+  $ ./deploy-single.sh saphy
+  $ ./deploy-single.sh liber
+
+───────────────────────────────────────────────────────────────────────────────
+WHAT WAS FIXED LOCALLY
+───────────────────────────────────────────────────────────────────────────────
+
+Updated deploy scripts to do CLEAN builds:
+
+BEFORE (incremental - can miss files):
+  npm run build
+
+AFTER (clean - always works):
+  rm -rf dist/
+  npx tsc
+
+Both deploy.sh and deploy-single.sh updated.
+
+───────────────────────────────────────────────────────────────────────────────
+NEW FILES ADDED
+───────────────────────────────────────────────────────────────────────────────
+
+1. quick-fix.sh
+   → Quick rebuild and redeploy script
+   → Usage: ./quick-fix.sh kai
+
+2. rebuild.sh
+   → Rebuild and verify all critical files exist
+   → Usage: ./rebuild.sh kai
+
+3. FIX_COMMAND_LOADING.md
+   → Detailed technical explanation
+   → Troubleshooting steps
+
+4. FIX_SUMMARY.txt
+   → This file!
+
+───────────────────────────────────────────────────────────────────────────────
+STEP-BY-STEP FIX
+───────────────────────────────────────────────────────────────────────────────
+
+1. Make script executable:
+   $ chmod +x quick-fix.sh
+
+2. Run it:
+   $ ./quick-fix.sh kai
+
+3. Wait for completion
+
+4. Check logs:
+   $ pm2 logs flameborn-kai
+
+5. If no "Cannot find module" errors, Kai is working! ✅
+
+6. Deploy others:
+   $ ./quick-fix.sh ember
+   $ ./quick-fix.sh saphy
+   $ ./quick-fix.sh liber
+
+7. Verify all running:
+   $ pm2 status
+
+───────────────────────────────────────────────────────────────────────────────
+WHAT IT DOES
+───────────────────────────────────────────────────────────────────────────────
+
+quick-fix.sh does:
+  1. Removes dist/ folder (clean slate)
+  2. Runs npx tsc (full TypeScript compile)
+  3. Verifies activity.js and _command.js compiled
+  4. Runs deploy-single.sh to start bot
+  5. Shows status
+
+───────────────────────────────────────────────────────────────────────────────
+SUCCESS INDICATORS
+───────────────────────────────────────────────────────────────────────────────
+
+After running quick-fix.sh kai:
+
+✅ Output shows "Build looks good!"
+✅ dist/modules/activity/commands/activity.js exists
+✅ dist/modules/ai/commands/ai/_command.js exists
+✅ pm2 logs shows bot starting without "Cannot find module" errors
+
+───────────────────────────────────────────────────────────────────────────────
+GOING FORWARD
+───────────────────────────────────────────────────────────────────────────────
+
+The deploy scripts now do clean builds automatically, so:
+  - Just use ./deploy-single.sh normally
+  - No more incremental build issues
+  - Files will always compile correctly
+
+If issues arise again:
+  $ rm -rf dist/
+  $ npx tsc
+  $ ./deploy-single.sh <botname>
+
+═══════════════════════════════════════════════════════════════════════════════
+
+READY? Run on server:
+
+  chmod +x quick-fix.sh && ./quick-fix.sh kai && pm2 logs flameborn-kai
+
+═══════════════════════════════════════════════════════════════════════════════
