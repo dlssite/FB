@@ -681,7 +681,7 @@ Format rules:
    * XIII. UNIVERSAL PROFILE SYSTEM
    */
   profile: {
-    defaultTitle: "Wanderer",
+    defaultTitle: "flamebearer",
     unlockPrices: {
       customColor: 5000,
       customBanner: 15000,
