@@ -43,7 +43,7 @@ done
 echo ""
 
 echo -e "${YELLOW}[STEP 2]${NC} Building project (clean build)..."
-npm install --omit=dev 2>&1 | tail -5
+npm install 2>&1 | tail -3
 rm -rf dist/
 npm run build
 echo -e "${GREEN}✓${NC} Build complete"
