@@ -11,19 +11,21 @@ console.log(`📂 Loading env from: ${envFile}`);
 dotenv.config({ path: envFile });
 
 async function fixGuildTenantMapping() {
+  const guildId = '1409095756438175816';
   const newTenant = process.env.TENANT_ID || 'sanctyr';
   
-  console.log(`🔧 Fixing guild_tenant_map to use tenant: ${newTenant}`);
+  console.log(`🔧 Updating guild ${guildId} to tenant: ${newTenant}`);
   
   try {
-    const result = await prisma.guild_tenant_map.updateMany({
-      where: {},
-      data: { tenantId: newTenant }
+    const result = await prisma.guild_tenant_map.upsert({
+      where: { guildId },
+      update: { tenantId: newTenant },
+      create: { guildId, tenantId: newTenant }
     });
     
-    console.log(`✅ Updated ${result.count} guild mappings to tenant: ${newTenant}`);
+    console.log(`✅ Guild mapping updated:`, result);
   } catch (error) {
-    console.error('❌ Error updating guild mappings:', error);
+    console.error('❌ Error updating guild mapping:', error);
   }
   
   await prisma.$disconnect();
