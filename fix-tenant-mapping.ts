@@ -17,10 +17,11 @@ async function fixGuildTenantMapping() {
   console.log(`🔧 Updating guild ${guildId} to tenant: ${newTenant}`);
   
   try {
+    const now = new Date();
     const result = await prisma.guild_tenant_map.upsert({
       where: { guildId },
-      update: { tenantId: newTenant },
-      create: { guildId, tenantId: newTenant, createdAt: new Date() }
+      update: { tenantId: newTenant, updatedAt: now },
+      create: { guildId, tenantId: newTenant, createdAt: now, updatedAt: now }
     });
     
     console.log(`✅ Guild mapping updated:`, result);
