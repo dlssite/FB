@@ -79,12 +79,12 @@ done
 echo ""
 
 echo -e "${YELLOW}[STEP 4]${NC} Stopping any existing PM2 processes..."
-pm2 delete ecosystem.config.js 2>/dev/null || true
+pm2 delete ecosystem.config.cjs 2>/dev/null || true
 echo -e "${GREEN}✓${NC} Previous processes cleaned up"
 echo ""
 
 echo -e "${YELLOW}[STEP 5]${NC} Starting all bots with PM2..."
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 echo ""
 
 echo -e "${YELLOW}[STEP 6]${NC} Verifying all bots are running..."
@@ -106,11 +106,11 @@ echo "  pm2 logs flameborn-saphy"
 echo "  pm2 logs flameborn-liber"
 echo ""
 echo "🛑 Stop all bots:"
-echo "  pm2 stop ecosystem.config.js"
+echo "  pm2 stop ecosystem.config.cjs"
 echo ""
 echo "🔄 Restart all bots:"
-echo "  pm2 restart ecosystem.config.js"
+echo "  pm2 restart ecosystem.config.cjs"
 echo ""
 echo "❌ Delete all bots:"
-echo "  pm2 delete ecosystem.config.js"
+echo "  pm2 delete ecosystem.config.cjs"
 echo ""

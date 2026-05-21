@@ -75,7 +75,7 @@ echo -e "${GREEN}✓${NC} Process stopped"
 echo ""
 
 echo -e "${YELLOW}[STEP 5]${NC} Starting $BOT with PM2..."
-pm2 start ecosystem.config.js --only "flameborn-$BOT"
+pm2 start ecosystem.config.cjs --only "flameborn-$BOT"
 sleep 3
 echo ""
 
