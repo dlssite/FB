@@ -10,14 +10,13 @@ export default {
       
   async execute(interaction: ChatInputCommandInteraction) {
     const { tenantId, lang } = getTenantContext();
-    const sent = await interaction.deferReply();
-    const latency = sent.createdTimestamp - interaction.createdTimestamp;
+    const latency = interaction.createdTimestamp - Date.now();
     const heartbeat = interaction.client.ws.ping;
     
     await replyV2(interaction, ContainerService.create({
       title: Translator.t('utility', 'ping.title', lang),
       fields: [
-        { name: Translator.t('utility', 'ping.latency', lang), value: `\`${latency}ms\`` },
+        { name: Translator.t('utility', 'ping.latency', lang), value: `\`${Math.abs(latency)}ms\`` },
         { name: Translator.t('utility', 'ping.heartbeat', lang), value: `\`${heartbeat}ms\`` },
         { name: Translator.t('utility', 'ping.tenant', lang), value: `\`${tenantId}\`` }
       ],
