@@ -45,16 +45,28 @@ function fixEsmImports() {
     // - (?<!\.js) : negative lookbehind - not already .js
     // - ['"]; : matches closing quote and semicolon
     
-    // Fix single quotes: from './path' -> from './path.js'
+    // Fix single quotes with 'from': from './path' -> from './path.js'
     content = content.replace(
       /from\s+'(\.[^']+?)(?<!\.js)'/g,
       "from '$1.js'"
     );
     
-    // Fix double quotes: from "./path" -> from "./path.js"
+    // Fix double quotes with 'from': from "./path" -> from "./path.js"
     content = content.replace(
       /from\s+"(\.[^"]+?)(?<!\.js)"/g,
       'from "$1.js"'
+    );
+    
+    // Fix bare imports (side-effect imports): import './path' -> import './path.js'
+    content = content.replace(
+      /import\s+'(\.[^']+?)(?<!\.js)';/g,
+      "import '$1.js';"
+    );
+    
+    // Fix bare imports with double quotes: import "./path" -> import "./path.js"
+    content = content.replace(
+      /import\s+"(\.[^"]+?)(?<!\.js)";/g,
+      'import "$1.js";'
     );
     
     if (content !== originalContent) {
