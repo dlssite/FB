@@ -8,6 +8,7 @@ import { ContainerService, sendV2 } from '../../../utils/container';
 import { RedisService } from '../../../services/RedisService';
 import { RoutingService } from '../../../services/RoutingService';
 import { ProfileRepository } from '../../profile/database/ProfileRepository';
+import shopBrowse from '../../shop/commands/shop/browse';
 
 export default {
   name: Events.MessageCreate,
@@ -164,7 +165,6 @@ export default {
             
             // Then show the interactive shop
             try {
-              const shopBrowse = require('../../shop/commands/shop/browse.ts').default;
               const pseudoInteraction = {
                 guildId: message.guildId,
                 user: message.author,

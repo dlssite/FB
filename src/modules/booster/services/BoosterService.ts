@@ -1,6 +1,9 @@
 import { Guild, GuildMember, Role } from 'discord.js';
 import { BoosterRepository } from '../database/BoosterRepository';
 import { Logger } from '../../../utils/logger';
+import { RedisService } from '../../../services/RedisService';
+import { GuildService } from '../../../services/GuildService';
+import { flamebornConfig } from '../../../config/flameborn.config';
 
 export class BoosterService {
   /**
@@ -154,10 +157,6 @@ export class BoosterService {
    * Starts the background worker for booster maintenance.
    */
   static startBoosterWorker(client: any) {
-    const { RedisService } = require('../../../services/RedisService');
-    const { GuildService } = require('../../../services/GuildService');
-    const { flamebornConfig } = require('../../../config/flameborn.config');
-    
     Logger.info('Booster Maintenance workers started.', 'BoosterService' as any);
 
     // Check every hour

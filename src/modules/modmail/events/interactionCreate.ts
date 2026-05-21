@@ -4,6 +4,7 @@ import { ModmailService } from '../services/ModmailService';
 import { RoutingService } from '../../../services/RoutingService';
 import { Logger } from '../../../utils/logger';
 import { ContainerService, replyV2, sendV2 } from '../../../utils/container';
+import { prisma } from '../../../database/client';
 
 export default {
   name: 'interactionCreate',
