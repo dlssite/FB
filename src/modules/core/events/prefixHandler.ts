@@ -19,6 +19,7 @@ export default {
     const settings = await GuildService.getSettings(tenantId, message.guild.id);
     const prefix = settings?.prefix || '!';
 
+    console.log(`[PREFIX_DEBUG] Guild: ${message.guild.id}, Prefix from DB: "${prefix}", Message starts with: "${message.content.substring(0, 5)}"`);
     if (!message.content.startsWith(prefix)) return;
 
     const rawArgs = message.content.slice(prefix.length).trim().split(/ +/);
