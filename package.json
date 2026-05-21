@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsx dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "npx tsc && node fix-esm-imports.js",
+    "build": "npx tsc && node fix-esm-imports.js && node copy-lang-files.js",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev"
   },
