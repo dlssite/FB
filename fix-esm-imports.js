@@ -4,8 +4,11 @@
  * Run automatically after TypeScript compilation
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DIST_DIR = path.join(__dirname, 'dist');
 
