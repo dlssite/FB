@@ -1,6 +1,9 @@
 import { Canvas, loadImage, FontLibrary } from 'skia-canvas';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Try to load fonts from the welcomer assets if they exist, or fallback
 const fontsPath = path.join(__dirname, '../../welcomer/assets/fonts');

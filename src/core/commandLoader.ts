@@ -2,10 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { MessageFlags } from 'discord.js';
 import { FlamebornClient } from './FlamebornClient';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { Logger } from '../utils/logger';
 import { flamebornConfig } from '../config/flameborn.config';
 import { findFileWithFallback, importModule } from '../utils/fileLoader';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Deduplication guard: prevents two event listener instances from both
 // responding to the same autocomplete interaction token (race condition).

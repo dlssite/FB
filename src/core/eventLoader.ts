@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { FlamebornClient } from './FlamebornClient';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { Logger } from '../utils/logger';
 import { flamebornConfig } from '../config/flameborn.config';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function loadEvents(client: FlamebornClient) {
   Logger.loader('Initializing event listeners...');

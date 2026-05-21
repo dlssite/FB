@@ -3,13 +3,15 @@ import type { Server } from 'node:http';
 import { Hono } from 'hono';
 import fs from 'fs';
 import path from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { GuildService } from '../services/GuildService';
 import { FlamebornClient } from '../core/FlamebornClient';
 import { ChannelType } from 'discord.js';
 import { TenantRepository } from '../repositories/TenantRepository';
 import { flamebornConfig } from '../config/flameborn.config';
 import { findFileWithFallback, importModule } from '../utils/fileLoader';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Helper to handle BigInt serialization (Prisma returns BigInt which JSON.stringify can't handle)
 const serialize = (obj: any) => {

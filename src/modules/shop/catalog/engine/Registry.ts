@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { ShopItem, ShopCategory } from './Types';
 import { Logger } from '../../../../utils/logger';
 import { findFileWithFallback, importModule } from '../../../../utils/fileLoader';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class ShopRegistry {
   private static instance: ShopRegistry;

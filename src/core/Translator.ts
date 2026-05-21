@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { Logger } from '../utils/logger';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class Translator {
   private static translations: Record<string, Record<string, any>> = {};
