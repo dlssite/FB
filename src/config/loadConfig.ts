@@ -13,10 +13,10 @@
  */
 
 import { FlamebornConfig } from './flameborn.config';
-import emberConfig from './instances/flameborn.ember';
-import kaiConfig from './instances/flameborn.kai';
-import saphyConfig from './instances/flameborn.saphy';
-import liberConfig from './instances/flameborn.liber';
+import emberConfig from './ember';
+import kaiConfig from './kai';
+import saphyConfig from './saphy';
+import liberConfig from './liber';
 
 const configMap: Record<string, FlamebornConfig> = {
   ember: emberConfig,
