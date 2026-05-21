@@ -4,6 +4,7 @@ import { BirthdayCanvasService } from './BirthdayCanvasService';
 import { ContainerService } from '../../../utils/container';
 import { tenantStorage } from '../../../utils/context';
 import { Logger } from '../../../utils/logger';
+import { RedisService } from '../../../services/RedisService';
 
 export class BirthdayService {
 
@@ -11,7 +12,6 @@ export class BirthdayService {
    * Starts the background worker for birthday announcements and role cleanup
    */
   static startBirthdayWorker(client: Client) {
-    const { RedisService } = require('../../../services/RedisService');
     Logger.info('Birthday Celebration workers started.', 'BirthdayService' as any);
     
     // Check every hour

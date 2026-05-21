@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { prisma } from '../../database/client';
 import { ModmailRepository } from './database/ModmailRepository';
 
 const app = new Hono();
@@ -30,7 +31,6 @@ app.get('/tickets', async (c) => {
   
   if (!tenantId || !guildId) return c.json({ error: 'Missing parameters' }, 400);
 
-  const { prisma } = require('../../database/client');
   const tickets = await prisma.modmail_tickets.findMany({
     where: { tenantId, guildId },
     orderBy: { createdAt: 'desc' },

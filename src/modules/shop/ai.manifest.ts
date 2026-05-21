@@ -1,6 +1,7 @@
 import { AiModuleManifest, RiskLevel } from '../ai/types/AiManifest';
 import { ShopService } from './services/ShopService';
 import { InventoryService } from './services/InventoryService';
+import { ShopRegistry } from './catalog/engine/Registry';
 
 export const ShopManifest: AiModuleManifest = {
   moduleName: 'Shop',
@@ -13,7 +14,7 @@ export const ShopManifest: AiModuleManifest = {
         category: { type: 'string', description: 'Optional category filter (e.g. "vehicle", "tool", "consumable"). Leave empty for all items.', required: false }
       },
       handler: async (params, context) => {
-        const { shopRegistry } = require('./catalog/engine/Registry');
+        const shopRegistry = ShopRegistry.getInstance();
         await shopRegistry.loadCatalog(); // Ensure catalog is loaded from disk
         
         const items = params.category

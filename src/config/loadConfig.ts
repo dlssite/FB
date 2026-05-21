@@ -13,6 +13,17 @@
  */
 
 import { FlamebornConfig } from './flameborn.config';
+import emberConfig from './instances/flameborn.ember';
+import kaiConfig from './instances/flameborn.kai';
+import saphyConfig from './instances/flameborn.saphy';
+import liberConfig from './instances/flameborn.liber';
+
+const configMap: Record<string, FlamebornConfig> = {
+  ember: emberConfig,
+  kai: kaiConfig,
+  saphy: saphyConfig,
+  liber: liberConfig,
+};
 
 /**
  * Dynamically load bot-specific config
@@ -23,17 +34,16 @@ export function loadFlamebornConfig(): FlamebornConfig {
   console.log(`🔧 Loading Flameborn config for: "${botName}"`);
 
   try {
-    // Dynamically require the config file
-    const config = require(`./instances/flameborn.${botName}`).default || 
-                   require(`./instances/flameborn.${botName}`).flamebornConfig ||
-                   require(`./instances/flameborn.${botName}`);
+    const config = configMap[botName];
+    if (!config) {
+      throw new Error(`Unknown bot: ${botName}`);
+    }
     
     console.log(`✅ Loaded config for bot: "${botName}"`);
     return config;
   } catch (err: any) {
     console.error(`❌ Failed to load config for bot "${botName}": ${err.message}`);
     console.error(`Available bots: ember, kai, saphy, liber`);
-    console.error(`Expected file: src/config/instances/flameborn.${botName}.ts`);
     process.exit(1);
   }
 }

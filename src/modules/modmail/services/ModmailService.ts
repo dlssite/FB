@@ -1,5 +1,6 @@
 import { Client, Message, User, ThreadChannel, TextChannel, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { ModmailRepository } from '../database/ModmailRepository';
+import { prisma } from '../../../database/client';
 import { TriageService } from './TriageService';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { RedisService } from '../../../services/RedisService';
@@ -19,8 +20,6 @@ export class ModmailService {
     Logger.info(`[MODMAIL] handleIncomingUserMessage invoked for user ${user.tag} (${user.id}). Guild: ${targetGuildId}, Tenant: ${forceTenantId}`);
     
     // 1. Mutual Server Resolution (Single Query Lookup)
-    const { prisma } = require('../../../database/client');
-    
     let mutualGuilds: any[] = [];
     if (targetGuildId && forceTenantId) {
       mutualGuilds = [{ guildId: targetGuildId, tenantId: forceTenantId }];

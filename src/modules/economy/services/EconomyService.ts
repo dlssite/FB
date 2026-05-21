@@ -9,6 +9,7 @@ import { LedgerService } from './LedgerService';
 import { Translator } from '../../../core/Translator';
 import { tenantStorage } from '../../../utils/context';
 import { Logger } from '../../../utils/logger';
+import { RedisService } from '../../../services/RedisService';
 
 export class EconomyService {
   /**
@@ -84,7 +85,6 @@ export class EconomyService {
    * Background worker to process completed mining sessions.
    */
   static startMiningWorker() {
-    const { RedisService } = require('../../../services/RedisService');
     Logger.info('Economy workers started.', 'EconomyService' as any);
     
     // Check every minute

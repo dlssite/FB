@@ -1,4 +1,5 @@
 import { ModmailRepository } from '../database/ModmailRepository';
+import { prisma } from '../../../database/client';
 
 export class TriageService {
   /**
@@ -8,7 +9,6 @@ export class TriageService {
     const text = content.toLowerCase();
 
     // Fetch custom categories configured for this specific server
-    const { prisma } = require('../../../database/client');
     const categories = await prisma.modmail_categories.findMany({
       where: { tenantId, guildId }
     });
