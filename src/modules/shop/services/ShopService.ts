@@ -12,10 +12,20 @@ export class ShopService {
       // 1. Ensure Registry is loaded (Boot-strapping if necessary)
       await shopRegistry.loadCatalog();
 
-      // 2. Lookup item in Registry
-      const item = shopRegistry.getItem(itemId);
+      // 2. Lookup item in Registry - try by ID first, then by name
+      let item = shopRegistry.getItem(itemId);
+      
+      // If not found by ID, try finding by name (case-insensitive)
       if (!item) {
-        return { success: false, error: 'Item no longer exists in the catalog.' };
+        const allItems = shopRegistry.getItems();
+        const nameLower = itemId.toLowerCase();
+        item = allItems.find((i: any) => i.name?.toLowerCase() === nameLower);
+        
+        if (!item) {
+          Logger.warn(`[Shop] Item lookup failed: "${itemId}" not found by ID or name`);
+          return { success: false, error: 'Item no longer exists in the catalog.' };
+        }
+        Logger.info(`[Shop] Found item by name match: "${itemId}" -> "${item.id}"`);
       }
 
       // 3. Check requirements hook

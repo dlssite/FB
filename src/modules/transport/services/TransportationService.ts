@@ -131,21 +131,21 @@ export class TransportationService {
     // Find portal record
     const portal = await TransportationRepository.getPortalByMessage(guildId, message.id, nationId);
     if (!portal || portal.status !== 'open') {
-      return interaction.editReply(ContainerService.simple('❌ This portal rift has collapsed.'));
+      return await replyV2(interaction, ContainerService.simple('❌ This portal rift has collapsed.'));
     }
 
     if ((portal.currentUses ?? 0) >= (portal.maxUses ?? 10)) {
-      return interaction.editReply(ContainerService.simple('❌ This portal has run out of energy.'));
+      return await replyV2(interaction, ContainerService.simple('❌ This portal has run out of energy.'));
     }
 
     const nation = await TerritoryRepository.listByGuild(portal.tenantId, guildId)
       .then(list => list.find(n => n.id === nationId));
     
-    if (!nation) return interaction.editReply(ContainerService.simple('❌ Destination nation no longer exists.'));
+    if (!nation) return await replyV2(interaction, ContainerService.simple('❌ Destination nation no longer exists.'));
 
     // Permission check for travel ban
     if (nation.banRoleId && member.roles.cache.has(nation.banRoleId)) {
-      return interaction.editReply(ContainerService.simple(`🚫 You are banned from **${nation.name}**.`));
+      return await replyV2(interaction, ContainerService.simple(`🚫 You are banned from **${nation.name}**.`));
     }
 
     // TELEPORT
@@ -174,7 +174,7 @@ export class TransportationService {
       null
     ).catch(() => {});
 
-    return interaction.editReply(ContainerService.simple(`✅ Dimensional Rift stabilized! Welcome to **${nation.name}**.`));
+    return await replyV2(interaction, ContainerService.simple(`✅ Dimensional Rift stabilized! Welcome to **${nation.name}**.`));
   }
 
   /**

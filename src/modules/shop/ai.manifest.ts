@@ -14,16 +14,21 @@ export const ShopManifest: AiModuleManifest = {
       },
       handler: async (params, context) => {
         const { shopRegistry } = require('./catalog/engine/Registry');
+        await shopRegistry.loadCatalog(); // Ensure catalog is loaded from disk
+        
         const items = params.category
           ? shopRegistry.getItemsByCategory(params.category)
           : shopRegistry.getItems();
 
         if (!items || items.length === 0) {
+          if (params.category) {
+            return { executed: true, result: `The **${params.category}** shop section is currently empty or that category doesn't exist. Try: equipment, survival, social, transportation, buildings, factions, streaks, music, or materials.` };
+          }
           return { executed: true, result: 'The shop catalog appears to be empty at this time.' };
         }
 
         const preview = items.slice(0, 15).map((i: any) =>
-          `- **${i.name}** (${i.rarity}) — ${i.price.toLocaleString()} Embers${i.description ? ` — *${i.description}*` : ''}`
+          `- **${i.name}** (${i.rarity}) — ${(i.basePrice || 0).toLocaleString()} Embers${i.description ? ` — *${i.description}*` : ''} [ID: ${i.id}]`
         ).join('\n');
 
         return {
@@ -95,6 +100,7 @@ export const ShopManifest: AiModuleManifest = {
         if (!item) return { executed: false, result: `Item "${params.itemName}" not found in your inventory.` };
         
         const { shopRegistry } = require('./catalog/engine/Registry');
+        await shopRegistry.loadCatalog(); // Ensure catalog is loaded from disk
         const itemClass = shopRegistry.getItem(item.itemId);
         
         if (itemClass?.onUse) {

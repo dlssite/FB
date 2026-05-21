@@ -7,9 +7,20 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface CachedUserProfile {
+  identity: { bio: string; title: string; privacyMode: boolean };
+  moduleStats: Record<string, any>;
+  actions: Array<{ action: string; description: string }>;
+  cachedAt: number;
+}
+
 export class MemoryService {
   private static getHistoryKey(channelId: string) {
     return `ai:history:${channelId}`;
+  }
+
+  private static getProfileCacheKey(tenantId: string, userId: string) {
+    return `ai:profile:${tenantId}:${userId}`;
   }
 
   static async addShortTermMemory(channelId: string, message: ChatMessage) {
@@ -35,6 +46,42 @@ export class MemoryService {
     } catch (err) {
       return [];
     }
+  }
+
+  /**
+   * Cache a user's profile data (identity, stats, actions)
+   */
+  static async cacheUserProfile(tenantId: string, userId: string, profileData: CachedUserProfile, ttlSeconds: number = 3600) {
+    if (!flamebornConfig.redis.enabled) return;
+
+    const key = this.getProfileCacheKey(tenantId, userId);
+    try {
+      const cacheEntry = {
+        ...profileData,
+        cachedAt: Date.now()
+      };
+      await RedisService.client.setex(key, ttlSeconds, JSON.stringify(cacheEntry));
+    } catch (err) {
+      // Ignore redis errors
+    }
+  }
+
+  /**
+   * Retrieve cached user profile
+   */
+  static async getCachedUserProfile(tenantId: string, userId: string): Promise<CachedUserProfile | null> {
+    if (!flamebornConfig.redis.enabled) return null;
+
+    const key = this.getProfileCacheKey(tenantId, userId);
+    try {
+      const cached = await RedisService.client.get(key);
+      if (cached) {
+        return JSON.parse(cached) as CachedUserProfile;
+      }
+    } catch (err) {
+      // Ignore redis errors
+    }
+    return null;
   }
 
   static async getLongTermFacts(tenantId: string, guildId: string, userId: string) {

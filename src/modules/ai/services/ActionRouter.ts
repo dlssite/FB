@@ -1,4 +1,5 @@
 import { AiActionDefinition, AiModuleManifest, RiskLevel, AiIntent } from '../types/AiManifest';
+import { Logger } from '../../../utils/logger';
 
 export class ActionRouter {
   private static registry: Map<string, AiActionDefinition> = new Map();
@@ -40,12 +41,15 @@ export class ActionRouter {
     const def = this.registry.get(normalizedAction);
 
     if (!def) {
+      Logger.warn(`[AI] Tool call attempted for unknown action: ${intent.action}`);
       return { executed: false, result: `Action "${intent.action}" is not supported.` };
     }
 
     const risk = def.risk;
+    Logger.info(`[AI] Tool detected: ${def.action} (risk: ${risk}), params: ${JSON.stringify(intent.parameters)}`);
 
     if (risk === RiskLevel.HIGH || risk === RiskLevel.MEDIUM) {
+      Logger.info(`[AI] Tool requires confirmation: ${def.action} (${risk} risk)`);
       return {
         requiresConfirmation: true,
         risk: risk,
@@ -66,12 +70,23 @@ export class ActionRouter {
     const def = this.registry.get(normalizedAction);
 
     if (!def) {
+      Logger.warn(`[AI] Tool execution failed: action "${intent.action}" not found in registry`);
       return { executed: false, result: `Action "${intent.action}" no longer exists in the registry.` };
     }
 
     try {
-      return await def.handler(intent.parameters, context);
+      Logger.debug(`[AI] Executing tool: ${def.action}`);
+      const result = await def.handler(intent.parameters, context);
+      
+      if (result.executed) {
+        Logger.info(`[AI] Tool executed successfully: ${def.action}`);
+      } else {
+        Logger.warn(`[AI] Tool execution failed: ${def.action} - ${result.result}`);
+      }
+      
+      return result;
     } catch (err: any) {
+      Logger.error(`[AI] Tool execution error for ${intent.action}:`, err);
       return { executed: false, result: `Failed to execute ${intent.action}: ${err.message}` };
     }
   }

@@ -23,6 +23,40 @@ export class AiRepository {
     });
   }
 
+  /**
+   * Check if this is a user's first interaction (first visit detection)
+   */
+  static async isFirstVisit(tenantId: string, guildId: string, userId: string): Promise<boolean> {
+    const existingMemories = await prisma.ai_memories.findFirst({
+      where: {
+        tenantId,
+        guildId,
+        userId,
+        factType: 'SYSTEM',
+        factKey: 'PROFILE_INITIALIZED'
+      }
+    });
+
+    return !existingMemories;
+  }
+
+  /**
+   * Record a user's first visit
+   */
+  static async recordFirstVisit(tenantId: string, guildId: string, userId: string) {
+    return prisma.ai_memories.create({
+      data: {
+        tenantId,
+        guildId,
+        userId,
+        factType: 'SYSTEM',
+        factKey: 'PROFILE_INITIALIZED',
+        factValue: new Date().toISOString(),
+        confidence: 1.0
+      }
+    });
+  }
+
   static async addMemory(tenantId: string, guildId: string, userId: string, factType: string, factKey: string, factValue: string, confidence: number = 1.0) {
     return prisma.ai_memories.create({
       data: {
