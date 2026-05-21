@@ -16,15 +16,12 @@ export class GuildService {
     const cached = await RedisService.get(cacheKey);
 
     if (cached) {
-      console.log(`[GUILD_SERVICE] Cache HIT for ${cacheKey}`);
       return JSON.parse(cached);
     }
 
-    console.log(`[GUILD_SERVICE] Cache MISS for ${cacheKey}, querying DB...`);
     let settings = await GuildRepository.getGuildSettings(tenantId, guildId);
-    console.log(`[GUILD_SERVICE] DB returned:`, settings);
     
-    // Rest of function...
+    // 2. Fetch Mothership locks (forceDisabledAddons)
     const [guildMapping, tenant] = await Promise.all([
       prisma.guild_tenant_map.findUnique({
         where: { guildId },
@@ -64,7 +61,6 @@ export class GuildService {
 
     // Save to Redis
     await RedisService.set(cacheKey, JSON.stringify(enrichedSettings), this.CACHE_TTL);
-    console.log(`[GUILD_SERVICE] Saved to cache: ${cacheKey}`, enrichedSettings);
     
     return enrichedSettings;
   }
@@ -80,12 +76,8 @@ export class GuildService {
 
   static async updatePrefix(tenantId: string, guildId: string, prefix: string) {
     if (prefix.length > 5) throw new Error('Prefix too long (max 5 chars)');
-    console.log(`[GUILD_SERVICE] Updating prefix in DB - tenantId: ${tenantId}, guildId: ${guildId}, prefix: "${prefix}"`);
     const result = await GuildRepository.upsertGuildSettings(tenantId, guildId, prefix);
-    console.log(`[GUILD_SERVICE] Database result:`, result);
-    console.log(`[GUILD_SERVICE] Invalidating cache for guildId: ${guildId}`);
     await this.invalidateCache(guildId);
-    console.log(`[GUILD_SERVICE] Cache invalidated`);
     return result;
   }
 

@@ -16,15 +16,12 @@ export default {
     const newPrefix = interaction.options.getString('new_prefix', true);
 
     try {
-      console.log(`[PREFIX_UPDATE_DEBUG] Attempting to update - tenantId: ${tenantId}, guildId: ${guildId}, newPrefix: "${newPrefix}"`);
       await GuildService.updatePrefix(tenantId, guildId, newPrefix);
-      console.log(`[PREFIX_UPDATE_DEBUG] Successfully updated!`);
       
       await interaction.editReply({
         content: `✅ Prefix updated to \`${newPrefix}\` for this server.`,
       });
     } catch (error: any) {
-      console.log(`[PREFIX_UPDATE_DEBUG] Error: ${error.message}`);
       await interaction.editReply({
         content: `❌ Failed to update prefix: ${error.message}`,
       });
