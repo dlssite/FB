@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { prisma } from './src/database/client.ts';
 
 async function fixGuildTenantMapping() {
