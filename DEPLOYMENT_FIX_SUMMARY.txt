@@ -1,0 +1,91 @@
+# Deployment Fix Summary
+
+## Issue
+Linux VM deployment failing with: `ERR_MODULE_NOT_FOUND: Cannot find module '...FlamebornClient'`
+
+## Root Cause
+TypeScript compiled to ESM but relative imports missing `.js` extensions. Node.js ESM requires explicit file extensions.
+
+## Solution Applied
+
+### 📝 Modified Files
+
+1. **package.json**
+   - Added `tsc-esm-fix@^2.20.8` to devDependencies
+   - Updated build script: `"build": "tsc && tsc-esm-fix"`
+
+2. **tsconfig.json**
+   - Changed `moduleResolution` from `"node"` to `"bundler"`
+   - Added `resolveJsonModule: true`
+   - Added `allowSyntheticDefaultImports: true`
+
+3. **deploy-single.sh**
+   - Added `npm install --omit=dev` before building
+   - Ensures build dependencies are available
+
+4. **deploy.sh**
+   - Added `npm install --omit=dev` before building
+   - Same fix for multi-bot deployments
+
+### 🆕 New Files
+
+1. **fix-esm-imports.sh**
+   - Helper script to install deps and rebuild
+   - Use if manual fix needed on Linux VM
+
+2. **ESM_FIX_EXPLANATION.md**
+   - Detailed technical explanation
+   - References to Node.js ESM docs
+
+3. **DEPLOYMENT_FIX.md**
+   - Quick start guide for user
+   - Step-by-step deployment instructions
+
+4. **diagnose-build.sh**
+   - Diagnostic script to debug build issues
+   - Shows Node version, dist structure, import paths
+
+## Testing
+
+The fix automatically:
+1. Compiles TypeScript: `tsc`
+2. Adds `.js` extensions: `tsc-esm-fix`
+3. Ensures all relative imports are compatible with Node.js ESM
+
+## Deployment Commands
+
+```bash
+# Single bot
+./deploy-single.sh kai
+
+# All bots
+./deploy.sh
+
+# Manual fix (if needed)
+./fix-esm-imports.sh
+```
+
+## Before/After
+
+**BEFORE (Broken):**
+```
+npm run build  # tsc only
+# dist/index.js has:
+import { client } from './core/FlamebornClient';  // ❌ No .js
+```
+
+**AFTER (Fixed):**
+```
+npm run build  # tsc && tsc-esm-fix
+# dist/index.js has:
+import { client } from './core/FlamebornClient.js';  // ✅ Correct
+```
+
+## User Action Required
+
+On the Linux VM:
+1. Pull the latest code
+2. Run: `./deploy-single.sh kai`
+3. Check logs: `pm2 logs flameborn-kai`
+
+The fix is automatic - no manual changes needed!
