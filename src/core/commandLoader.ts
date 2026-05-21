@@ -5,6 +5,7 @@ import { FlamebornClient } from './FlamebornClient';
 import { pathToFileURL } from 'url';
 import { Logger } from '../utils/logger';
 import { flamebornConfig } from '../config/flameborn.config';
+import { findFileWithFallback, importModule } from '../utils/fileLoader';
 
 // Deduplication guard: prevents two event listener instances from both
 // responding to the same autocomplete interaction token (race condition).
@@ -28,12 +29,12 @@ export async function loadCommands(client: FlamebornClient) {
 
     const modulePath = path.join(modulesPath, moduleDir);
     const commandsPath = path.join(modulePath, 'commands');
-    const aliasesPath = path.join(modulePath, 'aliases.ts');
+    const aliasesPath = findFileWithFallback(modulePath, 'aliases');
 
     // 1. Load Aliases if they exist
-    if (fs.existsSync(aliasesPath)) {
+    if (aliasesPath) {
       try {
-        const aliasModule = await import(pathToFileURL(aliasesPath).href);
+        const aliasModule = await importModule(aliasesPath);
         const aliases = Object.values(aliasModule)[0] as Record<string, string>;
         if (aliases) {
           for (const [alias, command] of Object.entries(aliases)) {

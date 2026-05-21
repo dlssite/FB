@@ -9,6 +9,7 @@ import { FlamebornClient } from '../core/FlamebornClient';
 import { ChannelType } from 'discord.js';
 import { TenantRepository } from '../repositories/TenantRepository';
 import { flamebornConfig } from '../config/flameborn.config';
+import { findFileWithFallback, importModule } from '../utils/fileLoader';
 
 // Helper to handle BigInt serialization (Prisma returns BigInt which JSON.stringify can't handle)
 const serialize = (obj: any) => {
@@ -187,10 +188,10 @@ export async function startApiServer(client: FlamebornClient) {
   if (fs.existsSync(modulesPath)) {
     const moduleDirs = fs.readdirSync(modulesPath);
     for (const moduleDir of moduleDirs) {
-      const apiPath = path.join(modulesPath, moduleDir, 'api.ts');
-      if (fs.existsSync(apiPath)) {
+      const apiPath = findFileWithFallback(modulesPath, `${moduleDir}/api`);
+      if (apiPath) {
         try {
-          const moduleRouter = await import(pathToFileURL(apiPath).href);
+          const moduleRouter = await importModule(apiPath);
           const router = moduleRouter.default || moduleRouter;
           app.route(`/api/${moduleDir}`, router);
           Logger.info(`Mounted routes at /api/${moduleDir}`, `API:${moduleDir.toUpperCase()}` as any);

@@ -3,6 +3,7 @@ import * as path from 'path';
 import { pathToFileURL } from 'url';
 import { ShopItem, ShopCategory } from './Types';
 import { Logger } from '../../../../utils/logger';
+import { findFileWithFallback, importModule } from '../../../../utils/fileLoader';
 
 export class ShopRegistry {
   private static instance: ShopRegistry;
@@ -30,55 +31,55 @@ export class ShopRegistry {
     this.loadPromise = (async () => {
       const categoriesPath = path.resolve(__dirname, '../categories');
     
-    // Ensure the directory exists
-    if (!fs.existsSync(categoriesPath)) {
-      fs.mkdirSync(categoriesPath, { recursive: true });
-      Logger.warn(`[ShopRegistry] Categories directory was missing, created it.`);
-      return;
-    }
+      // Ensure the directory exists
+      if (!fs.existsSync(categoriesPath)) {
+        fs.mkdirSync(categoriesPath, { recursive: true });
+        Logger.warn(`[ShopRegistry] Categories directory was missing, created it.`);
+        return;
+      }
 
-    const folders = fs.readdirSync(categoriesPath);
+      const folders = fs.readdirSync(categoriesPath);
 
-    for (const folder of folders) {
-      const folderPath = path.join(categoriesPath, folder);
-      if (!fs.statSync(folderPath).isDirectory()) continue;
+      for (const folder of folders) {
+        const folderPath = path.join(categoriesPath, folder);
+        if (!fs.statSync(folderPath).isDirectory()) continue;
 
-      try {
-        // 1. Load Category Manifest (_category.ts)
-        const manifestPath = path.join(folderPath, '_category.ts');
-        if (fs.existsSync(manifestPath)) {
-          const { category } = await import(pathToFileURL(manifestPath).href);
-          if (category) {
-            this.categories.set(category.identifier, category);
-            Logger.info(`[ShopRegistry] Loaded category: ${category.name}`);
-          }
-        }
-
-        // 2. Load Items (all other .ts files)
-        const files = fs.readdirSync(folderPath);
-        for (const file of files) {
-          if (file === '_category.ts' || !file.endsWith('.ts')) continue;
-
-          const itemPath = path.join(folderPath, file);
-          const module = await import(pathToFileURL(itemPath).href);
-          
-          // An item file can export a single item or an array of items
-          const exportedItems = Array.isArray(module.default) ? module.default : [module.default || module.item];
-          
-          for (const item of exportedItems) {
-            if (item && item.id) {
-              if (this.items.has(item.id)) {
-                Logger.error(`[ShopRegistry] Duplicate Item ID detected: ${item.id}`);
-                continue;
-              }
-              this.items.set(item.id, item);
+        try {
+          // 1. Load Category Manifest (_category.ts or _category.js)
+          const manifestPath = findFileWithFallback(folderPath, '_category');
+          if (manifestPath) {
+            const { category } = await importModule(manifestPath);
+            if (category) {
+              this.categories.set(category.identifier, category);
+              Logger.info(`[ShopRegistry] Loaded category: ${category.name}`);
             }
           }
+
+          // 2. Load Items (all other .ts or .js files)
+          const files = fs.readdirSync(folderPath);
+          for (const file of files) {
+            if (file === '_category.ts' || file === '_category.js' || (!file.endsWith('.ts') && !file.endsWith('.js'))) continue;
+
+            const itemPath = path.join(folderPath, file);
+            const module = await importModule(itemPath);
+            
+            // An item file can export a single item or an array of items
+            const exportedItems = Array.isArray(module.default) ? module.default : [module.default || module.item];
+            
+            for (const item of exportedItems) {
+              if (item && item.id) {
+                if (this.items.has(item.id)) {
+                  Logger.error(`[ShopRegistry] Duplicate Item ID detected: ${item.id}`);
+                  continue;
+                }
+                this.items.set(item.id, item);
+              }
+            }
+          }
+        } catch (err) {
+          Logger.error(`[ShopRegistry] Failed to load folder ${folder}:`, err as any);
         }
-      } catch (err) {
-        Logger.error(`[ShopRegistry] Failed to load folder ${folder}:`, err as any);
       }
-    }
 
     })();
 
