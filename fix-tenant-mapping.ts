@@ -1,5 +1,14 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { prisma } from './src/database/client.ts';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env.kai by default, or use DOTENV_FILE env variable
+const envFile = process.env.DOTENV_FILE || path.join(__dirname, '.env.kai');
+console.log(`📂 Loading env from: ${envFile}`);
+dotenv.config({ path: envFile });
 
 async function fixGuildTenantMapping() {
   const newTenant = process.env.TENANT_ID || 'sanctyr';
