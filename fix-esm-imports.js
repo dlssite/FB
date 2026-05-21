@@ -69,6 +69,18 @@ function fixEsmImports() {
       'import "$1.js";'
     );
     
+    // Fix dynamic imports: import('./path') -> import('./path.js')
+    content = content.replace(
+      /import\s*\(\s*'(\.[^']+?)(?<!\.js)'\s*\)/g,
+      "import('$1.js')"
+    );
+    
+    // Fix dynamic imports with double quotes: import("./path") -> import("./path.js")
+    content = content.replace(
+      /import\s*\(\s*"(\.[^"]+?)(?<!\.js)"\s*\)/g,
+      'import("$1.js")'
+    );
+    
     if (content !== originalContent) {
       fs.writeFileSync(file, content, 'utf8');
       filesFixed++;
