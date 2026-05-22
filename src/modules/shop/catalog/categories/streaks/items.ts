@@ -12,6 +12,18 @@ class MinorFreeze extends StreakItem {
   basePrice = 500;
   rarity: Rarity = 'common';
   emoji = '❄️';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '❄️ Streak Freeze Info',
+      description: `This item is **automatically consumed** when you miss a streak claim by up to 24 hours.\n\nNo manual use needed - it will protect your streak automatically when needed!`,
+      color: '#3498DB',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class MajorFreeze extends StreakItem {
@@ -21,6 +33,18 @@ class MajorFreeze extends StreakItem {
   basePrice = 1500;
   rarity: Rarity = 'rare';
   emoji = '🧊';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧊 Major Streak Freeze Info',
+      description: `This item is **automatically consumed** when you miss a streak claim by up to 48 hours.\n\nNo manual use needed - it will protect your streak automatically when needed!`,
+      color: '#1ABC9C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class AbsoluteFreeze extends StreakItem {
@@ -30,6 +54,18 @@ class AbsoluteFreeze extends StreakItem {
   basePrice = 4500;
   rarity: Rarity = 'epic';
   emoji = '🏔️';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🏔️ Absolute Streak Freeze Info',
+      description: `This item is **automatically consumed** when you miss a streak claim by up to 72 hours.\n\nNo manual use needed - it will protect your streak automatically when needed!`,
+      color: '#9B59B6',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class XpCatalyst extends StreakItem {
@@ -39,6 +75,18 @@ class XpCatalyst extends StreakItem {
   basePrice = 750;
   rarity: Rarity = 'uncommon';
   emoji = '🧪';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧪 XP Catalyst Info',
+      description: `This item is **automatically consumed** when you claim your next streak.\n\nNo manual use needed - it will double your XP rewards automatically when you claim!`,
+      color: '#F1C40F',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class EmberCatalyst extends StreakItem {
@@ -48,6 +96,18 @@ class EmberCatalyst extends StreakItem {
   basePrice = 750;
   rarity: Rarity = 'uncommon';
   emoji = '🔥';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🔥 Ember Catalyst Info',
+      description: `This item is **automatically consumed** when you claim your next streak.\n\nNo manual use needed - it will double your Ember rewards automatically when you claim!`,
+      color: '#E74C3C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class LeapToken extends StreakItem {
@@ -57,6 +117,18 @@ class LeapToken extends StreakItem {
   basePrice = 2500;
   rarity: Rarity = 'rare';
   emoji = '🚀';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🚀 Streak Leap Token Info',
+      description: `This item is **automatically consumed** when you claim your next streak.\n\nNo manual use needed - it will boost your streak tier by +10 automatically, massively increasing your rewards!`,
+      color: '#F39C12',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class PhoenixAsh extends StreakItem {
@@ -109,6 +181,18 @@ class TemporalRewind extends StreakItem {
   basePrice = 1000;
   rarity: Rarity = 'rare';
   emoji = '⏳';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '⏳ Temporal Rewind Info',
+      description: `This item is **automatically consumed** in the counting channel if you make a mistake.\n\nNo manual use needed - it will protect your count automatically when needed!`,
+      color: '#8E44AD',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 export default [

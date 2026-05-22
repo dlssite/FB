@@ -9,6 +9,18 @@ class ScrapMetal extends BaseItem {
   rarity: Rarity = 'common';
   category = 'materials';
   emoji = '🔩';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🔩 Crafting Material',
+      description: `**${instance.name}** is a basic crafting material.\n\nUse this in crafting recipes for:\n• Basic Metalwork\n• Simple Tools\n• Structural Components\n\nIt cannot be used directly on its own.`,
+      color: '#7F8C8D',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class SalvagedCircuitry extends BaseItem {
@@ -19,6 +31,18 @@ class SalvagedCircuitry extends BaseItem {
   rarity: Rarity = 'rare';
   category = 'materials';
   emoji = '🔌';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🔌 Crafting Material',
+      description: `**${instance.name}** is a rare crafting material.\n\nUse this in crafting recipes for:\n• Electronic Components\n• Tech Upgrades\n• Advanced Machinery\n• AI Systems\n\nIt cannot be used directly on its own.`,
+      color: '#3498DB',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 export default [new ScrapMetal(), new SalvagedCircuitry()];

@@ -9,6 +9,18 @@ class PortableBeacon extends BaseItem {
   rarity: Rarity = 'rare';
   category = 'equipment';
   emoji = '🛰️';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🛰️ Beacon Deployed',
+      description: `You deployed the **Portable Beacon**!\n\n📍 Signal active and marking your location.\n📡 The beacon can be detected by nearby allies and navigation systems.`,
+      color: '#E67E22',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class ReinforcedPlating extends BaseItem {
@@ -19,6 +31,18 @@ class ReinforcedPlating extends BaseItem {
   rarity: Rarity = 'epic';
   category = 'equipment';
   emoji = '🛡️';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🛡️ Crafting Material',
+      description: `**${instance.name}** is a crafting component.\n\nUse this in crafting recipes to reinforce shelters, vehicles, or armor.\nIt cannot be used directly on its own.`,
+      color: '#7F8C8D',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class QuantumProcessor extends BaseItem {
@@ -35,6 +59,18 @@ class QuantumProcessor extends BaseItem {
     computingPower: 'extreme',
     usedIn: ['crafting', 'research', 'ai_systems']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '💻 Crafting Material',
+      description: `**${instance.name}** is a high-tech crafting component.\n\nUse this in crafting recipes for:\n• AI Systems\n• Advanced Research\n• Complex Machinery\n\nIt cannot be used directly on its own.`,
+      color: '#3498DB',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class ChromaPlating extends BaseItem {
@@ -51,6 +87,18 @@ class ChromaPlating extends BaseItem {
     armorValue: 35,
     usedIn: ['armor_crafting', 'vehicle_upgrade']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '⚙️ Crafting Material',
+      description: `**${instance.name}** is a crafting component.\n\nUse this in crafting recipes for:\n• Armor Upgrades\n• Vehicle Reinforcement\n• Weapon Enhancement\n\nIt cannot be used directly on its own.`,
+      color: '#9B59B6',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class NeuralMatrix extends BaseItem {
@@ -68,6 +116,18 @@ class NeuralMatrix extends BaseItem {
     beastControl: true,
     usedIn: ['high_tier_ai', 'sentient_systems']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧠 Advanced Crafting Material',
+      description: `**${instance.name}** is a highly advanced crafting component.\n\nUse this in crafting recipes for:\n• Sentient AI Systems\n• Beast Control Devices\n• Advanced Consciousness Systems\n\nThis is an epic-tier component. It cannot be used directly on its own.`,
+      color: '#E74C3C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class PhaseCrystal extends BaseItem {
@@ -84,6 +144,18 @@ class PhaseCrystal extends BaseItem {
     rarity: 'rare',
     usedIn: ['stealth_tech', 'dimensional_shifts', 'teleportation']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '💠 Crafting Material',
+      description: `**${instance.name}** is a rare crafting component.\n\nUse this in crafting recipes for:\n• Stealth Technology\n• Dimensional Portals\n• Teleportation Devices\n\nIt cannot be used directly on its own.`,
+      color: '#9B59B6',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class VoidResonator extends BaseItem {
@@ -100,6 +172,18 @@ class VoidResonator extends BaseItem {
     powerLevel: 'legendary',
     usedIn: ['void_tech', 'dimensional_tech', 'warp_drives']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🌀 LEGENDARY CRAFTING MATERIAL',
+      description: `**${instance.name}** is a legendary crafting component of immense power!\n\nUse this in crafting recipes for:\n• Void-Rift Generators\n• Reality Warping Devices\n• Dimensional Warp Drives\n• Universe-Bending Technology\n\nThis legendary component cannot be used directly on its own.`,
+      color: '#8E44AD',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class BioSynthFluid extends BaseItem {
@@ -117,6 +201,18 @@ class BioSynthFluid extends BaseItem {
     coolantCapacity: 100,
     usedIn: ['high_performance_engines', 'weapons', 'research']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧫 Crafting Material',
+      description: `**${instance.name}** is a specialized crafting component.\n\nUse this in crafting recipes for:\n• High-Performance Engines\n• Weapons Systems\n• Research Equipment\n\nIt cannot be used directly on its own.`,
+      color: '#1ABC9C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class EchoFragment extends BaseItem {
@@ -134,6 +230,18 @@ class EchoFragment extends BaseItem {
     rangeMultiplier: 2,
     usedIn: ['communication_arrays', 'beacons', 'radar']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '📡 Crafting Material',
+      description: `**${instance.name}** is a communications crafting component.\n\nUse this in crafting recipes for:\n• Communication Arrays\n• Signal Beacons\n• Radar Systems\n\nIt cannot be used directly on its own.`,
+      color: '#3498DB',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class MagnetiteIngot extends BaseItem {
@@ -150,6 +258,18 @@ class MagnetiteIngot extends BaseItem {
     magneticField: true,
     usedIn: ['energy_systems', 'maglev', 'weapons']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧲 Crafting Material',
+      description: `**${instance.name}** is a crafting component.\n\nUse this in crafting recipes for:\n• Energy Systems\n• Maglev Propulsion\n• Magnetic Weapons\n\nIt cannot be used directly on its own.`,
+      color: '#F39C12',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class CatalystShard extends BaseItem {
@@ -167,6 +287,18 @@ class CatalystShard extends BaseItem {
     reactionAccelerator: true,
     usedIn: ['crafting', 'potion_brewing', 'alchemy']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '⚡ Crafting Material',
+      description: `**${instance.name}** is a reaction catalyst crafting component.\n\nUse this in crafting recipes for:\n• Accelerated Crafting\n• Potion Brewing\n• Alchemical Reactions\n\nIt cannot be used directly on its own.`,
+      color: '#F1C40F',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class DarkMatterCanister extends BaseItem {
@@ -183,6 +315,18 @@ class DarkMatterCanister extends BaseItem {
     powerLevel: 'extreme',
     usedIn: ['weapons', 'dimensional_tech', 'energy_weapons']
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '⬛ LEGENDARY CRAFTING MATERIAL',
+      description: `**${instance.name}** is a legendary-tier crafting component!\n\nUse this in crafting recipes for:\n• Exotic Weaponry\n• Dimensional Technology\n• Energy Weapons of Immense Power\n\nHandle with extreme caution. This component cannot be used directly on its own.`,
+      color: '#2C3E50',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 export default [
