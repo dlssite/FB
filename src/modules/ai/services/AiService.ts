@@ -296,7 +296,8 @@ export class AiService {
         guildId,
         channelId,
         userId,
-        interaction: pseudoInteraction
+        interaction: pseudoInteraction,
+        userContext: enrichedContext
       });
 
       // 9. SECOND PASS: Feed the raw tool result back to the AI so it can summarize it naturally

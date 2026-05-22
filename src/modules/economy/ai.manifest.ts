@@ -95,7 +95,16 @@ export const EconomyManifest: AiModuleManifest = {
         reason: { type: 'string', description: 'Reason for the adjustment.', required: false }
       },
       handler: async (params, context) => {
-        const { tenantId } = context;
+        const { tenantId, userContext } = context;
+        
+        // Permission check: only admins can use this
+        if (!userContext?.isAdmin) {
+          return {
+            executed: false,
+            result: '🚫 Only administrators can modify balances. This action requires elevated permissions.'
+          };
+        }
+        
         const { userId, amount, type, reason } = params;
         
         await EconomyService.manageBalance(tenantId, userId, amount, type, reason || 'AI Administrative Adjustment');

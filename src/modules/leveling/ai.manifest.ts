@@ -58,7 +58,16 @@ export const LevelingManifest: AiModuleManifest = {
         amount: { type: 'number', description: 'XP amount to add.', required: true }
       },
       handler: async (params, context) => {
-        const { tenantId, guildId } = context;
+        const { tenantId, guildId, userContext } = context;
+        
+        // Permission check: only admins can award XP
+        if (!userContext?.isAdmin) {
+          return {
+            executed: false,
+            result: '🚫 Only administrators can award XP. This action requires elevated permissions.'
+          };
+        }
+        
         const { userId, amount } = params;
         
         await LevelingService.addExperience(tenantId, guildId, userId, amount);

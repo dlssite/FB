@@ -14,10 +14,18 @@ export const ModerationManifest: AiModuleManifest = {
         reason: { type: 'string', description: 'The reason for the mute.', required: false }
       },
       handler: async (params, context) => {
-        const { interaction } = context;
+        const { interaction, userContext } = context;
         const guild = interaction?.guild;
         
         if (!guild) return { executed: false, result: 'Guild context missing.' };
+
+        // Permission check: only admins can mute
+        if (!userContext?.isAdmin) {
+          return {
+            executed: false,
+            result: '🚫 Only administrators can mute users. This action requires elevated permissions.'
+          };
+        }
 
         const { userId, duration, reason } = params;
         const member = await guild.members.fetch(userId).catch(() => null);
@@ -42,9 +50,18 @@ export const ModerationManifest: AiModuleManifest = {
         reason: { type: 'string', description: 'The reason for the kick.', required: false }
       },
       handler: async (params, context) => {
-        const { interaction } = context;
+        const { interaction, userContext } = context;
         const guild = interaction?.guild;
+        
         if (!guild) return { executed: false, result: 'Guild context missing.' };
+
+        // Permission check: only admins can kick
+        if (!userContext?.isAdmin) {
+          return {
+            executed: false,
+            result: '🚫 Only administrators can kick users. This action requires elevated permissions.'
+          };
+        }
 
         const { userId, reason } = params;
         const member = await guild.members.fetch(userId).catch(() => null);
