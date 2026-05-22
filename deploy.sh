@@ -56,6 +56,7 @@ for bot in "${BOTS[@]}"; do
   
   # Load environment variables from the bot's .env file
   export $(cat .env.$bot | grep -v '^#' | xargs)
+  export FLAMEBORN_CONFIG="$bot"
   
   # Verify DATABASE_URL is loaded
   if [ -z "$DATABASE_URL" ]; then

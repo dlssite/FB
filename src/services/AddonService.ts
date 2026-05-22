@@ -1,7 +1,7 @@
 import { prisma } from '../database/client';
 import { WelcomeRepository } from '../modules/welcomer/database/WelcomeRepository';
 import { AutomodRepository } from '../modules/automod/database/AutomodRepository';
-import { flamebornConfig } from '../config/flameborn.config';
+import { getFlamebornConfig } from '../config/configProvider';
 
 export type AddonStatus = {
   enabled: boolean;
@@ -16,6 +16,7 @@ export class AddonService {
   static async checkStatus(tenantId: string, guildId: string, moduleName: string): Promise<AddonStatus> {
     try {
       // 0. Layer 0: Static Bot Config (Operator)
+      const flamebornConfig = getFlamebornConfig();
       const config = (flamebornConfig.modules as any)[moduleName.toLowerCase()];
       if (config && config.active === false) {
         return { enabled: false, reason: 'OPERATOR' };

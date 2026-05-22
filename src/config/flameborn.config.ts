@@ -377,7 +377,7 @@ export const flamebornConfig: FlamebornConfig = {
       emoji: '🛠️'
     },
     automod: {
-      active: false,
+      active: true,
       name: 'Iron Shield',
       description: 'Automatic chat defense, anti-spam, and link protection.',
       emoji: '🛡️'

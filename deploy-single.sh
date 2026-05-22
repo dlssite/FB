@@ -47,6 +47,7 @@ fi
 
 echo -e "${YELLOW}[STEP 1]${NC} Loading environment for $BOT..."
 export $(cat "$env_file" | grep -v '^#' | xargs)
+export FLAMEBORN_CONFIG="$BOT"
 
 if [ -z "$DATABASE_URL" ]; then
   echo -e "${RED}❌ DATABASE_URL not found in $env_file${NC}"
