@@ -126,7 +126,9 @@ export default {
             parameters: response.actionResult.parameters,
             userId: message.author.id,
             guildId,
-            tenantId
+            tenantId,
+            isAdmin,
+            displayName: message.member?.displayName || message.author.username
           }), 300);
 
           const confirmButton = new ButtonBuilder()

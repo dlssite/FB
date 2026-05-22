@@ -58,7 +58,20 @@ export default {
         // but for this implementation we'll make it accessible or call a public wrapper
         const result = await ActionRouter.executeAction(
           { action: data.action, parameters: data.parameters }, 
-          { interaction, tenantId: data.tenantId, guildId: data.guildId }
+          { 
+            interaction, 
+            tenantId: data.tenantId, 
+            guildId: data.guildId,
+            userId: data.userId,
+            channelId: interaction.channelId,
+            userContext: {
+              isAdmin: data.isAdmin,
+              displayName: data.displayName,
+              roleName: '',
+              highestRoleName: '',
+              timestamp: Date.now()
+            }
+          }
         );
         
         const successPayload = ContainerService.simple(`✅ **Action Executed**\n${result.result}`, { color: '#00FF00', interaction });
