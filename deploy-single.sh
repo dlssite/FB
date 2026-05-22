@@ -65,7 +65,8 @@ echo -e "${GREEN}✓${NC} Build complete"
 echo ""
 
 echo -e "${YELLOW}[STEP 3]${NC} Running Prisma migrations..."
-npx prisma db push --skip-generate --accept-data-loss
+npx prisma generate
+npx prisma db push --accept-data-loss
 echo -e "${GREEN}✓${NC} Migrations complete"
 echo ""
 
