@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { prisma } from '../../../../database/client';
 import { AutoService } from '../../services/AutoService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -27,8 +27,14 @@ export default {
     });
 
     if (!trigger) {
-      return await interaction.editReply(
-        ContainerService.simple(`❌ No trigger found with the name **${name}**.`) as any
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: '❌ Error',
+          description: `No trigger found with the name **${name}**.`,
+          color: '#EA5455',
+          footer: true,
+          interaction
+        })
       );
     }
 
@@ -57,6 +63,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(container as any);
+    await replyV2(interaction, container);
   }
 };

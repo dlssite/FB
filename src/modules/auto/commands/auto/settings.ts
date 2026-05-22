@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, Role, Channel, ChannelType } from 'discord.js';
 import { prisma } from '../../../../database/client';
 import { AutoService, MatchType } from '../../services/AutoService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -37,8 +37,14 @@ export default {
     });
 
     if (!trigger) {
-      return await interaction.editReply(
-        ContainerService.simple(`❌ No trigger found with the name **${name}**.`) as any
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: '❌ Error',
+          description: `No trigger found with the name **${name}**.`,
+          color: '#EA5455',
+          footer: true,
+          interaction
+        })
       );
     }
 
@@ -74,7 +80,15 @@ export default {
     }
 
     if (Object.keys(updateData).length === 0) {
-      return await interaction.editReply(ContainerService.simple('ℹ️ No settings were changed.') as any);
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: 'ℹ️ Info',
+          description: 'No settings were changed.',
+          color: '#7367F0',
+          footer: true,
+          interaction
+        })
+      );
     }
 
     await prisma.auto_triggers.update({
@@ -92,6 +106,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(container as any);
+    await replyV2(interaction, container);
   }
 };

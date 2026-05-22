@@ -19,6 +19,7 @@ import {
 import { VerificationRepository } from '../database/VerificationRepository';
 import { CaptchaService } from './CaptchaService';
 import { flamebornConfig } from '../../../config/flameborn.config';
+import { replyV2 } from '../../../utils/container';
 
 export class VerificationService {
   /**
@@ -64,8 +65,7 @@ export class VerificationService {
       components: [row]
     });
     
-    // Already deferred - always use editReply with .reply payload (no flags)
-    await interaction.editReply(containerData);
+    await replyV2(interaction, containerData);
   }
 
   static async sendCaptchaStep(interaction: any, settings: any) {
@@ -115,7 +115,7 @@ export class VerificationService {
       components: rows
     });
 
-    await interaction.editReply(containerData);
+    await replyV2(interaction, containerData);
   }
 
   static async sendRolesStep(interaction: any, tenantId: string, guildId: string) {
@@ -161,7 +161,7 @@ export class VerificationService {
       components: rows
     });
 
-    await interaction.editReply(containerData);
+    await replyV2(interaction, containerData);
   }
 
   static async completeVerification(interaction: any, tenantId: string, guildId: string) {
@@ -192,7 +192,7 @@ export class VerificationService {
       color: '#00FF00'
     });
 
-    await interaction.editReply(containerData);
+    await replyV2(interaction, containerData);
   }
 
   /**

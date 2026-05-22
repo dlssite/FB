@@ -10,6 +10,7 @@ import {
 import { VerificationRepository } from '../../database/VerificationRepository';
 import { tenantStorage } from '../../../../utils/context';
 import { flamebornConfig } from '../../../../config/flameborn.config';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -39,7 +40,7 @@ export default {
       });
     }
 
-    const containerData = ContainerService.create({
+    const containerBuilder = ContainerService.buildCreate({
       title: 'Verification System Overview',
       description: `### ⚙️ Global Settings
 **Status:** ${settings.enabled ? '✅ Enabled' : '❌ Disabled'}
@@ -56,6 +57,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(containerData);
+    await replyV2(interaction, { components: [containerBuilder] });
   }
 };

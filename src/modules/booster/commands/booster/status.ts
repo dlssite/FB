@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { BoosterService } from '../../services/BoosterService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -38,6 +38,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(container as any);
+    await replyV2(interaction, container);
   }
 };

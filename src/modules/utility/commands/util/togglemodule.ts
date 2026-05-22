@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { Translator } from '../../../../core/Translator';
 import {
@@ -40,10 +40,14 @@ export default {
 
     // Check admin permissions
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-      return await interaction.editReply(
-        ContainerService.simple(
-          Translator.t('utility', 'admin.no_permission', lang)
-        ) as any
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: '❌ Permission Denied',
+          description: Translator.t('utility', 'admin.no_permission', lang),
+          color: '#EA5455',
+          footer: true,
+          interaction
+        })
       );
     }
 
@@ -92,15 +96,19 @@ export default {
           ]
         });
 
-        return await interaction.editReply(response as any);
+        return await replyV2(interaction, response);
       }
 
       // Toggle specific module
       if (enabledOption === null || enabledOption === undefined) {
-        return await interaction.editReply(
-          ContainerService.simple(
-            'Please specify whether to enable or disable the module.'
-          ) as any
+        return await replyV2(interaction,
+          ContainerService.create({
+            title: '❌ Error',
+            description: 'Please specify whether to enable or disable the module.',
+            color: '#EA5455',
+            footer: true,
+            interaction
+          })
         );
       }
 
@@ -117,13 +125,17 @@ export default {
         footer: true
       });
 
-      return await interaction.editReply(response as any);
+      return await replyV2(interaction, response);
     } catch (error) {
       console.error('Error toggling module:', error);
-      return await interaction.editReply(
-        ContainerService.simple(
-          `Error toggling module: ${(error as Error).message}`
-        ) as any
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: '❌ Error',
+          description: `Error toggling module: ${(error as Error).message}`,
+          color: '#EA5455',
+          footer: true,
+          interaction
+        })
       );
     }
   }

@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { prisma } from '../../../../database/client';
 import { AutoService, MatchType } from '../../services/AutoService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -40,8 +40,14 @@ export default {
     });
 
     if (existing) {
-      return await interaction.editReply(
-        ContainerService.simple(`❌ A trigger named **${name}** already exists.`) as any
+      return await replyV2(interaction,
+        ContainerService.create({
+          title: '❌ Error',
+          description: `A trigger named **${name}** already exists.`,
+          color: '#EA5455',
+          footer: true,
+          interaction
+        })
       );
     }
 
@@ -74,6 +80,6 @@ export default {
       interaction
     });
 
-    await interaction.editReply(container as any);
+    await replyV2(interaction, container);
   }
 };
