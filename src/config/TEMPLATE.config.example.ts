@@ -103,7 +103,7 @@ const baseConfig: FlamebornConfig = {
     tickets: { active: true, name: 'Tickets', description: 'Tickets.', emoji: '🎫' },
     moderation: { active: true, name: 'Moderation', description: 'Mod.', emoji: '⚖️' },
     utility: { active: true, name: 'Utility', description: 'Tools.', emoji: '🛠️' },
-    automod: { active: false, name: 'AutoMod', description: 'Shield.', emoji: '🛡️' },
+    automod: { active: true, name: 'AutoMod', description: 'Shield.', emoji: '🛡️' },
     welcomer: { active: true, name: 'Welcomer', description: 'Welcome.', emoji: '👋' },
     territory: { active: true, name: 'Territory', description: 'World.', emoji: '🌍' },
     economy: { active: true, name: 'Economy', description: 'Economy.', emoji: '💠' },
