@@ -2,6 +2,9 @@ import { ButtonInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { RedisService } from '../../../services/RedisService';
 import { Translator } from '../../../core/Translator';
+import { tenantStorage } from '../../../utils/context';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
@@ -12,6 +15,16 @@ export default {
       const customId = interaction.customId;
       const shim = interaction as any;
       const lang = shim.lang || 'en';
+      
+      const guildId = interaction.guildId;
+      if (!guildId) return;
+      
+      const { RoutingService: RS } = await import('../../../services/RoutingService');
+      const tenantId = await RS.resolveTenantId(guildId, 'fun');
+      
+      // Gatekeeper Check: Is Fun enabled?
+      const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'fun');
+      if (!isEnabled) return;
 
       // 1. RIDDLE REVEAL HANDLER
       if (customId.startsWith('fun_riddle_')) {

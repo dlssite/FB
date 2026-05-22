@@ -3,6 +3,7 @@ import { ContainerService, replyV2 } from '../../../utils/container';
 import { tenantStorage } from '../../../utils/context';
 import { LevelingService } from '../../leveling/services/LevelingService';
 import { Logger } from '../../../utils/logger';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: Events.InteractionCreate,
@@ -14,6 +15,10 @@ export default {
 
     const { RoutingService } = await import('../../../services/RoutingService');
     const tenantId = await RoutingService.resolveTenantId(guildId, 'music');
+    
+    // Gatekeeper Check: Is Music enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'music');
+    if (!isEnabled) return;
 
     await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
       const userId = interaction.user.id;

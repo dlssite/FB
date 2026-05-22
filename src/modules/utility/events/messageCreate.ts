@@ -3,6 +3,7 @@ import { ContainerService } from '../../../utils/container';
 import { UtilityRepository } from '../database/UtilityRepository';
 import { TenantRepository } from '../../../repositories/TenantRepository';
 import { GuildService } from '../../../services/GuildService';
+import { AddonService } from '../../../services/AddonService';
 import { Translator } from '../../../core/Translator';
 
 export default {
@@ -14,6 +15,10 @@ export default {
     const guildId = message.guild.id;
     const tenantId = await TenantRepository.getTenantForGuild(guildId) || process.env.TENANT_ID || 'tenant_alpha_01';
     
+    // Gatekeeper Check: Is Utility enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'utility');
+    if (!isEnabled) return;
+
     // Fetch guild settings for language
     const settings = await GuildService.getSettings(tenantId, guildId);
     const lang = settings?.lang || 'en';

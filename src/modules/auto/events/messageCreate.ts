@@ -4,6 +4,7 @@ import { tenantStorage } from '../../../utils/context';
 import { ContainerService } from '../../../utils/container';
 import { RoutingService } from '../../../services/RoutingService';
 import { Logger } from '../../../utils/logger';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: Events.MessageCreate,
@@ -12,6 +13,11 @@ export default {
 
     // Resolve context for non-commands (Legacy pattern for message listeners)
     const tenantId = await RoutingService.resolveTenantId(message.guild.id, 'auto');
+    
+    // Gatekeeper Check: Is Auto enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, message.guild.id, 'auto');
+    if (!isEnabled) return;
+
     Logger.debug(`[AUTO] Processing message from ${message.author.tag} in ${message.guild.name}. Tenant: ${tenantId}`, 'ACTION_ENGINE' as any);
     
     await tenantStorage.run({ tenantId, guildId: message.guild.id, lang: 'en' }, async () => {

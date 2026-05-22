@@ -1,6 +1,7 @@
 import { Interaction, Message } from 'discord.js';
 import { CountingService } from '../services/CountingService';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'messageCreate',
@@ -9,6 +10,11 @@ export default {
 
     // Resolve tenant & lang
     const tenantId = await RoutingService.resolveTenantId(message.guildId, 'counting');
+    
+    // Gatekeeper Check: Is Counting enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, message.guildId, 'counting');
+    if (!isEnabled) return;
+    
     const { GuildService } = await import('../../../services/GuildService');
     const { tenantStorage } = await import('../../../utils/context');
     const settings = await GuildService.getSettings(tenantId, message.guildId);

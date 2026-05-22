@@ -4,6 +4,7 @@ import { shopRegistry } from '../catalog/engine/Registry';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 import { InventoryService } from '../services/InventoryService';
 
 export async function renderShopPanel(interaction: any, categoryId: string | null, catPage: number, itmPage: number) {
@@ -180,6 +181,10 @@ export default {
 
     // Always resolve for 'economy' to ensure we use the correct balance silo
     const tenantId = await RoutingService.resolveTenantId(guildId, 'economy');
+    
+    // Gatekeeper Check: Is Shop (Economy) enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'economy');
+    if (!isEnabled) return;
 
     // --- PERSISTENT NAVIGATION: CATEGORY SWITCH ---
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('shop_nav_cat')) {

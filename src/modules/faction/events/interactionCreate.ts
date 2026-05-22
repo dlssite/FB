@@ -4,6 +4,7 @@ import { Logger } from '../../../utils/logger';
 import { FactionService } from '../services/FactionService';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { prisma } from '../../../database/client';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
@@ -17,6 +18,11 @@ export default {
     if (!context && interaction.guildId) {
         const { RoutingService } = await import('../../../services/RoutingService');
         const tenantId = await RoutingService.resolveTenantId(interaction.guildId, 'faction');
+        
+        // Gatekeeper Check: Is Faction enabled?
+        const isEnabled = await AddonService.isEnabled(tenantId, interaction.guildId, 'faction');
+        if (!isEnabled) return;
+        
         context = { tenantId, guildId: interaction.guildId, lang: 'en' };
     }
 

@@ -13,6 +13,7 @@ import {
 import { VerificationRepository } from '../database/VerificationRepository';
 import { VerificationService } from '../services/VerificationService';
 import { tenantStorage } from '../../../utils/context';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: Events.InteractionCreate,
@@ -49,6 +50,10 @@ export default {
 
     const { RoutingService } = await import('../../../services/RoutingService');
     const tenantId = await RoutingService.resolveTenantId(guildId, 'verification');
+    
+    // Gatekeeper Check: Is Verification enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'verification');
+    if (!isEnabled) return;
 
     await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
       const customId = interaction.customId;

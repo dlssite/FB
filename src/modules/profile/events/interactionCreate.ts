@@ -4,6 +4,8 @@ import { ProfileRepository } from '../database/ProfileRepository';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { Translator } from '../../../core/Translator';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
@@ -11,10 +13,17 @@ export default {
   async execute(interaction: Interaction) {
     if (!interaction.isStringSelectMenu() || !interaction.customId.startsWith('profile_section_select_')) return;
 
+    const guildId = interaction.guildId;
+    if (!guildId) return;
+    
+    const tenantId = (interaction as any).tenantId || flamebornConfig.bot?.tenant?.id || 'FBT';
+    
+    // Gatekeeper Check: Is Profile enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'profile');
+    if (!isEnabled) return;
+
     const targetUserId = interaction.customId.split('_')[3];
     const targetSection = interaction.values[0];
-    const tenantId = (interaction as any).tenantId || flamebornConfig.bot?.tenant?.id || 'FBT';
-    const guildId = interaction.guildId || '';
     const lang = (interaction as any).lang || 'en';
 
     await interaction.deferUpdate();

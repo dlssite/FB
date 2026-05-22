@@ -39,6 +39,12 @@ export default {
   async execute(interaction: Interaction) {
     const tenantId = flamebornConfig.bot.tenant.id;
     const guildId = interaction.guildId!;
+    
+    // Gatekeeper Check: Is Truth or Dare enabled?
+    const { RoutingService } = await import('../../../services/RoutingService');
+    const { AddonService } = await import('../../../services/AddonService');
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'truth_or_dare');
+    if (!isEnabled) return;
 
     // --- 0. SESSION MANAGEMENT ---
     if (interaction.isButton() && interaction.customId.startsWith('tod_resume_')) {

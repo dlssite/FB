@@ -3,6 +3,8 @@ import { NsfwApi } from '../helpers/api';
 import { NsfwService } from '../services/NsfwService';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { flamebornConfig } from '../../../config/flameborn.config';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 const CATEGORY_OPTIONS = [
   { label: 'Hentai', value: 'hentai', emoji: '🔞' },
@@ -22,6 +24,12 @@ export default {
     if (!interaction.guild) return;
 
     const tenantId = flamebornConfig.bot.tenant.id;
+    const guildId = interaction.guildId;
+    if (!guildId) return;
+    
+    // Gatekeeper Check: Is NSFW enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'nsfw');
+    if (!isEnabled) return;
 
     // 1. Handle Next/Refresh Button
     if (interaction.isButton() && interaction.customId.startsWith('nsfw_next_')) {

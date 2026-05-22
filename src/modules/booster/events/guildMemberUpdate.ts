@@ -2,6 +2,7 @@ import { Events, GuildMember } from 'discord.js';
 import { BoosterService } from '../services/BoosterService';
 import { BoosterRepository } from '../database/BoosterRepository';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 import { ContainerService } from '../../../utils/container';
 import { Logger } from '../../../utils/logger';
 
@@ -11,6 +12,10 @@ export default {
     if (oldMember.user.bot) return;
 
     const tenantId = await RoutingService.resolveTenantId(newMember.guild.id, 'booster');
+    
+    // Gatekeeper Check: Is Booster enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, newMember.guild.id, 'booster');
+    if (!isEnabled) return;
     
     // Check if user started boosting
     if (!oldMember.premiumSince && newMember.premiumSince) {

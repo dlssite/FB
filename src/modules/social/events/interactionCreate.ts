@@ -1,5 +1,6 @@
 import { Interaction, MessageFlags } from 'discord.js';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { SocialService } from '../services/SocialService';
 import { prisma } from '../../../database/client';
@@ -15,6 +16,10 @@ export default {
     if (!customId) return;
 
     const tenantId = await RoutingService.resolveTenantId(guildId, 'economy');
+    
+    // Gatekeeper Check: Is Social (Economy) enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'economy');
+    if (!isEnabled) return;
 
     return await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
       // --- MARRIAGE ACCEPTANCE ---

@@ -5,6 +5,7 @@ import { ContainerService, replyV2 } from '../../../utils/container';
 import { prisma } from '../../../database/client';
 import { ShopService } from '../../shop/services/ShopService';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 import { TerritoryRepository } from '../../territory/database/TerritoryRepository';
 import { GuildMember } from 'discord.js';
 
@@ -15,6 +16,11 @@ export default {
     if (!guildId) return;
 
     const tenantId = await RoutingService.resolveTenantId(guildId, 'economy');
+    
+    // Gatekeeper Check: Is Transport (Economy) enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'economy');
+    if (!isEnabled) return;
+    
     const customId = (interaction as any).customId;
     if (!customId) return;
 

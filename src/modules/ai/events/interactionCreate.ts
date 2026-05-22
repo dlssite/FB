@@ -3,6 +3,7 @@ import { RedisService } from '../../../services/RedisService';
 import { ActionRouter } from '../services/ActionRouter';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { tenantStorage } from '../../../utils/context';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: Events.InteractionCreate,
@@ -14,6 +15,16 @@ export default {
 
     // We must defer immediately to keep the interaction alive
     await interaction.deferUpdate();
+
+    const guildId = interaction.guildId;
+    if (!guildId) return;
+
+    const { RoutingService } = await import('../../../services/RoutingService');
+    const tenantId = await RoutingService.resolveTenantId(guildId, 'ai');
+    
+    // Gatekeeper Check: Is AI enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'ai');
+    if (!isEnabled) return;
 
     const isCancel = customId.startsWith('ai_cancel_');
     const confirmId = isCancel ? customId.replace('ai_cancel_', '') : customId.replace('ai_confirm_', '');

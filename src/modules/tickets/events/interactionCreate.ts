@@ -3,12 +3,21 @@ import { Logger } from '../../../utils/logger';
 import { TicketService } from '../services/TicketService';
 import { replyV2, ContainerService } from '../../../utils/container';
 import { EmbedService } from '../../../utils/embed';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
   once: false,
   async execute(interaction: Interaction) {
     if (!interaction.guild) return;
+
+    const guildId = interaction.guild.id;
+    const tenantId = await RoutingService.resolveTenantId(guildId, 'tickets');
+    
+    // Gatekeeper Check: Is Tickets enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'tickets');
+    if (!isEnabled) return;
 
     // Handle Dropdown Select for creating tickets
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('ticket_panel_select_')) {

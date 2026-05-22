@@ -8,6 +8,7 @@ import { ContainerService, sendV2 } from '../../../utils/container';
 import { RedisService } from '../../../services/RedisService';
 import { RoutingService } from '../../../services/RoutingService';
 import { ProfileRepository } from '../../profile/database/ProfileRepository';
+import { AddonService } from '../../../services/AddonService';
 import shopBrowse from '../../shop/commands/shop/browse';
 
 export default {
@@ -17,6 +18,10 @@ export default {
 
     const tenantId = await RoutingService.resolveTenantId(message.guildId, 'ai');
     const guildId = message.guildId;
+
+    // Gatekeeper Check: Is AI enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'ai');
+    if (!isEnabled) return;
 
     await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
       const context = tenantStorage.getStore();

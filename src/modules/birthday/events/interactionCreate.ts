@@ -3,6 +3,7 @@ import { prisma } from '../../../database/client';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { tenantStorage } from '../../../utils/context';
 import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
@@ -12,6 +13,11 @@ export default {
     // Fallback context resolution for buttons/modals
     if (!context && interaction.guildId) {
       const tenantId = await RoutingService.resolveTenantId(interaction.guildId, 'birthday');
+      
+      // Gatekeeper Check: Is Birthday enabled?
+      const isEnabled = await AddonService.isEnabled(tenantId, interaction.guildId, 'birthday');
+      if (!isEnabled) return;
+      
       context = { tenantId, guildId: interaction.guildId, lang: 'en' };
     }
 

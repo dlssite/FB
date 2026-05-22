@@ -2,6 +2,8 @@ import { VoiceState } from 'discord.js';
 import { TempVoiceService } from '../services/TempVoiceService';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { Logger } from '../../../utils/logger';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'voiceStateUpdate',
@@ -11,6 +13,11 @@ export default {
     if (!member || member.user.bot) return; // Ignore bots
 
     const tenantId = flamebornConfig.bot.tenant.id;
+    const guildId = member.guild.id;
+    
+    // Gatekeeper Check: Is Tempvoice enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'tempvoice');
+    if (!isEnabled) return;
 
     try {
       // User Joined a Channel (or moved to a new one)

@@ -19,7 +19,12 @@ export default {
       if (!guildId) return;
 
       const { RoutingService } = await import('../../../services/RoutingService');
+      const { AddonService } = await import('../../../services/AddonService');
       const tenantId = await RoutingService.resolveTenantId(guildId, 'giveaway');
+      
+      // Gatekeeper Check: Is Giveaway enabled?
+      const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'giveaway');
+      if (!isEnabled) return;
 
       await tenantStorage.run({ tenantId, guildId, lang: 'en' }, async () => {
         const messageId = interaction.message.id;

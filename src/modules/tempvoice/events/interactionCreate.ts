@@ -2,12 +2,21 @@ import { Interaction, PermissionsBitField, ModalBuilder, TextInputBuilder, TextI
 import { prisma } from '../../../database/client';
 import { Logger } from '../../../utils/logger';
 import { ContainerService } from '../../../utils/container';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 
 export default {
   name: 'interactionCreate',
   once: false,
   async execute(interaction: Interaction) {
     if (!interaction.guild) return;
+
+    const guildId = interaction.guild.id;
+    const tenantId = await RoutingService.resolveTenantId(guildId, 'tempvoice');
+    
+    // Gatekeeper Check: Is Tempvoice enabled?
+    const isEnabled = await AddonService.isEnabled(tenantId, guildId, 'tempvoice');
+    if (!isEnabled) return;
 
     // Handle Button Interactions
     if (interaction.isButton() && interaction.customId.startsWith('tv_static_')) {

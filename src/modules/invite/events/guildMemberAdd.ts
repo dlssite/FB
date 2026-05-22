@@ -4,6 +4,7 @@ import { InviteService } from '../services/InviteService';
 import { InviteRepository } from '../database/InviteRepository';
 import { RoutingService } from '../../../services/RoutingService';
 import { GuildService } from '../../../services/GuildService';
+import { AddonService } from '../../../services/AddonService';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { Logger } from '../../../utils/logger';
 import { ContainerService } from '../../../utils/container';
@@ -11,10 +12,17 @@ import { ContainerService } from '../../../utils/container';
 export default {
   name: Events.GuildMemberAdd,
   async execute(member: GuildMember) {
-    if (!flamebornConfig.modules.invite.active || member.user.bot) return;
+    if (member.user.bot) return;
 
     try {
       const tenantId = await RoutingService.resolveTenantId(member.guild.id, 'invite');
+      
+      // Gatekeeper Check: Is Invite module enabled?
+      const isEnabled = await AddonService.isEnabled(tenantId, member.guild.id, 'invite');
+      if (!isEnabled) return;
+
+      if (!flamebornConfig.modules.invite.active) return;
+
       const settings = await InviteRepository.getSettings(tenantId, member.guild.id);
       const guildSettings = await GuildService.getSettings(tenantId, member.guild.id);
       
