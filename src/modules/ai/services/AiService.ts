@@ -2,13 +2,15 @@ import { OpenRouter } from '@openrouter/sdk';
 import { Logger } from '../../../utils/logger';
 import { MemoryService, CachedUserProfile } from './MemoryService';
 import { ActionRouter } from './ActionRouter';
-import { AiIntent } from '../types/AiManifest';
+import { AiIntent, ChatMessage } from '../types/AiManifest';
 import { AiRepository } from '../database/AiRepository';
 import { ApiKeyManager } from './ApiKeyManager';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { ProfileRepository } from '../../profile/database/ProfileRepository';
 import { ProfileService } from '../../profile/services/ProfileService';
 import { getPersonaByName } from '../personas';
+import { ConversationSummarizer } from './ConversationSummarizer';
+import { IntentDetector } from './IntentDetector';
 
 // ─── Provider Client Caches ────────────────────────────────────────────────
 const openrouterClients = new Map<string, OpenRouter>();
@@ -43,8 +45,71 @@ export class AiService {
     message?: any  // Full message object for tools that need channel context
   ): Promise<any> {
 
-    // 1. Fetch short-term memory (chat history)
-    const history = await MemoryService.getShortTermMemory(channelId);
+    // 1. Fetch short-term memory (user-isolated chat history)
+    const history = await MemoryService.getShortTermMemory(channelId, userId);
+
+    // 1.5 Detect if this is a cross-user query and fetch relevant summaries
+    const detectedIntent = IntentDetector.detectIntent(userInput, []);
+    let crossUserContext = '';
+    
+    if (detectedIntent.type === 'cross_user_query' && detectedIntent.targetUserIds) {
+      Logger.debug(`[AI] Cross-user query detected for: ${detectedIntent.targetUserIds.join(', ')}`);
+      
+      // Try to resolve usernames to IDs if needed
+      const resolvedIds = await IntentDetector.resolveUserIds(
+        message?.guild?.members?.cache || new Map(),
+        detectedIntent.targetUserIds
+      );
+
+      if (resolvedIds.length > 0) {
+        // Fetch summaries for target users
+        const summaries = [];
+        for (const targetUserId of resolvedIds) {
+          const targetHistory = await MemoryService.getShortTermMemory(channelId, targetUserId);
+          const targetMetadata = await MemoryService.getUserMetadata(channelId, targetUserId);
+          const targetUsername = targetMetadata?.username || `User${targetUserId.substring(0, 4)}`;
+          
+          const summary = await ConversationSummarizer.getOrGenerateSummary(
+            channelId,
+            targetUserId,
+            targetUsername,
+            targetHistory
+          );
+          
+          if (summary) {
+            summaries.push(summary);
+          }
+        }
+
+        // Build context string for the system prompt
+        if (summaries.length > 0) {
+          crossUserContext = '\n\nOTHER USERS CONVERSATION CONTEXT:\n';
+          summaries.forEach(summary => {
+            crossUserContext += `\n${summary.username}'s conversation: ${summary.summary}`;
+            if (summary.topics.length > 0) {
+              crossUserContext += ` (Topics: ${summary.topics.join(', ')})`;
+            }
+          });
+          Logger.debug(`[AI] Injected summaries for ${summaries.length} users`);
+        }
+      }
+    } else if (detectedIntent.type === 'channel_summary') {
+      Logger.debug('[AI] Channel summary request detected');
+      
+      // Generate summaries for all users in the channel
+      const allSummaries = await ConversationSummarizer.summarizeAllUsers(channelId);
+      
+      if (allSummaries.length > 0) {
+        crossUserContext = '\n\nCHANNEL CONVERSATION CONTEXT:\n';
+        allSummaries.forEach(summary => {
+          crossUserContext += `\n${summary.username}: ${summary.summary}`;
+          if (summary.topics.length > 0) {
+            crossUserContext += ` (Topics: ${summary.topics.join(', ')})`;
+          }
+        });
+        Logger.debug(`[AI] Injected summaries for ${allSummaries.length} users in channel`);
+      }
+    }
 
     // 2. Fetch long-term user facts
     const facts = await MemoryService.getLongTermFacts(tenantId, guildId, userId);
@@ -131,8 +196,8 @@ export class AiService {
         };
 
     // 6. Build system prompt & tools (use enrichedContext which has isFirstVisit flag)
-    const systemPrompt = this.buildSystemPrompt(userId, settings?.persona, facts, enrichedContext, cachedProfile);
-    Logger.debug(`[AI] Built system prompt with isFirstVisit=${enrichedContext.isFirstVisit}, hasActions=${!!cachedProfile?.actions}`);
+    const systemPrompt = this.buildSystemPrompt(userId, settings?.persona, facts, enrichedContext, cachedProfile, crossUserContext);
+    Logger.debug(`[AI] Built system prompt with isFirstVisit=${enrichedContext.isFirstVisit}, hasActions=${!!cachedProfile?.actions}, hasCrossUserContext=${crossUserContext.length > 0}`);
     const messages = [
       { role: 'system', content: systemPrompt },
       ...history,
@@ -289,10 +354,44 @@ export class AiService {
       Logger.debug(`[AI] No tool called - pure text response`);
     }
 
-    // 10. Persist to short-term memory
-    await MemoryService.addShortTermMemory(channelId, { role: 'user', content: userInput });
+    // 10. Persist to short-term memory with user context
+    const userMessageWithContext: ChatMessage = {
+      role: 'user',
+      content: userInput,
+      userContext: {
+        userId,
+        username: userContext?.displayName || member?.user?.username || 'Unknown',
+        roles: member?.roles?.cache?.map((r: any) => r.name).filter((n: any) => n !== '@everyone') || [],
+        isAdmin: userContext?.isAdmin || false,
+        highestRole: userContext?.highestRoleName || 'Member',
+        timestamp: Date.now(),
+        displayName: userContext?.displayName
+      }
+    };
+    await MemoryService.addShortTermMemory(channelId, userMessageWithContext, userId);
+    
+    // Also store metadata for cross-user summaries
+    await MemoryService.setUserMetadata(channelId, userId, {
+      username: userContext?.displayName || member?.user?.username || 'Unknown',
+      roles: member?.roles?.cache?.map((r: any) => r.name).filter((n: any) => n !== '@everyone') || [],
+      isAdmin: userContext?.isAdmin || false,
+      highestRole: userContext?.highestRoleName || 'Member'
+    });
+
     const assistantContent = finalAssistantText || this.generateContextualFallback(result.intent?.action) || '✨ Done.';
-    await MemoryService.addShortTermMemory(channelId, { role: 'assistant', content: assistantContent });
+    const assistantMessageWithContext: ChatMessage = {
+      role: 'assistant',
+      content: assistantContent,
+      userContext: {
+        userId: 'system', // AI's own "user" ID
+        username: 'Kiaren',
+        roles: ['AI'],
+        isAdmin: false,
+        highestRole: 'AI',
+        timestamp: Date.now()
+      }
+    };
+    await MemoryService.addShortTermMemory(channelId, assistantMessageWithContext, userId);
 
     Logger.info(`[AI] Response generated: text="${finalAssistantText?.substring(0, 50) || 'none'}...", hasAction=${!!result.intent}, saved to memory`);
     return { text: finalAssistantText, actionResult: intentResult };
@@ -369,7 +468,8 @@ export class AiService {
     persona?: string | null,
     facts: any[] = [],
     userContext?: { roleName: string; isAdmin: boolean; displayName?: string; guildName?: string; adminTitle?: string; secondHighestRole?: string; isFirstVisit?: boolean },
-    cachedProfile?: CachedUserProfile | null
+    cachedProfile?: CachedUserProfile | null,
+    crossUserContext?: string
   ): string {
     // Load persona by name, fallback to default from config
     let prompt: string;
@@ -574,6 +674,11 @@ Use SPECIFIC tools for specific queries. ONLY use get_user_profile for full prof
 - Never send raw json, xml, or any code blocks to the user.
 - If a citizen mentions another citizen (e.g. @Elli), their User ID is inside the mention: extract it naturally.
 - If a citizen asks for help with commands, modules, or how to use a specific feature, tell them to use the \`/help\` command to access the Command Atlas.`;
+
+    // Add cross-user context if available
+    if (crossUserContext) {
+      prompt += `\n\n### Multi-User Channel Context:${crossUserContext}\n---\nREMEMBER: When summarizing or explaining other users' conversations, acknowledge their presence and cite them by name. Use "they/them" pronouns for others, never conflate their conversation with the current user's.`;
+    }
 
     return prompt;
   }

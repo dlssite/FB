@@ -4,6 +4,23 @@ export enum RiskLevel {
   HIGH = 'HIGH'
 }
 
+export interface UserContext {
+  userId: string;
+  username: string;
+  roles: string[];
+  isAdmin: boolean;
+  highestRole: string;
+  timestamp: number;
+  displayName?: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  userContext?: UserContext;
+  conversationId?: string;
+}
+
 export interface AiIntent {
   action: string;
   parameters: Record<string, any>;
