@@ -44,7 +44,9 @@ export class TicketService {
       }
     }
 
-    const ticketName = `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const sanitizedType = config.typeName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const sanitizedUsername = member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const ticketName = `${sanitizedType}-${sanitizedUsername}`;
 
     // Permission Overwrites: Deny everyone, Allow Member, Allow Staff, Allow Bot
     const permissionOverwrites = [
