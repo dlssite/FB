@@ -169,10 +169,32 @@ export class TransportationService {
       member,
       member,
       nation,
-      'PORTAL_USE',
-      'Traveled via Spatial Rift',
+      'ARRIVAL',
+      'Arrived via Spatial Rift',
       null
     ).catch(() => {});
+
+    // Public Arrival Announcement
+    if (nation.arrivalChannelId) {
+      const arrivalChannel = guild.channels.cache.get(nation.arrivalChannelId) as TextChannel;
+      if (arrivalChannel) {
+        await arrivalChannel.send({
+          content: `<@&${nation.roleId}>`,
+          embeds: [
+            EmbedService.success(`🛬 **New Arrival: ${member.displayName}**`)
+              .setDescription(`**<@${member.id}>** has stepped through a spatial rift into **${nation.name}**.\n\nPlease give them a warm welcome!`)
+              .toJSON()
+          ]
+        }).catch(() => {});
+      }
+    }
+
+    // DM to User
+    try {
+      await member.send({
+        embeds: [EmbedService.success(`🏰 **Welcome to ${nation.name}!**\nYou have arrived safely through the spatial rift.`).toJSON()]
+      });
+    } catch {}
 
     return await replyV2(interaction, ContainerService.simple(`✅ Dimensional Rift stabilized! Welcome to **${nation.name}**.`));
   }

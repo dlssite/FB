@@ -87,6 +87,10 @@ export class TerritoryPowerService {
         let flavorEmoji = '📢';
 
         switch (action) {
+          case 'ARRIVAL':
+            flavorText = `🛬 **${target.user.username}** has arrived in **${territory.name}**. Welcome!`;
+            flavorEmoji = '🛬';
+            break;
           case 'BANISH':
             flavorText = `⛔ **${target.user.username}** has been cast out from **${territory.name}** and is no longer welcome here.`;
             flavorEmoji = '⛔';
