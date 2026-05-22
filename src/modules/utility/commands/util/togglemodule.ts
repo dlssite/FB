@@ -15,18 +15,17 @@ export default {
     sub
       .setName('togglemodule')
       .setDescription('💡 Admin: View and toggle server modules on/off')
-      .addStringOption(opt =>
-        opt
+      .addStringOption(opt => {
+        const choices = getAllModules().slice(0, 25).map(mod => ({
+          name: getModuleLabel(mod as ModuleKey),
+          value: mod
+        }));
+        return opt
           .setName('module')
           .setDescription('Module to toggle (leave blank to view all)')
           .setRequired(false)
-          .setChoices(
-            getAllModules().map(mod => ({
-              name: getModuleLabel(mod as ModuleKey),
-              value: mod
-            }))
-          )
-      )
+          .setChoices(...choices);
+      })
       .addBooleanOption(opt =>
         opt
           .setName('enabled')

@@ -89,10 +89,7 @@ export class MemoryService {
       let cursor = '0';
       
       do {
-        const [newCursor, keys] = await RedisService.client.scan(cursor, {
-          MATCH: pattern,
-          COUNT: 100
-        });
+        const [newCursor, keys] = await (RedisService.client as any).scan(cursor, 'MATCH', pattern, 'COUNT', 100);
         cursor = newCursor;
 
         for (const key of keys) {

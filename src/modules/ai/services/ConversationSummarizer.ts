@@ -54,13 +54,13 @@ export class ConversationSummarizer {
       }
 
       // Use OpenRouter to generate summary
-      const apiKey = ApiKeyManager.getCurrentApiKey();
-      if (!apiKey) {
+      const keyData = ApiKeyManager.getKey('openrouter');
+      if (!keyData) {
         Logger.warn('[ConversationSummarizer] No API key available');
         return null;
       }
 
-      const client = new OpenRouter({ apiKey });
+      const client = new OpenRouter({ apiKey: keyData.key });
 
       const summaryPrompt = `You are a conversation analyzer. Summarize the following user's messages in a channel concisely (2-3 sentences max). Extract 2-3 main topics they discussed.
 
@@ -71,13 +71,15 @@ Respond in this exact format:
 TOPICS: [topic1, topic2, topic3]
 SUMMARY: [2-3 sentence summary]`;
 
-      const response = await client.chat.completions.create({
-        model: flamebornConfig.ai.models.default,
-        messages: [{ role: 'user', content: summaryPrompt }],
-        max_tokens: 200
-      });
+      const response = await client.chat.send({
+        chatRequest: {
+          model: flamebornConfig.ai.models.default,
+          messages: [{ role: 'user' as const, content: summaryPrompt }],
+          temperature: 0.7
+        }
+      } as any);
 
-      const responseText = response.choices[0]?.message?.content || '';
+      const responseText = (response as any).text || (response as any).message?.content || '';
 
       // Parse response
       const topicsMatch = responseText.match(/TOPICS:\s*\[([^\]]+)\]/);
@@ -86,8 +88,8 @@ SUMMARY: [2-3 sentence summary]`;
       const topics = topicsMatch
         ? topicsMatch[1]
             .split(',')
-            .map(t => t.trim().replace(/^["']|["']$/g, ''))
-            .filter(t => t.length > 0)
+            .map((t: string) => t.trim().replace(/^["']|["']$/g, ''))
+            .filter((t: string) => t.length > 0)
         : [];
 
       const summary = summaryMatch ? summaryMatch[1].trim() : userMessages.substring(0, 150);

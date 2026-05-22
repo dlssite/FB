@@ -58,7 +58,7 @@ export default {
       footer: true
     }) as any;
 
-    const portalMsg = await sendV2(channel, { embeds: portalEmbed.embeds, components: portalEmbed.components });
+    const portalMsg = await sendV2(channel, { components: portalEmbed.components });
 
     // 5. Record Portal
     await TransportationRepository.createPortal(tenantId, guildId, {

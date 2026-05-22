@@ -277,15 +277,10 @@ export default {
         return await replyV2(interaction, ContainerService.simple('❌ Item not found in database.'), true);
       }
 
-      // Delegate the interaction to the item's custom onUse hook
+      // Delegate the interaction to the item's onUse hook
       try {
-        if (itemClass.onUse) {
+        if (itemClass && itemClass.onUse) {
           await itemClass.onUse(interaction, tenantId, guildId, interaction.user.id, instance);
-        } else {
-          if (itemClass.opensModal) {
-            try { await (interaction as any).deferUpdate(); } catch (e) {}
-          }
-          return await replyV2(interaction, ContainerService.simple('❌ This item does not have a direct use action.'), true);
         }
       } catch (err: any) {
         console.error('[ActionEngine Error]:', err);
