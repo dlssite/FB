@@ -1,5 +1,5 @@
 import { GuildMember, TextChannel, AttachmentBuilder } from 'discord.js';
-import { ContainerService } from '../../../utils/container';
+import { ContainerService, sendV2 } from '../../../utils/container';
 import { WelcomeRepository } from '../database/WelcomeRepository';
 import { PlaceholderService } from '../../../utils/placeholder';
 import { CanvasService } from './CanvasService';
@@ -37,7 +37,7 @@ export class WelcomeService {
         media: ['attachment://welcome-card.png']
       });
       
-      await channel.send({ ...welcomeContainer, files: [attachment] }).catch(console.error);
+      await sendV2(channel, welcomeContainer).catch(console.error);
     } else {
       await channel.send({ content: messageText, files: [attachment] }).catch(console.error);
     }
