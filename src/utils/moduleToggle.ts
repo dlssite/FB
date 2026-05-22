@@ -1,50 +1,25 @@
 import { prisma } from '../database/client';
 import { AddonService } from '../services/AddonService';
+import { flamebornConfig } from '../config/flameborn.config';
 
 /**
- * Module configuration definitions
+ * Generate MODULE_CONFIG dynamically from bot config
+ * This ensures autocomplete shows only actual modules defined in the bot config
  */
-const MODULE_CONFIG = {
-  activity: { label: '📊 Activity' },
-  ai: { label: '🤖 AI' },
-  auto: { label: '⚡ Auto React' },
-  automod: { label: '🛡️ AutoMod' },
-  autoreply: { label: '💬 Auto Reply' },
-  birthday: { label: '🎂 Birthday' },
-  booster: { label: '⭐ Booster' },
-  counting: { label: '🔢 Counting' },
-  economy: { label: '💰 Economy' },
-  faction: { label: '⚔️ Factions' },
-  fun: { label: '🎮 Fun' },
-  giveaway: { label: '🎁 Giveaway' },
-  invite: { label: '📨 Invites' },
-  leveling: { label: '📈 Leveling' },
-  logging: { label: '📝 Logging' },
-  marriage: { label: '💍 Marriage' },
-  minecraft: { label: '⛏️ Minecraft' },
-  moderation: { label: '🚨 Moderation' },
-  modmail: { label: '📬 Modmail' },
-  music: { label: '🎵 Music' },
-  nsfw: { label: '🔞 NSFW' },
-  pet: { label: '🐾 Pets' },
-  profile: { label: '👤 Profile' },
-  quotes: { label: '💭 Quotes' },
-  reactionRole: { label: '🏷️ Reaction Roles' },
-  shop: { label: '🛍️ Shop' },
-  social: { label: '📢 Social Alerts' },
-  streaks: { label: '🔥 Streaks' },
-  suggestion: { label: '💡 Suggestions' },
-  tempvoice: { label: '🎙️ Temp Voice' },
-  territory: { label: '🗺️ Territory' },
-  ticket: { label: '🎫 Tickets' },
-  transport: { label: '🚀 Transport' },
-  truthOrDare: { label: '🎯 Truth or Dare' },
-  utility: { label: '🔧 Utility' },
-  verification: { label: '✅ Verification' },
-  voice: { label: '🔊 Voice' },
-  welcomer: { label: '👋 Welcomer' },
-  whitelist: { label: '🚪 Whitelist' },
-};
+function generateModuleConfig() {
+  const config: Record<string, { label: string }> = {};
+  const modules = flamebornConfig.modules || {};
+  
+  for (const [key, module] of Object.entries(modules)) {
+    if (module && typeof module === 'object' && 'emoji' in module && 'name' in module) {
+      config[key] = { label: `${module.emoji} ${module.name}` };
+    }
+  }
+  
+  return config;
+}
+
+const MODULE_CONFIG = generateModuleConfig();
 
 export type ModuleKey = keyof typeof MODULE_CONFIG;
 
