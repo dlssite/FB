@@ -39,8 +39,8 @@ export default {
         return await replyV2(interaction, ContainerService.simple(`❌ Fast-Travel failed: No active vehicles found in your inventory.`));
       }
 
-      // Find fastest vehicle
-      const bestVehicle = vehicles.sort((a, b) => (a.metadata?.travelTime || 60) - (b.metadata?.travelTime || 60))[0];
+      // Find fastest vehicle (highest price = shortest travel time)
+      const bestVehicle = vehicles.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0))[0];
 
       try {
         const arrivalTime = await TransportationService.startTravel(tenantId, guildId, member, targetNation.id, bestVehicle.instanceId);

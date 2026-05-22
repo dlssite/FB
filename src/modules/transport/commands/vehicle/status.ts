@@ -2,6 +2,7 @@ import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { ContainerService, replyV2 } from '../../../../utils/container';
 import { InventoryService } from '../../../shop/services/InventoryService';
 import { RoutingService } from '../../../../services/RoutingService';
+import { TransportationService } from '../../services/TransportationService';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) => 
@@ -19,7 +20,7 @@ export default {
 
     const fields = vehicles.map(v => ({
       name: v.name,
-      value: `Rarity: **${v.rarity.toUpperCase()}**\nCondition: **${v.condition}%**\nSpeed: \`${Math.floor(3600 / (v.metadata.travelTime || 60))} ly/h\``,
+      value: `Rarity: **${v.rarity.toUpperCase()}**\nCondition: **${v.condition}%**\nTravel Time: \`${TransportationService.calculateTravelTime(v.basePrice)}s\``,
       inline: true
     }));
 

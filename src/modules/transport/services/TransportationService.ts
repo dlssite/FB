@@ -8,14 +8,38 @@ import { InventoryService } from '../../shop/services/InventoryService';
 
 export class TransportationService {
   /**
+   * CALCULATE TRAVEL TIME BASED ON VEHICLE PRICE
+   * Cheapest vehicle = 5 minutes (300s), expensive vehicles = 30s minimum
+   */
+  static calculateTravelTime(vehiclePrice: number): number {
+    // Formula: Maps prices across known range
+    // Cheapest realistic vehicle: ~200-300 → 300s (5 min)
+    // Most expensive vehicle: ~35000 → 30s (0.5 min)
+    
+    const minPrice = 200;
+    const maxPrice = 35000;
+    const minTravelTime = 30; // Fast ships
+    const maxTravelTime = 300; // Slow ships (5 min)
+    
+    // Normalize price to 0-1 range
+    const normalizedPrice = Math.max(0, Math.min(1, (vehiclePrice - minPrice) / (maxPrice - minPrice)));
+    
+    // Calculate travel time (inversely proportional to price)
+    // Higher price = shorter travel time
+    const travelTime = maxTravelTime - (normalizedPrice * (maxTravelTime - minTravelTime));
+    
+    return Math.round(travelTime);
+  }
+
+  /**
    * INITIATE TIMED TRAVEL (VEHICLE)
    */
   static async startTravel(tenantId: string, guildId: string, member: GuildMember, destinationId: number, vehicleInstanceId: string) {
     const vehicle = await InventoryService.getHydratedInstance(vehicleInstanceId);
     if (!vehicle || vehicle.condition <= 0) throw new Error('Vehicle is unavailable or broken.');
 
-    // Extract travel time from the hydrated metadata
-    const travelTime = vehicle.metadata.travelTime || 60; // Default fallback 60s
+    // Calculate travel time based on vehicle price
+    const travelTime = this.calculateTravelTime(vehicle.basePrice);
     const arrivalTime = new Date(Date.now() + travelTime * 1000);
 
     // 0. Prevent Multiple Concurrent Travels
@@ -157,6 +181,17 @@ export class TransportationService {
     }
     await member.roles.add(nation.roleId, '[Transportation] Portal jump').catch(() => {});
 
+    // Record Portal Travel (for profile location tracking)
+    const travel = await TransportationRepository.createTravel(portal.tenantId, guildId, {
+      userId: member.id,
+      toNationId: nationId,
+      vehicleInstanceId: null,
+      arrivalTime: new Date() // Instant arrival
+    });
+
+    // Mark as arrived immediately (instant travel)
+    await TransportationRepository.updateTravelStatus(travel.id, 'arrived');
+
     // Increment Uses
     await TransportationRepository.incrementPortalUses(portal.id);
 
@@ -237,7 +272,7 @@ export class TransportationService {
       .setPlaceholder('🚗 Choose Your Vehicle...')
       .addOptions(vehicles.map(v => ({
         label: v.name,
-        description: `Condition: ${v.condition}% • ETA Mod: ${v.metadata.travelTime || 60}s`,
+        description: `Condition: ${v.condition}% • ETA: ${this.calculateTravelTime(v.basePrice)}s`,
         value: v.instanceId,
         emoji: '🚗',
         default: v.instanceId === selectedVehicleId
@@ -268,7 +303,7 @@ export class TransportationService {
       fields: [
         { name: '📍 Destination', value: nation ? `**${nation.name}**` : '_Not selected_', inline: true },
         { name: '🚗 Vehicle', value: vehicle ? `**${vehicle.name}** (${vehicle.condition}%)` : '_Not selected_', inline: true },
-        { name: '⏳ Estimated Travel', value: vehicle ? `**${vehicle.metadata.travelTime || 60}s**` : '_N/A_', inline: true },
+        { name: '⏳ Estimated Travel', value: vehicle ? `**${this.calculateTravelTime(vehicle.basePrice)}s**` : '_N/A_', inline: true },
       ],
       components: rows,
       interaction,

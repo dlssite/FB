@@ -9,6 +9,21 @@ class RationPack extends BaseItem {
   rarity: Rarity = 'common';
   category = 'survival';
   emoji = '🍱';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_rations', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '🍱 Rations Consumed',
+      description: `You consumed a **Standard Ration Pack**. Nutrition restored and hunger satisfied for 8 hours.`,
+      color: '#F39C12',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class Medkit extends BaseItem {
@@ -19,6 +34,21 @@ class Medkit extends BaseItem {
   rarity: Rarity = 'uncommon';
   category = 'survival';
   emoji = '🩹';
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_medkit', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '🩹 Medical Treatment Applied',
+      description: `You used a **Basic Medkit**. Wounds treated and health restored by 50%.`,
+      color: '#2ECC71',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class BeastBloodVial extends BaseItem {
@@ -36,6 +66,21 @@ class BeastBloodVial extends BaseItem {
     duration: 3600,
     strengthBoost: 0.15
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_beast_blood', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧪 BEAST BLOOD SURGE!',
+      description: `You consumed a **Beast Blood Vial**!\n\n⚡ **+15% Strength Boost** for **1 hour**\n⚠️ Minor mutations detected (cosmetic only).`,
+      color: '#E74C3C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class RadiationFilter extends BaseItem {
@@ -52,6 +97,21 @@ class RadiationFilter extends BaseItem {
     radiationResistance: 0.80,
     durationHours: 8
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_rad_filter', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '💨 Radiation Protection Activated',
+      description: `You equipped the **Radiation Filter Pack**!\n\n🛡️ **80% Radiation Resistance** activated for **8 hours**.\nYou can now safely traverse irradiated zones.`,
+      color: '#9B59B6',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class CrystalCanteen extends BaseItem {
@@ -69,6 +129,18 @@ class CrystalCanteen extends BaseItem {
     reusable: true,
     capacity: 'unlimited'
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '💧 Crystal Canteen Equipped',
+      description: `You equipped the **Synth-Crystal Canteen**!\n\n💜 This reusable item allows unlimited water purification.\nCarry it with you to convert any water source into safe drinking water.`,
+      color: '#3498DB',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class SurvivalKit extends BaseItem {
@@ -87,6 +159,31 @@ class SurvivalKit extends BaseItem {
     restoresHealth: 0.50,
     emergency: true
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    const usesRemaining = (instance.metadata?.usesRemaining || 3) - 1;
+    if (usesRemaining <= 0) {
+      await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_emergency_kit', -1);
+      return await replyV2(interaction, ContainerService.create({
+        title: '🎒 Emergency Kit Depleted',
+        description: `The kit has been consumed completely. Final use restored **50% health**. The item has been removed from your inventory.`,
+        color: '#F39C12',
+        footer: true,
+        interaction
+      }), true);
+    }
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '🎒 Emergency Kit Deployed',
+      description: `You used the **Emergency Survival Kit**!\n\n✅ Health restored by **50%**\n📦 **${usesRemaining} uses** remaining.\nRope, tools, and signaling beacon deployed.`,
+      color: '#F39C12',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class ArcaneStone extends BaseItem {
@@ -104,6 +201,18 @@ class ArcaneStone extends BaseItem {
     duration: 'permanent',
     enchantmentLevel: 3
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '✨ Arcane Protection Enabled',
+      description: `You equipped the **Arcane Resonance Stone**!\n\n🔮 **40% Magical Defense** activated (permanent).\n✨ Enchantment Level: 3\nProtected from magical damage.`,
+      color: '#8E44AD',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class MutationSerum extends BaseItem {
@@ -121,6 +230,30 @@ class MutationSerum extends BaseItem {
     effectType: 'permanent_mutation',
     rarity: 'epic'
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    const mutations = [
+      { name: 'Enhanced Vision', icon: '👁️', benefit: 'See in darkness' },
+      { name: 'Regeneration', icon: '🩹', benefit: 'Slow health regeneration' },
+      { name: 'Thickened Skin', icon: '🛡️', benefit: '+20% Physical Defense' },
+      { name: 'Thermal Sense', icon: '🔥', benefit: 'Detect heat signatures' },
+      { name: 'Sonic Adaptation', icon: '🔊', benefit: 'Echolocation abilities' }
+    ];
+    
+    const mutation = mutations[Math.floor(Math.random() * mutations.length)];
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_mutation_serum', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '🧬 MUTATION ACQUIRED!',
+      description: `You injected the **Controlled Mutation Serum**!\n\n${mutation.icon} **New Mutation: ${mutation.name}**\nBenefit: ${mutation.benefit}\n\n⚠️ This mutation is now permanent.`,
+      color: '#16A085',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class VoidMask extends BaseItem {
@@ -138,6 +271,18 @@ class VoidMask extends BaseItem {
     preventCorruption: true,
     fashionable: true
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+
+    return await replyV2(interaction, ContainerService.create({
+      title: '😷 Void Protection Activated',
+      description: `You equipped the **Void-Protection Mask**!\n\n🕳️ **60% Void Resistance** activated.\n✨ Prevents void energy corruption.\n🎭 Plus, you look absolutely mysterious and menacing!`,
+      color: '#2C3E50',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class DecontaminationPod extends BaseItem {
@@ -156,6 +301,21 @@ class DecontaminationPod extends BaseItem {
     cleansesAllToxins: true,
     radiationCure: true
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_decontam_pod', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '🛁 FULL DECONTAMINATION CYCLE COMPLETE',
+      description: `You activated the **Personal Decontamination Pod**!\n\n✅ All toxins removed\n✅ Radiation completely purged\n✅ All debuffs cleared\n\n**Item consumed.** You feel pristine.`,
+      color: '#1ABC9C',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 class NourishmentPaste extends BaseItem {
@@ -173,6 +333,21 @@ class NourishmentPaste extends BaseItem {
     restoresHealth: 0.25,
     hungerReduction: 'week'
   };
+
+  async onUse(interaction: any, tenantId: string, guildId: string, userId: string, instance: any): Promise<void> {
+    const { ContainerService, replyV2 } = await import('../../../../../utils/container');
+    const { EconomyRepository } = await import('../../../../economy/database/EconomyRepository');
+
+    await EconomyRepository.updateItemQuantity(tenantId, userId, 'survival_nourish_paste', -1);
+    
+    return await replyV2(interaction, ContainerService.create({
+      title: '💪 Nourishment Consumed',
+      description: `You consumed the **Concentrated Nourishment Paste**!\n\n🍽️ Health restored by **25%**\n⏰ Hunger satisfied for **7 days**\n💥 Energy surge detected.`,
+      color: '#F39C12',
+      footer: true,
+      interaction
+    }), true);
+  }
 }
 
 export default [
