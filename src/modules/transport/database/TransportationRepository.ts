@@ -4,14 +4,14 @@ export class TransportationRepository {
   /**
    * TRAVEL OPERATIONS
    */
-  static async createTravel(tenantId: string, guildId: string, data: { userId: string, toNationId: number, vehicleInstanceId?: string, arrivalTime: Date }) {
+  static async createTravel(tenantId: string, guildId: string, data: { userId: string, toNationId: number, vehicleInstanceId?: string | null, arrivalTime: Date }) {
     return await prisma.transport_user_travel.create({
       data: {
         tenantId,
         guildId,
         userId: data.userId,
         toNationId: data.toNationId,
-        vehicleInstanceId: data.vehicleInstanceId,
+        vehicleInstanceId: data.vehicleInstanceId || undefined,
         departureTime: new Date(),
         arrivalTime: data.arrivalTime,
         status: 'traveling',

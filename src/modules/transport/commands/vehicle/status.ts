@@ -18,11 +18,15 @@ export default {
     const vehicles = allItems.filter(item => item.metadata?.isVehicle === true);
     if (!vehicles.length) return await replyV2(interaction, ContainerService.simple('❌ You have no vehicles. Use `/shop browse` to get one.'));
 
-    const fields = vehicles.map(v => ({
-      name: v.name,
-      value: `Rarity: **${v.rarity.toUpperCase()}**\nCondition: **${v.condition}%**\nTravel Time: \`${TransportationService.calculateTravelTime(v.basePrice)}s\``,
-      inline: true
-    }));
+    const fields = [];
+    for (const v of vehicles) {
+      const price = await TransportationService.getVehiclePrice(v.itemId);
+      fields.push({
+        name: v.name,
+        value: `Rarity: **${v.rarity.toUpperCase()}**\nCondition: **${v.condition}%**\nTravel Time: \`${TransportationService.calculateTravelTime(price)}s\``,
+        inline: true
+      });
+    }
 
     return await replyV2(interaction, ContainerService.create({
       title: '📊 Fleet Status',

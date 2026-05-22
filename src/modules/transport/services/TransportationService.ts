@@ -5,8 +5,18 @@ import { TerritoryPowerService } from '../../territory/services/TerritoryPowerSe
 import { EmbedService } from '../../../utils/embed';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { InventoryService } from '../../shop/services/InventoryService';
+import { shopRegistry } from '../../shop/catalog/engine/Registry';
 
 export class TransportationService {
+  /**
+   * Get vehicle base price from registry
+   */
+  static async getVehiclePrice(itemId: string): Promise<number> {
+    await shopRegistry.loadCatalog();
+    const item = shopRegistry.getItem(itemId);
+    return item?.basePrice || 5000; // Default fallback
+  }
+
   /**
    * CALCULATE TRAVEL TIME BASED ON VEHICLE PRICE
    * Cheapest vehicle = 5 minutes (300s), expensive vehicles = 30s minimum
@@ -39,7 +49,8 @@ export class TransportationService {
     if (!vehicle || vehicle.condition <= 0) throw new Error('Vehicle is unavailable or broken.');
 
     // Calculate travel time based on vehicle price
-    const travelTime = this.calculateTravelTime(vehicle.basePrice);
+    const vehiclePrice = await this.getVehiclePrice(vehicle.itemId);
+    const travelTime = this.calculateTravelTime(vehiclePrice);
     const arrivalTime = new Date(Date.now() + travelTime * 1000);
 
     // 0. Prevent Multiple Concurrent Travels
@@ -252,6 +263,13 @@ export class TransportationService {
       }));
     }
 
+    // Pre-load all vehicle prices for descriptions
+    const vehiclePrices = new Map<string, number>();
+    for (const v of vehicles) {
+      const price = await this.getVehiclePrice(v.itemId);
+      vehiclePrices.set(v.instanceId, price);
+    }
+
     const rows: ActionRowBuilder<any>[] = [];
 
     // 1. Nation Selector
@@ -272,7 +290,7 @@ export class TransportationService {
       .setPlaceholder('🚗 Choose Your Vehicle...')
       .addOptions(vehicles.map(v => ({
         label: v.name,
-        description: `Condition: ${v.condition}% • ETA: ${this.calculateTravelTime(v.basePrice)}s`,
+        description: `Condition: ${v.condition}% • ETA: ${this.calculateTravelTime(vehiclePrices.get(v.instanceId) || 5000)}s`,
         value: v.instanceId,
         emoji: '🚗',
         default: v.instanceId === selectedVehicleId
@@ -295,6 +313,7 @@ export class TransportationService {
     rows.push(new ActionRowBuilder<any>().addComponents(igniteBtn));
 
     // 5. Detailed View
+    const vehiclePrice = vehicle ? vehiclePrices.get(vehicle.instanceId) || 5000 : undefined;
 
     return await replyV2(interaction, ContainerService.create({
       title: '🚀 Inter-Nation Travel Console',
@@ -303,7 +322,7 @@ export class TransportationService {
       fields: [
         { name: '📍 Destination', value: nation ? `**${nation.name}**` : '_Not selected_', inline: true },
         { name: '🚗 Vehicle', value: vehicle ? `**${vehicle.name}** (${vehicle.condition}%)` : '_Not selected_', inline: true },
-        { name: '⏳ Estimated Travel', value: vehicle ? `**${this.calculateTravelTime(vehicle.basePrice)}s**` : '_N/A_', inline: true },
+        { name: '⏳ Estimated Travel', value: vehicle ? `**${this.calculateTravelTime(vehiclePrice || 5000)}s**` : '_N/A_', inline: true },
       ],
       components: rows,
       interaction,

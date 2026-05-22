@@ -40,7 +40,16 @@ export default {
       }
 
       // Find fastest vehicle (highest price = shortest travel time)
-      const bestVehicle = vehicles.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0))[0];
+      let bestVehicle = vehicles[0];
+      let highestPrice = await TransportationService.getVehiclePrice(bestVehicle.itemId);
+      
+      for (const v of vehicles) {
+        const price = await TransportationService.getVehiclePrice(v.itemId);
+        if (price > highestPrice) {
+          highestPrice = price;
+          bestVehicle = v;
+        }
+      }
 
       try {
         const arrivalTime = await TransportationService.startTravel(tenantId, guildId, member, targetNation.id, bestVehicle.instanceId);
