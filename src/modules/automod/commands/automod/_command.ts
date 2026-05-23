@@ -143,7 +143,7 @@ async function handleConfig(interaction: ChatInputCommandInteraction, tenantId: 
     description: 'Advanced server defense & automation system',
     fields,
     color: '#7367F0',
-    footer: 'Use `/automod exempt`, `/automod threshold`, and `/automod modules` to configure',
+    footer: '⚠️ Make sure automod addon is enabled first via `/togglemodule automod enabled:true`. Then use `/automod modules` to enable specific checks.',
     interaction,
   });
 
@@ -262,7 +262,7 @@ async function handleModules(interaction: ChatInputCommandInteraction, tenantId:
 
   const container = ContainerService.buildCreate({
     title: '✅ Module Updated',
-    description: `**${moduleLabel}** is now ${enabled ? '**enabled** ✅' : '**disabled** ❌'}`,
+    description: `**${moduleLabel}** is now ${enabled ? '**enabled** ✅' : '**disabled** ❌'}\n\n⚠️ **Important:** Make sure the automod addon itself is enabled via \`/togglemodule automod enabled:true\``,
     color: '#28a745',
     interaction,
   });

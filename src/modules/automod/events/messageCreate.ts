@@ -15,9 +15,19 @@ export default {
     
     // 1. Gatekeeper Check: Is Automod enabled?
     const isEnabled = await AddonService.isEnabled(tenantId, message.guild.id, 'automod');
-    if (!isEnabled) return;
+    if (!isEnabled) {
+      console.log(`[Automod] Skipped: addon not enabled for guild ${message.guild.id}`);
+      return;
+    }
 
     // 2. Pass to Automod Pipeline
-    await AutomodService.processMessage(message, tenantId);
+    try {
+      const result = await AutomodService.processMessage(message, tenantId);
+      if (result) {
+        console.log(`[Automod] Message processed and action taken for user ${message.author.id}`);
+      }
+    } catch (error) {
+      console.error(`[Automod] Error processing message:`, error);
+    }
   },
 };
