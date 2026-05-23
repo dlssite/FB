@@ -525,11 +525,11 @@ async function handleViolations(interaction: ChatInputCommandInteraction, tenant
       return await replyV2(interaction, { components: [container] });
     }
 
-    await AutomodRepository.resetViolationCounter(guildId, tenantId, user.id);
-
+    const deleted = await AutomodRepository.resetViolationCounter(guildId, tenantId, user.id);
+    
     const container = ContainerService.buildCreate({
       title: '✅ Reset Complete',
-      description: `All violation counters reset for **${user.tag}**`,
+      description: `All violation counters reset for **${user.tag}** (${deleted} records deleted)`,
       color: '#28a745',
       interaction,
     });

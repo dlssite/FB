@@ -157,9 +157,22 @@ export class AutomodService {
    * Get punishment escalation config for module
    */
   private static getPunishmentConfig(settings: any, violationType: string) {
-    const config = settings.punishmentConfig ? JSON.parse(settings.punishmentConfig as any) : {};
     const defaultConfig = this.getDefaultPunishmentConfig() as Record<string, any>;
-    return config[violationType] || defaultConfig[violationType];
+    
+    if (!settings || !settings.punishmentConfig) {
+      console.log(`[Automod] No custom config, using defaults for ${violationType}`);
+      return defaultConfig[violationType];
+    }
+    
+    try {
+      const config = JSON.parse(settings.punishmentConfig as any);
+      const moduleConfig = config[violationType] || defaultConfig[violationType];
+      console.log(`[Automod] Using config for ${violationType}:`, JSON.stringify(moduleConfig));
+      return moduleConfig;
+    } catch (e) {
+      console.error(`[Automod] Failed to parse punishment config:`, e);
+      return defaultConfig[violationType];
+    }
   }
 
   /**

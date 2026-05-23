@@ -314,9 +314,9 @@ export class AutomodRepository {
     tenantId: string,
     userId: string,
     violationType?: string
-  ) {
+  ): Promise<number> {
     if (violationType) {
-      await (prisma as any).automod_violation_counters.delete({
+      const result = await (prisma as any).automod_violation_counters.delete({
         where: {
           guildId_tenantId_userId_violationType: {
             guildId,
@@ -325,11 +325,13 @@ export class AutomodRepository {
             violationType,
           },
         },
-      }).catch(() => {});
+      }).catch(() => null);
+      return result ? 1 : 0;
     } else {
-      await (prisma as any).automod_violation_counters.deleteMany({
+      const result = await (prisma as any).automod_violation_counters.deleteMany({
         where: { guildId, tenantId, userId },
       });
+      return result.count || 0;
     }
   }
 }
