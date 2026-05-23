@@ -248,7 +248,10 @@ async function handleModules(interaction: ChatInputCommandInteraction, tenantId:
   const enabledModules = (settings?.enabledModules || {}) as Record<string, boolean>;
   enabledModules[moduleName] = enabled;
 
-  await AutomodRepository.upsertSettings(tenantId, guildId, { enabledModules });
+  await AutomodRepository.upsertSettings(tenantId, guildId, { 
+    enabledModules,
+    ...(enabled && { enabled: true }) // Ensure top-level enabled is true when enabling any module
+  });
 
   const moduleLabel = {
     antiSpam: 'Anti-Spam',
