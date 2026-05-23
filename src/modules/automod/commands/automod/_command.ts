@@ -7,6 +7,7 @@ import { AutomodRepository } from '../../database/AutomodRepository';
 import { AutomodExemptionService } from '../../services/AutomodExemptionService';
 import { getTenantContext } from '../../../../utils/context';
 import { ContainerService, replyV2 } from '../../../../utils/container';
+import { prisma } from '../../../../database/client';
 
 export default {
   data: new SlashCommandBuilder()
@@ -134,6 +135,24 @@ export default {
             .setDescription('Duration in seconds (for mute/timeout)')
             .setMinValue(60)
         )
+    )
+    .addSubcommand(sub =>
+      sub.setName('violations')
+        .setDescription('Manage user violation counters')
+        .addStringOption(opt =>
+          opt.setName('action')
+            .setDescription('Action to perform')
+            .addChoices(
+              { name: 'View violations', value: 'view' },
+              { name: 'Reset user', value: 'reset' },
+              { name: 'Reset all', value: 'reset_all' }
+            )
+            .setRequired(true)
+        )
+        .addUserOption(opt =>
+          opt.setName('user')
+            .setDescription('User to view/reset (required for view/reset)')
+        )
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -150,6 +169,8 @@ export default {
       return await handleModules(interaction, tenantId, guildId);
     } else if (subcommand === 'punishments') {
       return await handlePunishments(interaction, tenantId, guildId);
+    } else if (subcommand === 'violations') {
+      return await handleViolations(interaction, tenantId, guildId);
     }
   },
 };
@@ -451,6 +472,78 @@ async function handlePunishments(interaction: ChatInputCommandInteraction, tenan
     const container = ContainerService.buildCreate({
       title: '✅ Punishment Updated',
       description: `**${moduleName}** at **${violations}** violation(s) → **${punishment}**${duration ? ` (${duration}s)` : ''}`,
+      color: '#28a745',
+      interaction,
+    });
+    return await replyV2(interaction, { components: [container] });
+  }
+}
+
+async function handleViolations(interaction: ChatInputCommandInteraction, tenantId: string, guildId: string) {
+  const action = interaction.options.getString('action', true);
+  const user = interaction.options.getUser('user');
+
+  if (action === 'view') {
+    if (!user) {
+      const container = ContainerService.buildCreate({
+        title: '❌ Error',
+        description: 'You must specify a user to view violations',
+        color: '#dc3545',
+        interaction,
+      });
+      return await replyV2(interaction, { components: [container] });
+    }
+
+    const violations = await AutomodRepository.getUserViolations(guildId, tenantId, user.id, 50);
+    
+    const violationsByType: Record<string, number> = {};
+    violations.forEach((v: any) => {
+      violationsByType[v.violationType] = (violationsByType[v.violationType] || 0) + 1;
+    });
+
+    const description = Object.entries(violationsByType)
+      .map(([type, count]) => `**${type}**: ${count} violation(s)`)
+      .join('\n') || 'No violations';
+
+    const container = ContainerService.buildCreate({
+      title: `📊 Violations for ${user.tag}`,
+      description,
+      color: '#ffc107',
+      interaction,
+    });
+    return await replyV2(interaction, { components: [container] });
+  }
+
+  if (action === 'reset') {
+    if (!user) {
+      const container = ContainerService.buildCreate({
+        title: '❌ Error',
+        description: 'You must specify a user to reset',
+        color: '#dc3545',
+        interaction,
+      });
+      return await replyV2(interaction, { components: [container] });
+    }
+
+    await AutomodRepository.resetViolationCounter(guildId, tenantId, user.id);
+
+    const container = ContainerService.buildCreate({
+      title: '✅ Reset Complete',
+      description: `All violation counters reset for **${user.tag}**`,
+      color: '#28a745',
+      interaction,
+    });
+    return await replyV2(interaction, { components: [container] });
+  }
+
+  if (action === 'reset_all') {
+    await (prisma as any).automod_violation_counters.deleteMany({
+      where: { guildId, tenantId },
+    });
+
+    const container = ContainerService.buildCreate({
+      title: '✅ Reset Complete',
+      description: 'All violation counters reset for this server',
       color: '#28a745',
       interaction,
     });

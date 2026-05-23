@@ -256,12 +256,13 @@ export class AutomodRepository {
         violationType,
         count: 1,
         lastViolationAt: now,
-        windowStartAt: windowStart,
+        windowStartAt: now,
       },
     });
 
-    // If window expired, reset
-    if (counter.windowStartAt.getTime() < windowStart.getTime()) {
+    // If window expired (last violation was before window start), reset
+    if (counter.lastViolationAt.getTime() < windowStart.getTime()) {
+      console.log(`[Automod] Window expired for ${userId}/${violationType}, resetting counter`);
       return await (prisma as any).automod_violation_counters.update({
         where: {
           guildId_tenantId_userId_violationType: {

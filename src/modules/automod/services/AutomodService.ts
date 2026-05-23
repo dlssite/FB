@@ -177,12 +177,16 @@ export class AutomodService {
    */
   private static async applyPunishment(message: Message, punishment: any, tenantId: string) {
     try {
-      if (!message.member || !message.guild) return;
+      if (!message.member || !message.guild) {
+        console.log('[Automod] Cannot apply punishment - no member or guild');
+        return;
+      }
 
       const userTag = `<@${message.author.id}>`;
 
       switch (punishment.action) {
         case 'warn':
+          console.log(`[Automod] Sending warning to ${message.author.tag}`);
           if ('send' in message.channel) {
             await message.channel.send({
               content: `⚠️ **Warning** ${userTag}: You are violating server rules. Please stop or further action will be taken.`,
@@ -192,7 +196,13 @@ export class AutomodService {
 
         case 'mute':
           const duration = (punishment.duration || 300) * 1000; // Convert to milliseconds
-          await message.member.timeout(duration, 'Automod escalation').catch(() => {});
+          console.log(`[Automod] Timing out ${message.author.tag} for ${duration}ms`);
+          const timeoutResult = await message.member.timeout(duration, 'Automod escalation').catch((err: any) => {
+            console.error('[Automod] Timeout error:', err);
+            return null;
+          });
+          console.log(`[Automod] Timeout result:`, timeoutResult ? 'Success' : 'Failed');
+          
           if ('send' in message.channel) {
             await message.channel.send({
               content: `🔇 ${userTag} has been timed out for ${punishment.duration || 300} seconds.`,
@@ -201,7 +211,10 @@ export class AutomodService {
           break;
 
         case 'kick':
-          await message.member.kick('Automod escalation - repeated violations').catch(() => {});
+          console.log(`[Automod] Kicking ${message.author.tag}`);
+          await message.member.kick('Automod escalation - repeated violations').catch((err: any) => {
+            console.error('[Automod] Kick error:', err);
+          });
           if ('send' in message.channel) {
             await message.channel.send({
               content: `🚪 ${message.author.tag} has been kicked for repeated violations.`,
@@ -210,7 +223,10 @@ export class AutomodService {
           break;
 
         case 'ban':
-          await message.guild.members.ban(message.author.id, { reason: 'Automod escalation - repeated violations' }).catch(() => {});
+          console.log(`[Automod] Banning ${message.author.tag}`);
+          await message.guild.members.ban(message.author.id, { reason: 'Automod escalation - repeated violations' }).catch((err: any) => {
+            console.error('[Automod] Ban error:', err);
+          });
           if ('send' in message.channel) {
             await message.channel.send({
               content: `🚫 ${message.author.tag} has been banned for repeated violations.`,
@@ -236,6 +252,8 @@ export class AutomodService {
       const punishmentConfig = this.getPunishmentConfig(settings, violationType);
       const windowMs = punishmentConfig?.windowMs || 86400000;
 
+      console.log(`[Automod] Tracking violation for ${message.author.tag} - Type: ${violationType}, Window: ${windowMs}`);
+
       // Track violation and get current count
       const violationCount = await AutomodRepository.trackViolation(
         message.guild!.id,
@@ -244,6 +262,8 @@ export class AutomodService {
         violationType,
         windowMs
       );
+
+      console.log(`[Automod] Violation #${violationCount} for user ${message.author.id}, Type: ${violationType}`);
 
       // Log the violation
       await AutomodRepository.logViolation(
@@ -265,9 +285,13 @@ export class AutomodService {
 
       // Check if escalation is needed
       const escalation = punishmentConfig?.escalation || [];
+      console.log(`[Automod] Escalation config:`, JSON.stringify(escalation));
+      
       const punishment = this.getApplicablePunishment(escalation, violationCount);
+      console.log(`[Automod] Applicable punishment:`, JSON.stringify(punishment));
 
       if (punishment && punishment.action !== 'delete') {
+        console.log(`[Automod] Applying ${punishment.action} to ${message.author.tag}`);
         await this.applyPunishment(message, punishment, tenantId);
       }
 
