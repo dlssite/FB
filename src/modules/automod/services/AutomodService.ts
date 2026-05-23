@@ -159,19 +159,29 @@ export class AutomodService {
   private static getPunishmentConfig(settings: any, violationType: string) {
     const defaultConfig = this.getDefaultPunishmentConfig() as Record<string, any>;
     
+    // Map violation type names to config keys
+    const typeMap: Record<string, string> = {
+      'LINK': 'antiLink',
+      'INVITE': 'antiInvite',
+      'SPAM': 'antiSpam',
+      'NUKE': 'antiNuke',
+    };
+    
+    const configKey = typeMap[violationType] || violationType;
+    
     if (!settings || !settings.punishmentConfig) {
-      console.log(`[Automod] No custom config, using defaults for ${violationType}`);
-      return defaultConfig[violationType];
+      console.log(`[Automod] No custom config, using defaults for ${violationType} (key: ${configKey})`);
+      return defaultConfig[configKey];
     }
     
     try {
       const config = JSON.parse(settings.punishmentConfig as any);
-      const moduleConfig = config[violationType] || defaultConfig[violationType];
+      const moduleConfig = config[configKey] || defaultConfig[configKey];
       console.log(`[Automod] Using config for ${violationType}:`, JSON.stringify(moduleConfig));
       return moduleConfig;
     } catch (e) {
       console.error(`[Automod] Failed to parse punishment config:`, e);
-      return defaultConfig[violationType];
+      return defaultConfig[configKey];
     }
   }
 

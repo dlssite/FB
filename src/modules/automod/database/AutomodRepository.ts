@@ -315,6 +315,9 @@ export class AutomodRepository {
     userId: string,
     violationType?: string
   ): Promise<number> {
+    // Clear both the counter and the violation log
+    let count = 0;
+    
     if (violationType) {
       const result = await (prisma as any).automod_violation_counters.delete({
         where: {
@@ -326,12 +329,26 @@ export class AutomodRepository {
           },
         },
       }).catch(() => null);
-      return result ? 1 : 0;
+      count = result ? 1 : 0;
+      
+      // Also clear violation log for this type
+      const logResult = await (prisma as any).automod_violations.deleteMany({
+        where: { guildId, tenantId, userId, violationType },
+      }).catch(() => ({ count: 0 }));
+      count += logResult?.count || 0;
     } else {
       const result = await (prisma as any).automod_violation_counters.deleteMany({
         where: { guildId, tenantId, userId },
       });
-      return result.count || 0;
+      count = result.count || 0;
+      
+      // Also clear all violation logs for this user
+      const logResult = await (prisma as any).automod_violations.deleteMany({
+        where: { guildId, tenantId, userId },
+      }).catch(() => ({ count: 0 }));
+      count += logResult?.count || 0;
     }
+    
+    return count;
   }
 }
