@@ -56,6 +56,28 @@ export class AutomodRepository {
   }
 
   /**
+   * Updates automod settings (simpler than upsert).
+   */
+  static async updateSettings(tenantId: string, guildId: string, data: any) {
+    const now = new Date();
+    const result = await prisma.automod_settings.update({
+      where: {
+        guildId_tenantId: {
+          guildId,
+          tenantId,
+        },
+      },
+      data: {
+        ...data,
+        updatedAt: now,
+      },
+    });
+
+    await this.invalidateCache(tenantId, guildId);
+    return result;
+  }
+
+  /**
    * Invalidates automod settings cache.
    */
   static async invalidateCache(tenantId: string, guildId: string) {
@@ -199,5 +221,114 @@ export class AutomodRepository {
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
+  }
+
+  /**
+   * Track a violation and get current count
+   */
+  static async trackViolation(
+    guildId: string,
+    tenantId: string,
+    userId: string,
+    violationType: string,
+    windowMs: number = 86400000 // 24 hours default
+  ): Promise<number> {
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - windowMs);
+
+    const counter = await (prisma as any).automod_violation_counters.upsert({
+      where: {
+        guildId_tenantId_userId_violationType: {
+          guildId,
+          tenantId,
+          userId,
+          violationType,
+        },
+      },
+      update: {
+        count: { increment: 1 },
+        lastViolationAt: now,
+      },
+      create: {
+        guildId,
+        tenantId,
+        userId,
+        violationType,
+        count: 1,
+        lastViolationAt: now,
+        windowStartAt: windowStart,
+      },
+    });
+
+    // If window expired, reset
+    if (counter.windowStartAt.getTime() < windowStart.getTime()) {
+      return await (prisma as any).automod_violation_counters.update({
+        where: {
+          guildId_tenantId_userId_violationType: {
+            guildId,
+            tenantId,
+            userId,
+            violationType,
+          },
+        },
+        data: {
+          count: 1,
+          lastViolationAt: now,
+          windowStartAt: now,
+        },
+      }).then((c: any) => c.count);
+    }
+
+    return counter.count;
+  }
+
+  /**
+   * Get violation count for a user/type
+   */
+  static async getViolationCount(
+    guildId: string,
+    tenantId: string,
+    userId: string,
+    violationType: string
+  ): Promise<number> {
+    const counter = await (prisma as any).automod_violation_counters.findUnique({
+      where: {
+        guildId_tenantId_userId_violationType: {
+          guildId,
+          tenantId,
+          userId,
+          violationType,
+        },
+      },
+    });
+
+    return counter?.count || 0;
+  }
+
+  /**
+   * Reset violation counter for a user
+   */
+  static async resetViolationCounter(
+    guildId: string,
+    tenantId: string,
+    userId: string,
+    violationType?: string
+  ) {
+    if (violationType) {
+      await (prisma as any).automod_violation_counters.delete({
+        where: {
+          guildId_tenantId_userId_violationType: {
+            guildId,
+            tenantId,
+            userId,
+            violationType,
+          },
+        },
+      }).catch(() => {});
+    } else {
+      await (prisma as any).automod_violation_counters.deleteMany({
+        where: { guildId, tenantId, userId },
+      });
+    }
   }
 }

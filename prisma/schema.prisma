@@ -962,6 +962,7 @@ model automod_settings {
   spamWindow             Int?     @default(3000)
   warningActions         Json?    @default("[]") @db.Json
   enabledModules         Json?    @default("{\"antiSpam\":true,\"antiInvite\":false,\"antiLink\":false,\"antiNuke\":false}") @db.Json
+  punishmentConfig       Json?    @db.Json // Escalating punishment config per module
   createdAt              DateTime @db.Timestamptz(6)
   updatedAt              DateTime @db.Timestamptz(6)
 
@@ -995,6 +996,20 @@ model automod_violations {
 
   @@index([guildId, userId, tenantId], map: "automod_violations_guild_user_idx")
   @@index([guildId, tenantId], map: "automod_violations_guild_tenant_idx")
+}
+
+model automod_violation_counters {
+  id               Int      @id @default(autoincrement())
+  guildId          String   @db.VarChar(255)
+  tenantId         String   @db.VarChar(255)
+  userId           String   @db.VarChar(255)
+  violationType    String   @db.VarChar(100)  // antiSpam, antiLink, antiInvite, etc
+  count            Int      @default(1)
+  lastViolationAt  DateTime @db.Timestamptz(6)
+  windowStartAt    DateTime @db.Timestamptz(6)  // Start of violation window
+  
+  @@unique([guildId, tenantId, userId, violationType], map: "automod_violation_counters_unique")
+  @@index([guildId, userId, tenantId], map: "automod_violation_counters_guild_user_idx")
 }
 
 model moderation_settings {

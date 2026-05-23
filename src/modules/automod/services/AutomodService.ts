@@ -111,18 +111,167 @@ export class AutomodService {
   }
 
   /**
-   * Standardized violation handler (Delete + Warn + Emit Event)
+   * Get default punishment config
+   */
+  private static getDefaultPunishmentConfig() {
+    return {
+      antiSpam: {
+        windowMs: 86400000, // 24 hours
+        escalation: [
+          { violations: 1, action: 'delete', duration: null },
+          { violations: 3, action: 'warn', duration: null },
+          { violations: 5, action: 'mute', duration: 300 },
+          { violations: 10, action: 'kick', duration: null },
+        ],
+      },
+      antiInvite: {
+        windowMs: 86400000,
+        escalation: [
+          { violations: 1, action: 'delete', duration: null },
+          { violations: 2, action: 'warn', duration: null },
+          { violations: 4, action: 'mute', duration: 600 },
+          { violations: 6, action: 'kick', duration: null },
+        ],
+      },
+      antiLink: {
+        windowMs: 86400000,
+        escalation: [
+          { violations: 1, action: 'delete', duration: null },
+          { violations: 3, action: 'warn', duration: null },
+          { violations: 5, action: 'mute', duration: 900 },
+          { violations: 8, action: 'kick', duration: null },
+        ],
+      },
+      antiNuke: {
+        windowMs: 3600000, // 1 hour
+        escalation: [
+          { violations: 1, action: 'delete', duration: null },
+          { violations: 1, action: 'warn', duration: null },
+          { violations: 2, action: 'kick', duration: null },
+        ],
+      },
+    };
+  }
+
+  /**
+   * Get punishment escalation config for module
+   */
+  private static getPunishmentConfig(settings: any, violationType: string) {
+    const config = settings.punishmentConfig ? JSON.parse(settings.punishmentConfig as any) : {};
+    const defaultConfig = this.getDefaultPunishmentConfig() as Record<string, any>;
+    return config[violationType] || defaultConfig[violationType];
+  }
+
+  /**
+   * Determine what punishment should be applied based on violation count
+   */
+  private static getApplicablePunishment(escalation: any[], violationCount: number) {
+    // Get all punishments that should trigger at or before this violation count
+    const applicable = escalation.filter(e => e.violations <= violationCount);
+    // Return the highest one
+    return applicable.length > 0 ? applicable[applicable.length - 1] : null;
+  }
+
+  /**
+   * Apply punishment to user
+   */
+  private static async applyPunishment(message: Message, punishment: any, tenantId: string) {
+    try {
+      if (!message.member || !message.guild) return;
+
+      const userTag = `<@${message.author.id}>`;
+
+      switch (punishment.action) {
+        case 'warn':
+          if ('send' in message.channel) {
+            await message.channel.send({
+              content: `⚠️ **Warning** ${userTag}: You are violating server rules. Please stop or further action will be taken.`,
+            }).then(msg => setTimeout(() => msg.delete().catch(() => {}), 8000)).catch(() => {});
+          }
+          break;
+
+        case 'mute':
+          const duration = (punishment.duration || 300) * 1000; // Convert to milliseconds
+          await message.member.timeout(duration, 'Automod escalation').catch(() => {});
+          if ('send' in message.channel) {
+            await message.channel.send({
+              content: `🔇 ${userTag} has been timed out for ${punishment.duration || 300} seconds.`,
+            }).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000)).catch(() => {});
+          }
+          break;
+
+        case 'kick':
+          await message.member.kick('Automod escalation - repeated violations').catch(() => {});
+          if ('send' in message.channel) {
+            await message.channel.send({
+              content: `🚪 ${message.author.tag} has been kicked for repeated violations.`,
+            }).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000)).catch(() => {});
+          }
+          break;
+
+        case 'ban':
+          await message.guild.members.ban(message.author.id, { reason: 'Automod escalation - repeated violations' }).catch(() => {});
+          if ('send' in message.channel) {
+            await message.channel.send({
+              content: `🚫 ${message.author.tag} has been banned for repeated violations.`,
+            }).then(msg => setTimeout(() => msg.delete().catch(() => {}), 5000)).catch(() => {});
+          }
+          break;
+      }
+    } catch (error) {
+      console.error('[Automod] Error applying punishment:', error);
+    }
+  }
+
+  /**
+   * Standardized violation handler (Delete + Track + Escalate)
    */
   private static async handleViolation(message: Message, reason: string, tenantId: string, violationType: string) {
     try {
+      // Always delete the message
       await message.delete().catch(() => {});
 
-      if (!('send' in message.channel)) return;
+      // Get settings for punishment config
+      const settings = await AutomodRepository.getSettings(tenantId, message.guild!.id);
+      const punishmentConfig = this.getPunishmentConfig(settings, violationType);
+      const windowMs = punishmentConfig?.windowMs || 86400000;
 
-      const warnMsg = await message.channel.send({
-        content: `⚠️ ${message.author}, your message was removed by Automod: **${reason}**.`,
-      });
+      // Track violation and get current count
+      const violationCount = await AutomodRepository.trackViolation(
+        message.guild!.id,
+        tenantId,
+        message.author.id,
+        violationType,
+        windowMs
+      );
 
+      // Log the violation
+      await AutomodRepository.logViolation(
+        message.guild!.id,
+        tenantId,
+        message.author.id,
+        violationType,
+        undefined,
+        'deleted'
+      );
+
+      // Send initial warning
+      if ('send' in message.channel) {
+        const warnMsg = await message.channel.send({
+          content: `⚠️ ${message.author}, your message was removed by Automod: **${reason}** (Violation #${violationCount}).`,
+        });
+        setTimeout(() => warnMsg.delete().catch(() => {}), 5000);
+      }
+
+      // Check if escalation is needed
+      const escalation = punishmentConfig?.escalation || [];
+      const punishment = this.getApplicablePunishment(escalation, violationCount);
+
+      if (punishment && punishment.action !== 'delete') {
+        await this.applyPunishment(message, punishment, tenantId);
+      }
+
+      // Emit internal mod action
       client.emit('internalModAction', {
         guild: message.guild,
         tenantId,
@@ -130,12 +279,10 @@ export class AutomodService {
         moderatorTag: 'Flameborn Automod',
         targetId: message.author.id,
         targetTag: message.author.tag,
-        action: 'AUTOMOD_DELETION',
-        reason,
+        action: punishment?.action === 'delete' ? 'AUTOMOD_DELETION' : `AUTOMOD_${punishment?.action?.toUpperCase() || 'ACTION'}`,
+        reason: `${reason} (Violation #${violationCount})`,
         color: '#EA5455',
       });
-
-      setTimeout(() => warnMsg.delete().catch(() => {}), 5000);
     } catch (error) {
       console.error('[Automod] Error handling violation:', error);
     }
