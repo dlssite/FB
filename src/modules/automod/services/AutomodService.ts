@@ -24,7 +24,7 @@ export class AutomodService {
     const enabledModules = settings.enabledModules as Record<string, boolean> || {};
 
     // 2. Anti-Spam
-    if (enabledModules.antiSpam && settings.antiSpam) {
+    if (enabledModules.antiSpam) {
       const isSpamming = await this.checkSpam(message, settings);
       if (isSpamming) {
         await this.handleViolation(message, 'Chat Flooding (Spam)', tenantId, 'SPAM');
@@ -34,7 +34,7 @@ export class AutomodService {
     }
 
     // 3. Anti-Invite
-    if (enabledModules.antiInvite && settings.antiInvite) {
+    if (enabledModules.antiInvite) {
       const inviteRegex = /(discord\.(gg|io|me|li)|discordapp\.com\/invite|discord\.com\/invite)\/[a-zA-Z0-9]+/i;
       if (inviteRegex.test(content)) {
         await this.handleViolation(message, 'Anti-Invite Link', tenantId, 'INVITE');
@@ -70,7 +70,7 @@ export class AutomodService {
     }
 
     // 5. Anti-Link
-    if (enabledModules.antiLink && settings.antiLink) {
+    if (enabledModules.antiLink) {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       if (urlRegex.test(content)) {
         await this.handleViolation(message, 'External Links', tenantId, 'LINK');
