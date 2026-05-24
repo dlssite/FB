@@ -12,16 +12,13 @@ import { client } from '../../../../core/FlamebornClient';
 async function fixGuildMembersWithProgress(tenantId: string, guildId: string, interaction: ChatInputCommandInteraction) {
   const guild = client.guilds.cache.get(guildId);
   if (!guild) {
-    console.log('[HeaderRole] Guild not found');
     return { processed: 0, errors: 0, rolesModified: 0 };
   }
 
   await HeaderRoleService.refreshGuild(client, tenantId, guildId);
   const groups = HeaderRoleService.getGroups(guildId);
-  console.log(`[HeaderRole] Groups found: ${groups.length}`, groups);
   
   if (!groups.length) {
-    console.log('[HeaderRole] No groups configured');
     return { processed: 0, errors: 0, rolesModified: 0 };
   }
 
@@ -36,32 +33,26 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
     processed += 1;
     try {
       const currentRoleIds = new Set(member.roles.cache.keys());
-      console.log(`[HeaderRole] Member ${member.user.tag} has roles:`, Array.from(currentRoleIds));
       
       for (const group of groups) {
         const hasChildRole = group.childRoleIds.some(id => currentRoleIds.has(id));
         const hasHeader = currentRoleIds.has(group.headerRoleId);
 
-        console.log(`[HeaderRole] Member ${member.user.tag} - Header ${group.headerRoleId}: ${hasHeader}, Child roles: ${hasChildRole}, childRoleIds: ${group.childRoleIds.join(',')}`);
-
         if (hasChildRole && !hasHeader) {
-          console.log(`[HeaderRole] Adding header role ${group.headerRoleId} to ${member.user.tag}`);
           await member.roles.add(group.headerRoleId).catch((err) => {
-            console.error(`Failed to add role to ${member.user.tag}:`, err);
+            console.error(`[HeaderRole] Failed to add role to ${member.user.tag}:`, err);
             throw err;
           });
           rolesModified += 1;
         } else if (!hasChildRole && hasHeader) {
-          console.log(`[HeaderRole] Removing header role ${group.headerRoleId} from ${member.user.tag}`);
           await member.roles.remove(group.headerRoleId).catch((err) => {
-            console.error(`Failed to remove role from ${member.user.tag}:`, err);
+            console.error(`[HeaderRole] Failed to remove role from ${member.user.tag}:`, err);
             throw err;
           });
           rolesModified += 1;
         }
       }
     } catch (err) {
-      console.error(`[HeaderRole] Error processing member:`, err);
       errors += 1;
     }
 
@@ -73,7 +64,6 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
     }
   }
 
-  console.log(`[HeaderRole] Completed: ${processed} processed, ${rolesModified} modified, ${errors} errors`);
   return { processed, errors, rolesModified };
 }
 
@@ -122,10 +112,8 @@ export default {
         return;
       }
 
-      await replyV2(interaction, ContainerService.simple(
-        `⏳ Adding <@&${headerRole.id}> as header role and syncing members...`,
-        { interaction },
-      ));
+      await interaction.deferReply({ ephemeral: true });
+      await interaction.editReply({ content: `⏳ Adding <@&${headerRole.id}> as header role and syncing members...` });
 
       await HeaderRoleRepository.addHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
@@ -193,10 +181,8 @@ export default {
         return;
       }
 
-      await replyV2(interaction, ContainerService.simple(
-        `⏳ Starting header role sync for all members...`,
-        { interaction },
-      ));
+      await interaction.deferReply({ ephemeral: true });
+      await interaction.editReply({ content: `⏳ Starting header role sync for all members...` });
 
       const { processed, errors, rolesModified } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
       await replyV2(interaction, ContainerService.simple(
