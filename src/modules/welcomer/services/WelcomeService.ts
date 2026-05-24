@@ -1,5 +1,5 @@
 import { GuildMember, TextChannel, AttachmentBuilder, MessageFlags } from 'discord.js';
-import { ContainerService } from '../../../utils/container';
+import { ContainerService, sendV2 } from '../../../utils/container';
 import { WelcomeRepository } from '../database/WelcomeRepository';
 import { PlaceholderService } from '../../../utils/placeholder';
 import { CanvasService } from './CanvasService';
@@ -41,31 +41,22 @@ export class WelcomeService {
           media: imageUrl ? [imageUrl] : []
         });
 
-        // Send the container message referencing the uploaded CDN image
-        await channel.send({
-          content: messageText,
-          components: welcomeContainer.components,
-          flags: MessageFlags.IsComponentsV2
-        }).catch(console.error);
+         // Send the container message using sendV2 (no content field allowed with V2 components)
+         await sendV2(channel, welcomeContainer).catch(console.error);
 
-        // Cleanup the temporary upload message
-        if (uploadMsg && imageUrl) {
-          try { await uploadMsg.delete().catch(() => {}); } catch {}
-        }
-      } catch (err) {
-        // Fallback to sending as attachment if upload fails
-        const welcomeContainer = ContainerService.create({
-          description: messageText,
-          color: settings.welcomeInEmbedColor as any || '#7367F0',
-          media: ['attachment://welcome-card.png']
-        });
+         // Cleanup the temporary upload message
+         if (uploadMsg && imageUrl) {
+           try { await uploadMsg.delete().catch(() => {}); } catch {}
+         }
+       } catch (err) {
+         // Fallback to sending as attachment if upload fails
+         const welcomeContainer = ContainerService.create({
+           description: messageText,
+           color: settings.welcomeInEmbedColor as any || '#7367F0',
+           media: ['attachment://welcome-card.png']
+         });
 
-        await channel.send({
-          content: messageText,
-          components: welcomeContainer.components,
-          flags: MessageFlags.IsComponentsV2,
-          files: [attachment]
-        }).catch(console.error);
+         await sendV2(channel, welcomeContainer, [attachment]).catch(console.error);
       }
     } else {
       // No custom background configured — send the generated canvas directly as the panel image
@@ -75,12 +66,7 @@ export class WelcomeService {
         media: ['attachment://welcome-card.png']
       });
 
-      await channel.send({
-        content: messageText,
-        components: welcomeContainer.components,
-        flags: MessageFlags.IsComponentsV2,
-        files: [attachment]
-      }).catch(console.error);
+      await sendV2(channel, welcomeContainer, [attachment]).catch(console.error);
     }
   }
 

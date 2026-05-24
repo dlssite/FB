@@ -86,15 +86,20 @@ export async function replyV2(interaction: any, payload: { components: any[] }, 
   }
 }
 
-export async function sendV2(channel: any, payload: { components: any[] }) {
-  const body = {
+export async function sendV2(channel: any, payload: { components: any[] }, files?: any[]) {
+  const body: any = {
     flags: (MessageFlags.IsComponentsV2 as any || 32768),
     components: payload.components.map((c: any) => (c.toJSON ? c.toJSON() : c)),
   };
 
+  const sendPayload: any = { body };
+  if (files && files.length > 0) {
+    sendPayload.files = files;
+  }
+
   return await channel.client.rest.post(
     Routes.channelMessages(channel.id),
-    { body }
+    sendPayload
   );
 }
 
