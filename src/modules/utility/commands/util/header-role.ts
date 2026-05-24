@@ -30,6 +30,11 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
   let rolesModified = 0;
   let lastUpdate = 0;
 
+  const logHeaderGroups = groups.map(group => ({
+    headerRoleId: group.headerRoleId,
+    childRoleCount: group.childRoleIds.length,
+  }));
+
   const updateProgress = async (group: any | null, message: string, force = false) => {
     const groupHeader = group
       ? `**Header group:** ${processedGroups + 1}/${groupCount} — <@&${group.headerRoleId}>\n`
@@ -52,8 +57,9 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
   console.info('[HeaderRole] Starting header role synchronization', {
     guildId,
     tenantId,
-    groups: groupCount,
-    members: members.length,
+    groupCount,
+    memberCount: members.length,
+    headerGroups: logHeaderGroups,
   });
 
   await updateProgress(null, `⏳ Initializing header role sync for ${members.length} member${members.length === 1 ? '' : 's'} across ${groupCount} header group${groupCount === 1 ? '' : 's'}.`, true);
@@ -67,6 +73,7 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
     for (const member of members) {
       processedMembersInGroup += 1;
       try {
+        await member.fetch().catch(() => null);
         const currentRoleIds = new Set(member.roles.cache.keys());
         const hasChildRole = group.childRoleIds.some(id => currentRoleIds.has(id));
         const hasHeader = currentRoleIds.has(group.headerRoleId);
@@ -77,12 +84,14 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
             throw err;
           });
           rolesModified += 1;
+          await member.fetch().catch(() => null);
         } else if (!hasChildRole && hasHeader) {
           await member.roles.remove(group.headerRoleId).catch((err) => {
             console.error(`[HeaderRole] Failed to remove header role from ${member.user.tag}:`, err);
             throw err;
           });
           rolesModified += 1;
+          await member.fetch().catch(() => null);
         }
       } catch (err) {
         errors += 1;
@@ -98,9 +107,9 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
     await updateProgress(group, `✅ Completed sync for header <@&${group.headerRoleId}>. Proceeding to next header...`, true);
   }
 
-  console.info('[HeaderRole] Header role synchronization complete', { guildId, processedGroups, members: members.length, rolesModified, errors });
+  console.info('[HeaderRole] Header role synchronization complete', { guildId, processedGroups, memberCount: members.length, rolesModified, errors });
   return {
-    processed: processedGroups * members.length,
+    processed: members.length,
     errors,
     rolesModified,
   };
@@ -205,7 +214,18 @@ export default {
         const group = groups.find(g => g.headerRoleId === headerId);
         const childCount = group?.childRoleIds.length ?? 0;
         const mention = role ? `<@&${headerId}>` : `Deleted role \`${headerId}\``;
-        return `• ${mention} — ${childCount} tracked role${childCount === 1 ? '' : 's'}`;
+
+        const childRoleLabels = group?.childRoleIds
+          .map(id => interaction.guild?.roles.cache.get(id)?.name || `Unknown role (${id})`)
+          .filter(Boolean) as string[];
+
+        const childSummary = childRoleLabels.length === 0
+          ? 'No tracked child roles'
+          : childRoleLabels.length <= 5
+            ? `Tracked roles: ${childRoleLabels.join(', ')}`
+            : `Tracked roles: ${childRoleLabels.slice(0, 5).join(', ')} +${childRoleLabels.length - 5} more`;
+
+        return `• ${mention} — ${childCount} tracked role${childCount === 1 ? '' : 's'}\n  ${childSummary}`;
       });
 
       await replyV2(interaction,
