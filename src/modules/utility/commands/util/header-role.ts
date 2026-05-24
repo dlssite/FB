@@ -17,54 +17,93 @@ async function fixGuildMembersWithProgress(tenantId: string, guildId: string, in
 
   await HeaderRoleService.refreshGuild(client, tenantId, guildId);
   const groups = HeaderRoleService.getGroups(guildId);
-  
   if (!groups.length) {
     return { processed: 0, errors: 0, rolesModified: 0 };
   }
 
   await guild.members.fetch().catch(() => null);
-  let processed = 0;
+  const members = [...guild.members.cache.values()].filter(member => !member.user.bot);
+  const groupCount = groups.length;
+  let processedGroups = 0;
+  let processedMembersInGroup = 0;
   let errors = 0;
   let rolesModified = 0;
-  let lastUpdate = Date.now();
+  let lastUpdate = 0;
 
-  for (const member of guild.members.cache.values()) {
-    if (member.user.bot) continue;
-    processed += 1;
-    try {
-      const currentRoleIds = new Set(member.roles.cache.keys());
-      
-      for (const group of groups) {
+  const updateProgress = async (group: any | null, message: string, force = false) => {
+    const groupHeader = group
+      ? `**Header group:** ${processedGroups + 1}/${groupCount} — <@&${group.headerRoleId}>\n`
+      : '';
+
+    const description = `${message}\n\n${groupHeader}**Members this header:** ${processedMembersInGroup}/${members.length}\n**Headers completed:** ${processedGroups}/${groupCount}\n**Roles modified:** ${rolesModified}${errors ? `\n**Errors:** ${errors}` : ''}`;
+
+    await replyV2(interaction, ContainerService.create({
+      title: 'Header role sync',
+      description,
+      interaction,
+      footer: true,
+    }));
+
+    interaction.replied = true;
+    interaction.deferred = false;
+    lastUpdate = Date.now();
+  };
+
+  console.info('[HeaderRole] Starting header role synchronization', {
+    guildId,
+    tenantId,
+    groups: groupCount,
+    members: members.length,
+  });
+
+  await updateProgress(null, `⏳ Initializing header role sync for ${members.length} member${members.length === 1 ? '' : 's'} across ${groupCount} header group${groupCount === 1 ? '' : 's'}.`, true);
+
+  for (const group of groups) {
+    processedMembersInGroup = 0;
+    console.info('[HeaderRole] Processing header group', { guildId, headerRoleId: group.headerRoleId, processedGroups: processedGroups + 1, groupCount });
+
+    await updateProgress(group, `⏳ Syncing header <@&${group.headerRoleId}> (${processedGroups + 1}/${groupCount})...`, true);
+
+    for (const member of members) {
+      processedMembersInGroup += 1;
+      try {
+        const currentRoleIds = new Set(member.roles.cache.keys());
         const hasChildRole = group.childRoleIds.some(id => currentRoleIds.has(id));
         const hasHeader = currentRoleIds.has(group.headerRoleId);
 
         if (hasChildRole && !hasHeader) {
           await member.roles.add(group.headerRoleId).catch((err) => {
-            console.error(`[HeaderRole] Failed to add role to ${member.user.tag}:`, err);
+            console.error(`[HeaderRole] Failed to add header role to ${member.user.tag}:`, err);
             throw err;
           });
           rolesModified += 1;
         } else if (!hasChildRole && hasHeader) {
           await member.roles.remove(group.headerRoleId).catch((err) => {
-            console.error(`[HeaderRole] Failed to remove role from ${member.user.tag}:`, err);
+            console.error(`[HeaderRole] Failed to remove header role from ${member.user.tag}:`, err);
             throw err;
           });
           rolesModified += 1;
         }
+      } catch (err) {
+        errors += 1;
       }
-    } catch (err) {
-      errors += 1;
+
+      if (Date.now() - lastUpdate > 3000) {
+        await updateProgress(group, `⏳ Syncing header <@&${group.headerRoleId}> (${processedGroups + 1}/${groupCount})...`);
+      }
     }
 
-    if (Date.now() - lastUpdate > 3000) {
-      await interaction.editReply({
-        content: `⏳ Fixing header roles... **${processed}** members processed, **${rolesModified}** roles modified${errors ? `, ${errors} errors` : ''}`,
-      }).catch(() => null);
-      lastUpdate = Date.now();
-    }
+    processedGroups += 1;
+    console.info('[HeaderRole] Completed header group', { guildId, headerRoleId: group.headerRoleId, processedGroups, groupCount, rolesModified, errors });
+    await updateProgress(group, `✅ Completed sync for header <@&${group.headerRoleId}>. Proceeding to next header...`, true);
   }
 
-  return { processed, errors, rolesModified };
+  console.info('[HeaderRole] Header role synchronization complete', { guildId, processedGroups, members: members.length, rolesModified, errors });
+  return {
+    processed: processedGroups * members.length,
+    errors,
+    rolesModified,
+  };
 }
 
 export default {
@@ -112,10 +151,13 @@ export default {
         return;
       }
 
-      await replyV2(interaction, ContainerService.simple(
-        `⏳ Adding <@&${headerRole.id}> as header role and syncing members...`,
-        { interaction },
-      ));
+      await replyV2(interaction, ContainerService.create({
+        title: 'Header role sync',
+        description: `⏳ Adding <@&${headerRole.id}> as a header role and syncing members...`,
+        interaction,
+      }));
+      interaction.replied = true;
+      interaction.deferred = false;
 
       await HeaderRoleRepository.addHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
@@ -183,10 +225,13 @@ export default {
         return;
       }
 
-      await replyV2(interaction, ContainerService.simple(
-        `⏳ Starting header role sync for all members...`,
-        { interaction },
-      ));
+      await replyV2(interaction, ContainerService.create({
+        title: 'Header role sync',
+        description: `⏳ Starting header role sync for all members...`,
+        interaction,
+      }));
+      interaction.replied = true;
+      interaction.deferred = false;
 
       const { processed, errors, rolesModified } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
       await replyV2(interaction, ContainerService.simple(
