@@ -1,5 +1,5 @@
-import { GuildMember, TextChannel, AttachmentBuilder } from 'discord.js';
-import { ContainerService, sendV2 } from '../../../utils/container';
+import { GuildMember, TextChannel, AttachmentBuilder, MessageFlags } from 'discord.js';
+import { ContainerService } from '../../../utils/container';
 import { WelcomeRepository } from '../database/WelcomeRepository';
 import { PlaceholderService } from '../../../utils/placeholder';
 import { CanvasService } from './CanvasService';
@@ -26,21 +26,20 @@ export class WelcomeService {
 
     const attachment = new AttachmentBuilder(cardBuffer, { name: 'welcome-card.png' });
 
-    // 2. Parse Text
     const messageText = PlaceholderService.parse(settings.welcomeInEmbedText || 'Welcome {user.mention} to {server.name}!', { member });
 
-    // 3. Prepare Message
-    if (settings.welcomeInOn || true) { // Default to true for polish
-      const welcomeContainer = ContainerService.create({
-        description: messageText,
-        color: settings.welcomeInEmbedColor as any || '#7367F0',
-        media: ['attachment://welcome-card.png']
-      });
-      
-      await sendV2(channel, welcomeContainer).catch(console.error);
-    } else {
-      await channel.send({ content: messageText, files: [attachment] }).catch(console.error);
-    }
+    const welcomeContainer = ContainerService.create({
+      description: messageText,
+      color: settings.welcomeInEmbedColor as any || '#7367F0',
+      media: ['attachment://welcome-card.png']
+    });
+
+    await channel.send({
+      content: messageText,
+      components: welcomeContainer.components,
+      flags: MessageFlags.IsComponentsV2,
+      files: [attachment]
+    }).catch(console.error);
   }
 
   /**

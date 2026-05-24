@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { ActivityService } from '../services/ActivityService';
 import { RoutingService } from '../../../services/RoutingService';
 import { GuildService } from '../../../services/GuildService';
+import { RedisService } from '../../../services/RedisService';
 
 export default {
   name: 'messageCreate',
@@ -13,7 +14,17 @@ export default {
       const guildId = message.guildId!;
       const tenantId = await RoutingService.resolveTenantId(guildId, 'activity');
 
-      // 1. Analyze Message for specific telemetry metrics
+      // 1. Cache message for audit trail
+      const cacheKey = `activity:msgcache:${tenantId}:${message.id}`;
+      const cachePayload = JSON.stringify({
+        content: (message.content || '').slice(0, 2000),
+        authorTag: message.author.tag,
+        authorId: message.author.id,
+        channelId: message.channelId
+      });
+      await RedisService.set(cacheKey, cachePayload, 7 * 24 * 3600);
+
+      // 2. Analyze Message for specific telemetry metrics
       const content = message.content || '';
       
       // A. Media Attachments
@@ -32,7 +43,7 @@ export default {
       const urlMatches = content.match(urlRegex) || [];
       const links = urlMatches.length;
 
-      // 2. Log to Activity Telemetry Service
+      // 3. Log to Activity Telemetry Service
       // Extract clean channel ID (resolve base ID for threads)
       const channelId = message.channel.isThread() ? message.channel.parentId! : message.channelId;
 
@@ -42,7 +53,7 @@ export default {
         links
       });
 
-      // 3. Track Command execution (Prefix check via per-guild settings)
+      // 4. Track Command execution (Prefix check via per-guild settings)
       const settings = await GuildService.getSettings(tenantId, guildId);
       const prefix = settings?.prefix || '!';
       if (content.startsWith(prefix)) {

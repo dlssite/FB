@@ -4,6 +4,7 @@ import { FlamebornClient } from '../../../core/FlamebornClient';
 
 import { TenantRepository } from '../../../repositories/TenantRepository';
 import { GuildService } from '../../../services/GuildService';
+import { ActivityLogService } from '../../activity/services/ActivityLogService';
 import { EmbedService } from '../../../utils/embed';
 import { AddonService } from '../../../services/AddonService';
 import { RedisService } from '../../../services/RedisService';
@@ -104,6 +105,15 @@ export default {
       await tenantStorage.run({ tenantId, guildId, lang }, async () => {
         if (command) {
           if (interaction.isChatInputCommand()) {
+            await ActivityLogService.sendBotCommandLog(interaction.guild!, tenantId, {
+              commandName: interaction.commandName,
+              userTag: interaction.user.tag,
+              userId: interaction.user.id,
+              channelId: interaction.channelId || undefined,
+              channelName: (interaction.channel?.isTextBased() && 'name' in interaction.channel ? interaction.channel.name : undefined) || undefined,
+              source: 'slash'
+            });
+
             await command.execute(interaction);
           } else if (interaction.isAutocomplete() && command.autocomplete) {
             await command.autocomplete(interaction);

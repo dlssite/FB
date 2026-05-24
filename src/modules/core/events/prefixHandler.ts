@@ -6,6 +6,7 @@ import { FlamebornClient } from '../../../core/FlamebornClient';
 import { EmbedService } from '../../../utils/embed';
 import { AddonService } from '../../../services/AddonService';
 import { RoutingService } from '../../../services/RoutingService';
+import { ActivityLogService } from '../../activity/services/ActivityLogService';
 import { replyV2 } from '../../../utils/container';
 
 export default {
@@ -202,6 +203,17 @@ export default {
         };
 
         try {
+          if (message.guild) {
+            await ActivityLogService.sendBotCommandLog(message.guild, moduleTenantId, {
+              commandName: mainName,
+              userTag: message.author.tag,
+              userId: message.author.id,
+              channelId: message.channel.id,
+              channelName: (message.channel.isTextBased() && 'name' in message.channel ? message.channel.name : undefined) || undefined,
+              source: 'prefix'
+            });
+          }
+
           await command.execute(shimInteraction, client);
         } finally {
           if (shimInteraction.typingInterval) {

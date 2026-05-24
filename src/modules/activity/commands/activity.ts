@@ -6,10 +6,12 @@ import {
   ActionRowBuilder, 
   ButtonBuilder, 
   ButtonStyle,
-  ChannelType
+  ChannelType,
+  PermissionFlagsBits
 } from 'discord.js';
 import { ContainerService, replyV2 } from '../../../utils/container';
 import { ActivityService } from '../services/ActivityService';
+import { ActivityLogService } from '../services/ActivityLogService';
 import { Translator } from '../../../core/Translator';
 import { RoutingService } from '../../../services/RoutingService';
 import { PrismaClient } from '@prisma/client';
@@ -43,9 +45,83 @@ export default {
     .addSubcommand(sub =>
       sub.setName('leaderboard')
          .setDescription('🏆 View interactive active leaderboards.')
+    )
+    .addSubcommandGroup(group =>
+      group.setName('log')
+           .setDescription('Configure activity log channels and enabled types.')
+           .addSubcommand(sub =>
+             sub.setName('channel')
+                .setDescription('Set the activity log channel for bot or server logs.')
+                .addStringOption(opt =>
+                  opt.setName('scope')
+                     .setDescription('Which log group to configure')
+                     .setRequired(true)
+                     .addChoices(
+                       { name: 'Bot Logs', value: 'bot' },
+                       { name: 'Server Logs', value: 'server' }
+                     )
+                )
+                .addChannelOption(opt =>
+                  opt.setName('channel')
+                     .setDescription('The channel to receive activity log messages.')
+                     .addChannelTypes(ChannelType.GuildText)
+                     .setRequired(true)
+                )
+           )
+           .addSubcommand(sub =>
+             sub.setName('type')
+                .setDescription('Enable or disable a specific activity log type.')
+                .addStringOption(opt =>
+                  opt.setName('scope')
+                     .setDescription('Select bot or server log type')
+                     .setRequired(true)
+                     .addChoices(
+                       { name: 'Bot Logs', value: 'bot' },
+                       { name: 'Server Logs', value: 'server' }
+                     )
+                )
+                .addStringOption(opt =>
+                  opt.setName('log_type')
+                     .setDescription('Which log type to enable or disable')
+                     .setRequired(true)
+                     .addChoices(
+                       { name: 'Commands', value: 'command' },
+                       { name: 'Member Join', value: 'member_join' },
+                       { name: 'Member Leave', value: 'member_leave' },
+                       { name: 'Profile Updates', value: 'member_update' },
+                       { name: 'Voice Activity', value: 'voice_state' },
+                       { name: 'Message Deletions', value: 'message_delete' },
+                       { name: 'Message Edits', value: 'message_update' },
+                       { name: 'Reaction Added', value: 'message_reaction_add' },
+                       { name: 'Reaction Removed', value: 'message_reaction_remove' },
+                       { name: 'Presence Update', value: 'presence_update' },
+                       { name: 'Role Changes', value: 'role_change' },
+                       { name: 'Role Created', value: 'role_create' },
+                       { name: 'Role Deleted', value: 'role_delete' },
+                       { name: 'Role Updated', value: 'role_update' },
+                       { name: 'Channel Created', value: 'channel_create' },
+                       { name: 'Channel Deleted', value: 'channel_delete' },
+                       { name: 'Channel Updated', value: 'channel_update' },
+                       { name: 'Server Updated', value: 'guild_update' },
+                       { name: 'Member Banned', value: 'guild_ban_add' },
+                       { name: 'Member Unbanned', value: 'guild_ban_remove' },
+                       { name: 'Emoji Updated', value: 'emoji_update' }
+                     )
+                )
+                .addBooleanOption(opt =>
+                  opt.setName('enabled')
+                     .setDescription('Enable or disable the selected log type')
+                     .setRequired(true)
+                )
+           )
+           .addSubcommand(sub =>
+             sub.setName('status')
+                .setDescription('View current activity logger configuration.')
+           )
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
+    const subcommandGroup = interaction.options.getSubcommandGroup(false);
     const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
     const shim = interaction as any;
@@ -101,6 +177,64 @@ export default {
     // ==========================================
     // 2. SUBCOMMAND: SERVER TELEMETRY
     // ==========================================
+    if (subcommandGroup === 'log') {
+      const scope = interaction.options.getString('scope', true) as 'bot' | 'server';
+
+      if (subcommand === 'channel') {
+        if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+          return await replyV2(interaction, ContainerService.simple('❌ You need Manage Server permissions to configure activity logs.', { interaction }));
+        }
+
+        const channel = interaction.options.getChannel('channel', true);
+        const config = await ActivityLogService.setChannel(tenantId, guildId, scope, channel.id);
+
+        return await replyV2(interaction, ContainerService.create({
+          title: '✅ Activity Log Channel Updated',
+          description: `**${scope === 'bot' ? 'Bot' : 'Server'} logs** will now post to <#${channel.id}>.`, 
+          fields: [
+            { name: 'Scope', value: scope === 'bot' ? 'Bot Logs' : 'Server Logs' },
+            { name: 'Channel', value: `<#${channel.id}>` },
+            { name: 'Enabled Types', value: (config[scope === 'bot' ? 'botLogTypes' : 'serverLogTypes'] || []).map((type: string) => ActivityLogService.getTypeReadable(type as any)).join('\n') || '*None*' }
+          ],
+          color: '#28C76F',
+          footer: true,
+          interaction
+        }));
+      }
+
+      if (subcommand === 'type') {
+        if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+          return await replyV2(interaction, ContainerService.simple('❌ You need Manage Server permissions to configure activity logs.', { interaction }));
+        }
+
+        const logType = interaction.options.getString('log_type', true) as any;
+        const enabled = interaction.options.getBoolean('enabled', true);
+        const config = await ActivityLogService.toggleType(tenantId, guildId, scope, logType, enabled);
+
+        return await replyV2(interaction, ContainerService.create({
+          title: `${enabled ? '✅ Enabled' : '🚫 Disabled'} Activity Log Type`,
+          description: `**${ActivityLogService.getTypeReadable(logType)}** for **${scope === 'bot' ? 'Bot' : 'Server'} logs** has been ${enabled ? 'enabled' : 'disabled'}.`, 
+          fields: [
+            { name: 'Scope', value: scope === 'bot' ? 'Bot Logs' : 'Server Logs' },
+            { name: 'Log Type', value: ActivityLogService.getTypeReadable(logType) },
+            { name: 'Current Active Types', value: (config[scope === 'bot' ? 'botLogTypes' : 'serverLogTypes'] || []).map((type: string) => ActivityLogService.getTypeReadable(type as any)).join('\n') || '*None*' }
+          ],
+          color: enabled ? '#28C76F' : '#FF9F43',
+          footer: true,
+          interaction
+        }));
+      }
+
+      if (subcommand === 'status') {
+        if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+          return await replyV2(interaction, ContainerService.simple('❌ You need Manage Server permissions to view activity logger settings.', { interaction }));
+        }
+
+        const container = await ActivityLogService.buildStatusSummary(tenantId, guildId);
+        return await replyV2(interaction, container);
+      }
+    }
+
     if (subcommand === 'server') {
       const type = interaction.options.getString('type', true);
 
@@ -253,7 +387,7 @@ export default {
 
       collector.on('collect', async (i: any) => {
         if (i.user.id !== interaction.user.id) {
-          return i.reply({ content: '❌ You cannot interact with this menu!', ephemeral: true });
+          return await replyV2(i, ContainerService.simple('❌ You cannot interact with this menu!', { ephemeral: true, interaction: i }));
         }
 
         try { await i.deferUpdate(); } catch (e) { return; }

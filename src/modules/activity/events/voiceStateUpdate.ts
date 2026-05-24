@@ -1,5 +1,6 @@
 import { VoiceState } from 'discord.js';
 import { ActivityService } from '../services/ActivityService';
+import { ActivityLogService } from '../services/ActivityLogService';
 import { RoutingService } from '../../../services/RoutingService';
 import { RedisService } from '../../../services/RedisService';
 
@@ -23,6 +24,11 @@ export default {
       if (joined) {
         // Log voice join timestamp
         await RedisService.set(startKey, Date.now().toString(), 86400); // 24-hour max safety timeout
+        await ActivityLogService.sendServerLog(newState.guild, tenantId, 'voice_state', {
+          member: newState.member,
+          event: 'join',
+          channelName: newState.channel?.name || null
+        });
       } else if (left) {
         // Calculate voice session duration
         const startTimeStr = await RedisService.get(startKey);
@@ -34,6 +40,11 @@ export default {
             await ActivityService.logVoiceActivity(tenantId, guildId, userId, durationSeconds);
           }
         }
+        await ActivityLogService.sendServerLog(oldState.guild, tenantId, 'voice_state', {
+          member: oldState.member,
+          event: 'leave',
+          channelName: oldState.channel?.name || null
+        });
         await RedisService.del(startKey);
       }
 

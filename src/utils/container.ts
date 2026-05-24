@@ -141,7 +141,7 @@ export class ContainerService {
 
     if (options.image || (options.media && options.media.length > 0)) {
       const urls = options.media || [options.image!];
-      const validUrls = urls.filter(u => u && typeof u === 'string' && u.startsWith('http'));
+      const validUrls = urls.filter(u => u && typeof u === 'string' && (u.startsWith('http') || u.startsWith('attachment://')));
       if (validUrls.length > 0) {
         const gallery = new MediaGalleryBuilder().addItems(
           validUrls.map(url => new MediaGalleryItemBuilder().setURL(url))
@@ -189,7 +189,7 @@ export class ContainerService {
     // 2. Image
     if (options.image || options.media) {
       const urls = options.media || [options.image!];
-      const validUrls = urls.filter(u => u && typeof u === 'string' && u.startsWith('http'));
+      const validUrls = urls.filter(u => u && typeof u === 'string' && (u.startsWith('http') || u.startsWith('attachment://')));
       if (validUrls.length > 0) {
         container.addMediaGalleryComponents(new MediaGalleryBuilder().addItems(
           validUrls.map(url => new MediaGalleryItemBuilder().setURL(url))
@@ -236,7 +236,7 @@ export class ContainerService {
     // 2. Image
     if (options.image || options.media) {
       const urls = options.media || [options.image!];
-      const validUrls = urls.filter(u => u && typeof u === 'string' && u.startsWith('http'));
+      const validUrls = urls.filter(u => u && typeof u === 'string' && (u.startsWith('http') || u.startsWith('attachment://')));
       if (validUrls.length > 0) {
         container.addMediaGalleryComponents(new MediaGalleryBuilder().addItems(
           validUrls.map(url => new MediaGalleryItemBuilder().setURL(url))

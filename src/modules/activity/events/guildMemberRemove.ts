@@ -1,5 +1,6 @@
 import { GuildMember } from 'discord.js';
 import { ActivityService } from '../services/ActivityService';
+import { ActivityLogService } from '../services/ActivityLogService';
 import { RoutingService } from '../../../services/RoutingService';
 
 export default {
@@ -12,6 +13,7 @@ export default {
       const tenantId = await RoutingService.resolveTenantId(guildId, 'activity');
 
       await ActivityService.logServerGrowth(tenantId, guildId, 'leave');
+      await ActivityLogService.sendServerLog(member.guild, tenantId, 'member_leave', { member });
 
     } catch (err) {
       console.error('[ACTIVITY LEAVE TELEMETRY ERROR]', err);

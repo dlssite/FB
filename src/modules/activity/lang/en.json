@@ -38,4 +38,19 @@
     "filter_category": "Category",
     "filter_timeframe": "Timeframe"
   }
+  ,
+  "log": {
+    "title": "📢 Activity Logger",
+    "desc": "Configure where activity logs are posted and which events are recorded.",
+    "channel_desc": "Set the channel that receives activity logs for the selected scope.",
+    "type_desc": "Enable or disable specific log types for Bot or Server logs.",
+    "status_desc": "Displays the current channels and enabled log types.",
+    "examples": {
+      "set_channel": "/activity log channel scope:bot channel:#bot-logs — Route bot command logs to the #bot-logs channel.",
+      "enable_type": "/activity log type scope:server log_type:member_join enabled:true — Start posting member join events to the server log channel.",
+      "status": "/activity log status — View configured channels and active log types."
+    },
+    "no_channel_configured": "*Not configured*",
+    "none_enabled": "*None*"
+  }
 }

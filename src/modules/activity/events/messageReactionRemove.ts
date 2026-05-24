@@ -1,10 +1,9 @@
 import { MessageReaction, User } from 'discord.js';
-import { ActivityService } from '../services/ActivityService';
 import { ActivityLogService } from '../services/ActivityLogService';
 import { RoutingService } from '../../../services/RoutingService';
 
 export default {
-  name: 'messageReactionAdd',
+  name: 'messageReactionRemove',
   async execute(reaction: MessageReaction, user: User) {
     if (user.bot || !reaction.message.guild) return;
 
@@ -12,9 +11,7 @@ export default {
       const guildId = reaction.message.guild.id;
       const tenantId = await RoutingService.resolveTenantId(guildId, 'activity');
 
-      await ActivityService.logReactionActivity(tenantId, guildId, user.id);
-
-      await ActivityLogService.sendServerLog(reaction.message.guild, tenantId, 'message_reaction_add', {
+      await ActivityLogService.sendServerLog(reaction.message.guild, tenantId, 'message_reaction_remove', {
         authorTag: reaction.message.author?.tag,
         authorId: reaction.message.author?.id,
         userTag: user.tag,
@@ -23,9 +20,8 @@ export default {
         channelName: reaction.message.channel?.isTextBased() && 'name' in reaction.message.channel ? reaction.message.channel.name : undefined,
         emoji: reaction.emoji.name
       });
-
     } catch (err) {
-      console.error('[ACTIVITY REACTION TELEMETRY ERROR]', err);
+      console.error('[ACTIVITY REACTION REMOVE ERROR]', err);
     }
   }
 };
