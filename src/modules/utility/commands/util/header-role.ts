@@ -47,18 +47,18 @@ export default {
     if (subcommand === 'add') {
       const headerRole = interaction.options.getRole('header', true);
       if (!headerRole || !interaction.guild) {
-        return interaction.editReply({ content: '❌ Unable to find the selected role or guild.' });
+        return await replyV2(interaction, ContainerService.simple('❌ Unable to find the selected role or guild.', { interaction }));
       }
 
       if (headerRole.id === interaction.guild.id) {
-        return interaction.editReply({ content: '❌ The @everyone permission role cannot be used as a header role.' });
+        return await replyV2(interaction, ContainerService.simple('❌ The @everyone permission role cannot be used as a header role.', { interaction }));
       }
 
       await HeaderRoleRepository.addHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
       const { processed, errors } = await HeaderRoleService.fixGuildMembers(client, tenantId, guildId);
 
-      return replyV2(interaction, ContainerService.simple(
+      return await replyV2(interaction, ContainerService.simple(
         `✅ <@&${headerRole.id}> is now configured as a header role and existing members have been updated. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
         { interaction },
       ));
@@ -67,18 +67,18 @@ export default {
     if (subcommand === 'remove') {
       const headerRole = interaction.options.getRole('header', true);
       if (!headerRole) {
-        return interaction.editReply({ content: '❌ Unable to find the selected role.' });
+        return await replyV2(interaction, ContainerService.simple('❌ Unable to find the selected role.', { interaction }));
       }
 
       const current = await HeaderRoleRepository.getHeaderRoleIds(tenantId, guildId);
       if (!current.includes(headerRole.id)) {
-        return replyV2(interaction, ContainerService.simple('❌ That role is not currently configured as a header role.', { interaction }));
+        return await replyV2(interaction, ContainerService.simple('❌ That role is not currently configured as a header role.', { interaction }));
       }
 
       await HeaderRoleRepository.removeHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
 
-      return replyV2(interaction, ContainerService.simple(`✅ <@&${headerRole.id}> has been removed from the header-role list.`, { interaction }));
+      return await replyV2(interaction, ContainerService.simple(`✅ <@&${headerRole.id}> has been removed from the header-role list.`, { interaction }));
     }
 
     if (subcommand === 'list') {
@@ -87,7 +87,7 @@ export default {
       const groups = HeaderRoleService.getGroups(guildId);
 
       if (!configured.length) {
-        return replyV2(interaction, ContainerService.simple('ℹ️ No header roles are configured for this guild yet.', { interaction }));
+        return await replyV2(interaction, ContainerService.simple('ℹ️ No header roles are configured for this guild yet.', { interaction }));
       }
 
       const headerDescriptions = configured.map(headerId => {
@@ -98,7 +98,7 @@ export default {
         return `• ${mention} — ${childCount} tracked role${childCount === 1 ? '' : 's'}`;
       });
 
-      return replyV2(interaction,
+      return await replyV2(interaction,
         ContainerService.create({
           title: 'Configured header roles',
           description: headerDescriptions.join('\n'),
@@ -110,16 +110,16 @@ export default {
     if (subcommand === 'fix') {
       const configured = await HeaderRoleRepository.getHeaderRoleIds(tenantId, guildId);
       if (!configured.length) {
-        return interaction.editReply({ content: 'ℹ️ No header roles are configured for this guild yet.' });
+        return await replyV2(interaction, ContainerService.simple('ℹ️ No header roles are configured for this guild yet.', { interaction }));
       }
 
       const { processed, errors } = await HeaderRoleService.fixGuildMembers(client, tenantId, guildId);
-      return replyV2(interaction, ContainerService.simple(
+      return await replyV2(interaction, ContainerService.simple(
         `✅ Header role sync complete. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
         { interaction },
       ));
     }
 
-    return replyV2(interaction, ContainerService.simple('❌ Unknown header-role command.', { interaction }));
+    return await replyV2(interaction, ContainerService.simple('❌ Unknown header-role command.', { interaction }));
   },
 };
