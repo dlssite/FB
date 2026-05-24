@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from 'discord.js';
 import { LevelingRepository } from '../../database/LevelingRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { Translator } from '../../../../core/Translator';
 
@@ -17,7 +17,7 @@ export default {
     const top = await LevelingRepository.getTopLevelers(context.tenantId, context.guildId, 10);
     
     if (top.length === 0) {
-      return await interaction.editReply(ContainerService.simple(Translator.t('leveling', 'leaderboard.empty', lang)) as any);
+      return await replyV2(interaction, ContainerService.simple(Translator.t('leveling', 'leaderboard.empty', lang)));
     }
 
     const lines = top.map((u, i) => {
@@ -33,6 +33,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };

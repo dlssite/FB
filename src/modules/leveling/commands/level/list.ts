@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from 'discord.js';
 import { LevelingRepository } from '../../database/LevelingRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -16,7 +16,7 @@ export default {
     const rewards = (settings?.roleRewards as any[]) || [];
 
     if (rewards.length === 0) {
-      return await interaction.editReply(ContainerService.simple('📜 No level rewards configured for this server.') as any);
+      return await replyV2(interaction, ContainerService.simple('📜 No level rewards configured for this server.'));
     }
 
     const sorted = rewards.sort((a, b) => a.level - b.level);
@@ -30,6 +30,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };

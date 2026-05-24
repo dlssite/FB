@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { prisma } from '../../../../database/client';
 import { Translator } from '../../../../core/Translator';
@@ -15,7 +15,7 @@ export default {
     const lang = context.lang || 'en';
 
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-      return await interaction.editReply(ContainerService.simple(Translator.t('leveling', 'admin.no_permission', lang)) as any);
+      return await replyV2(interaction, ContainerService.simple(Translator.t('leveling', 'admin.no_permission', lang)));
     }
 
     const settings = await prisma.server_settings.findUnique({
@@ -44,6 +44,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };

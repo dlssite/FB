@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from 'discord.js';
 import { LevelingRepository } from '../../database/LevelingRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { prisma } from '../../../../database/client';
 import { Translator } from '../../../../core/Translator';
@@ -19,8 +19,8 @@ export default {
     const level = userRecord?.level || 1;
 
     if (level < 100) {
-      return await interaction.editReply(
-        ContainerService.simple(Translator.t('leveling', 'prestige.not_ready', lang, { level })) as any
+      return await replyV2(interaction,
+        ContainerService.simple(Translator.t('leveling', 'prestige.not_ready', lang, { level }))
       );
     }
 
@@ -44,6 +44,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };

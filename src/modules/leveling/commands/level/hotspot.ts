@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { LevelingRepository } from '../../database/LevelingRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { prisma } from '../../../../database/client';
 
@@ -13,7 +13,7 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-      return await interaction.editReply(ContainerService.simple('❌ You do not have permission to manage leveling.') as any);
+      return await replyV2(interaction, ContainerService.simple('❌ You do not have permission to manage leveling.'));
     }
 
     const context = tenantStorage.getStore();
@@ -46,6 +46,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };

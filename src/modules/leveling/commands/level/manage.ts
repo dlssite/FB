@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandSubcommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { LevelingRepository } from '../../database/LevelingRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 import { Translator } from '../../../../core/Translator';
 
@@ -18,7 +18,7 @@ export default {
     const lang = context.lang || 'en';
 
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-      return await interaction.editReply(ContainerService.simple(Translator.t('leveling', 'admin.no_permission', lang)) as any);
+      return await replyV2(interaction, ContainerService.simple(Translator.t('leveling', 'admin.no_permission', lang)));
     }
 
     const targetUser = interaction.options.getUser('user', true);
@@ -26,7 +26,7 @@ export default {
     const newXp = interaction.options.getInteger('xp');
 
     if (newLevel === null && newXp === null) {
-      return await interaction.editReply(ContainerService.simple('❌ Please specify at least one value to update (Level or XP).') as any);
+      return await replyV2(interaction, ContainerService.simple('❌ Please specify at least one value to update (Level or XP).'));
     }
 
     const userRecord = await LevelingRepository.getUser(context.tenantId, context.guildId, targetUser.id);
@@ -50,6 +50,6 @@ export default {
       footer: true
     });
 
-    await interaction.editReply(response as any);
+    await replyV2(interaction, response);
   }
 };
