@@ -810,6 +810,7 @@ model leveling_settings {
   roleRewardStack       Boolean? @default(false)
   levelingChannelId     String?  @db.VarChar(255)
   levelingMessage       String?  @default("GG {user.mention}, you reached level **{user.level}**!")
+  levelingReaction      String?  @default("🎉") @db.VarChar(255)
   levelingImageEnabled  Boolean? @default(true)
   levelingBackgroundUrl String?
   levelingBorderColor   String?  @db.VarChar(255)

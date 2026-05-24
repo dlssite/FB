@@ -23,7 +23,8 @@ export default {
         message.guild!.id,
         message.author.id,
         message.channel.id,
-        message.member
+        message.member,
+        message
       );
     });
   }

@@ -6,6 +6,7 @@ import { flamebornConfig } from '../../../config/flameborn.config';
 import { Translator } from '../../../core/Translator';
 import { tenantStorage } from '../../../utils/context';
 import { RedisService } from '../../../services/RedisService';
+import { Message } from 'discord.js';
 
 export class LevelingService {
   /**
@@ -21,7 +22,7 @@ export class LevelingService {
   /**
    * Manually awards XP to a user, handling level ups and role rewards.
    */
-  static async addExperience(tenantId: string, guildId: string, userId: string, xpAmount: number, channelId?: string) {
+  static async addExperience(tenantId: string, guildId: string, userId: string, xpAmount: number, channelId?: string, message?: Message) {
     let userRecord = await LevelingRepository.getUser(tenantId, guildId, userId);
     let currentXp = Number(userRecord?.xp || 0);
     let currentLevel = Number(userRecord?.level || 1);
@@ -32,12 +33,13 @@ export class LevelingService {
     if (currentXp >= xpNeeded) {
       currentLevel++;
       currentXp = 0;
-      
+      await LevelingRepository.updateXp(tenantId, guildId, userId, currentXp, currentLevel);
       if (channelId) {
-        await this.onLevelUp(tenantId, guildId, userId, currentLevel, channelId);
+        await this.onLevelUp(tenantId, guildId, userId, currentLevel, channelId, message);
       } else {
         await this.processRoleRewards(tenantId, guildId, userId, currentLevel);
       }
+      return;
     }
 
     await LevelingRepository.updateXp(tenantId, guildId, userId, currentXp, currentLevel);
@@ -46,7 +48,7 @@ export class LevelingService {
   /**
    * Processes a new message for XP gain.
    */
-  static async handleMessage(tenantId: string, guildId: string, userId: string, channelId: string, member: any) {
+  static async handleMessage(tenantId: string, guildId: string, userId: string, channelId: string, member: any, message: Message) {
     const settings = await LevelingRepository.getSettings(tenantId, guildId) || await LevelingRepository.initSettings(tenantId, guildId);
     
     if (!settings.messageXpEnabled) return;
@@ -103,8 +105,9 @@ export class LevelingService {
     if (currentXp >= xpNeeded) {
       currentLevel++;
       currentXp = 0; // Reset XP for the new level (Standard pattern)
-
-      await this.onLevelUp(tenantId, guildId, userId, currentLevel, channelId);
+      await LevelingRepository.updateXp(tenantId, guildId, userId, currentXp, currentLevel);
+      await this.onLevelUp(tenantId, guildId, userId, currentLevel, channelId, message);
+      return;
     }
 
     await LevelingRepository.updateXp(tenantId, guildId, userId, currentXp, currentLevel);
@@ -113,30 +116,66 @@ export class LevelingService {
   /**
    * Triggers when a user ascends to a new level.
    */
-  private static async onLevelUp(tenantId: string, guildId: string, userId: string, newLevel: number, channelId: string) {
+  private static formatAnnouncement(template: string, user: any, newLevel: number, guild: any) {
+    return template
+      .replace(/\{user\.mention\}/gi, `<@${user.id}>`)
+      .replace(/\{user\.username\}/gi, user.username)
+      .replace(/\{user\.tag\}/gi, user.tag)
+      .replace(/\{user\.level\}/gi, `${newLevel}`)
+      .replace(/\{guild\.name\}/gi, guild.name)
+      .replace(/\{guild\.id\}/gi, guild.id);
+  }
+
+  private static async onLevelUp(tenantId: string, guildId: string, userId: string, newLevel: number, channelId: string, message?: Message) {
+    const ctx = tenantStorage.getStore();
+    const lang = ctx?.lang || 'en';
+    const userRecord = await LevelingRepository.getUser(tenantId, guildId, userId);
     const guild = await client.guilds.fetch(guildId).catch(() => null);
     if (!guild) return;
 
-    const channel = await guild.channels.fetch(channelId).catch(() => null);
+    const settings = await LevelingRepository.getSettings(tenantId, guildId) || await LevelingRepository.initSettings(tenantId, guildId);
     const user = await client.users.fetch(userId).catch(() => null);
-    if (!user || !channel || !channel.isTextBased()) return;
+    if (!user) return;
+
+    const announcedChannelId = settings.levelingChannelId || channelId;
+    let announcementChannel = channelId === announcedChannelId ? await guild.channels.fetch(channelId).catch(() => null) : await guild.channels.fetch(announcedChannelId).catch(() => null);
+    const originatingChannel = await guild.channels.fetch(channelId).catch(() => null);
+    const announceChannel = announcementChannel?.isTextBased() ? announcementChannel : originatingChannel?.isTextBased() ? originatingChannel : null;
+    if (!announceChannel) return;
 
     // 1. Process Role Rewards
     await this.processRoleRewards(tenantId, guildId, userId, newLevel);
 
-    // 2. Aesthetic Announcement
-    const ctx = tenantStorage.getStore();
-    const lang = ctx?.lang || 'en';
+    // 2. Announcement
+    const template = settings.levelingMessage || 'GG {user.mention}, you reached level **{user.level}**!';
+    const content = this.formatAnnouncement(template, user, newLevel, guild);
 
-    const embed = ContainerService.create({
-      title: Translator.t('leveling', 'levelup.title', lang),
-      description: Translator.t('leveling', 'levelup.desc', lang, { user: `<@${userId}>`, level: newLevel }),
-      thumbnail: user.displayAvatarURL(),
-      color: '#7367F0',
-      footer: true
-    });
+    if (settings.levelingImageEnabled) {
+      const xp = Number(userRecord?.xp || 0);
+      const xpNeeded = this.getXpRequired(newLevel);
+      const rank = await LevelingRepository.getUserRank(tenantId, guildId, userId);
+      const prestige = Number(userRecord?.prestige || 0);
+      const { LevelingCanvasService } = await import('./LevelingCanvasService');
+      const buffer = await LevelingCanvasService.generateRankCard({
+        username: user.username,
+        avatarUrl: user.displayAvatarURL({ extension: 'png', size: 512 }),
+        level: newLevel,
+        xp,
+        xpNeeded,
+        rank,
+        prestige,
+        lang
+      });
 
-    await channel.send({ content: `<@${userId}>`, embeds: (embed as any).embeds }).catch(() => {});
+      await announceChannel.send({ content, files: [{ attachment: buffer, name: 'level-up.png' }] }).catch(() => {});
+    } else {
+      await announceChannel.send({ content }).catch(() => {});
+    }
+
+    // 3. Reaction on the original message if configured
+    if (message && settings.levelingReaction) {
+      await message.react(settings.levelingReaction).catch(() => {});
+    }
   }
 
   /**

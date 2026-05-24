@@ -81,7 +81,7 @@ export class LevelingRepository {
         },
       },
       update: {},
-      create: {
+      create: ({
         guildId,
         tenantId,
         messageXpEnabled: true,
@@ -90,9 +90,11 @@ export class LevelingRepository {
         messageXpCooldown: 60,
         levelingMultiplier: 1.0,
         roleRewardStack: false,
+        levelingMessage: 'GG {user.mention}, you reached level **{user.level}**!',
+        levelingReaction: '🎉',
         createdAt: new Date(),
         updatedAt: new Date(),
-      },
+      } as any),
     });
 
     await this.invalidateCache(tenantId, guildId);
