@@ -387,7 +387,7 @@ export default {
 
       collector.on('collect', async (i: any) => {
         if (i.user.id !== interaction.user.id) {
-          return await replyV2(i, ContainerService.simple('❌ You cannot interact with this menu!', { ephemeral: true, interaction: i }));
+          return await replyV2(i, ContainerService.simple('❌ You cannot interact with this menu!', { interaction: i }));
         }
 
         try { await i.deferUpdate(); } catch (e) { return; }
