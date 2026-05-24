@@ -175,13 +175,14 @@ export default {
     }
 
     if (subcommand === 'fix') {
+      await interaction.deferReply({ ephemeral: true });
+
       const configured = await HeaderRoleRepository.getHeaderRoleIds(tenantId, guildId);
       if (!configured.length) {
         await replyV2(interaction, ContainerService.simple('ℹ️ No header roles are configured for this guild yet.', { interaction }));
         return;
       }
 
-      await interaction.deferReply({ ephemeral: true });
       await interaction.editReply({ content: `⏳ Starting header role sync for all members...` });
 
       const { processed, errors, rolesModified } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
