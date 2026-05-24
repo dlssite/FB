@@ -9,6 +9,43 @@ import { HeaderRoleRepository } from '../../database/HeaderRoleRepository';
 import { HeaderRoleService } from '../../services/HeaderRoleService';
 import { client } from '../../../../core/FlamebornClient';
 
+async function fixGuildMembersWithProgress(tenantId: string, guildId: string, interaction: ChatInputCommandInteraction) {
+  const guild = client.guilds.cache.get(guildId);
+  if (!guild) {
+    return { processed: 0, errors: 0 };
+  }
+
+  await HeaderRoleService.refreshGuild(client, tenantId, guildId);
+  const groups = HeaderRoleService.getGroups(guildId);
+  if (!groups.length) {
+    return { processed: 0, errors: 0 };
+  }
+
+  await guild.members.fetch().catch(() => null);
+  let processed = 0;
+  let errors = 0;
+  let lastUpdate = Date.now();
+
+  for (const member of guild.members.cache.values()) {
+    if (member.user.bot) continue;
+    processed += 1;
+    try {
+      await HeaderRoleService.syncHeaderRoles(member, tenantId, guildId);
+    } catch (err) {
+      errors += 1;
+    }
+
+    if (Date.now() - lastUpdate > 3000) {
+      await interaction.editReply({
+        content: `⏳ Fixing header roles... **${processed}** members processed${errors ? `, ${errors} errors` : ''}`,
+      }).catch(() => null);
+      lastUpdate = Date.now();
+    }
+  }
+
+  return { processed, errors };
+}
+
 export default {
   isGroup: true,
   data: (group: SlashCommandSubcommandGroupBuilder) =>
@@ -54,9 +91,14 @@ export default {
         return;
       }
 
+      await replyV2(interaction, ContainerService.simple(
+        `⏳ Adding <@&${headerRole.id}> as header role and syncing members...`,
+        { interaction },
+      ));
+
       await HeaderRoleRepository.addHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
-      const { processed, errors } = await HeaderRoleService.fixGuildMembers(client, tenantId, guildId);
+      const { processed, errors } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
 
       await replyV2(interaction, ContainerService.simple(
         `✅ <@&${headerRole.id}> is now configured as a header role and existing members have been updated. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
@@ -120,7 +162,12 @@ export default {
         return;
       }
 
-      const { processed, errors } = await HeaderRoleService.fixGuildMembers(client, tenantId, guildId);
+      await replyV2(interaction, ContainerService.simple(
+        `⏳ Starting header role sync for all members...`,
+        { interaction },
+      ));
+
+      const { processed, errors } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
       await replyV2(interaction, ContainerService.simple(
         `✅ Header role sync complete. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
         { interaction },
