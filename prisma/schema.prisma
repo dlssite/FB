@@ -2500,3 +2500,70 @@ model user_profiles {
   @@id([userId, tenantId])
   @@index([userId, tenantId])
 }
+
+// --- SELF-REACTION MODULE ---
+
+model reaction_self_panels {
+  id          Int                    @id @default(autoincrement())
+  guildId     String                 @db.VarChar(255)
+  tenantId    String                 @db.VarChar(255)
+  channelId   String                 @db.VarChar(255)
+  messageId   String?                @db.VarChar(255)
+  title       String                 @db.VarChar(255)
+  description String?
+  panelType   String                 @default("dropdown") @db.VarChar(255)
+  createdAt   DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime               @updatedAt @db.Timestamptz(6)
+  items       reaction_self_items[]
+
+  @@unique([messageId, tenantId], map: "reaction_self_panels_message_id_tenant_id")
+  @@index([guildId, tenantId], map: "reaction_self_panels_guild_id_tenant_id")
+}
+
+model reaction_self_items {
+  id                  Int      @id @default(autoincrement())
+  panelId             Int
+  emoji               String   @db.VarChar(255)
+  label               String   @db.VarChar(255)
+  description         String?
+  roleIds             Json     @default("[]") @db.Json
+  mutuallyExclusive   Boolean  @default(false)
+  groupId             String?  @db.VarChar(255)
+  createdAt           DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @db.Timestamptz(6)
+
+  panel               reaction_self_panels @relation(fields: [panelId], references: [id], onDelete: Cascade)
+
+  @@index([panelId], map: "reaction_self_items_panel_id")
+}
+
+model reaction_self_user_roles {
+  id                Int      @id @default(autoincrement())
+  guildId           String   @db.VarChar(255)
+  tenantId          String   @db.VarChar(255)
+  userId            String   @db.VarChar(255)
+  roleId            String   @db.VarChar(255)
+  panelId           Int
+  reactionItemId    Int
+  acquiredAt        DateTime @default(now()) @db.Timestamptz(6)
+  expiresAt         DateTime? @db.Timestamptz(6)
+
+  @@unique([guildId, tenantId, userId, roleId], map: "reaction_self_user_roles_unique")
+  @@index([guildId, userId, tenantId], map: "reaction_self_user_roles_guild_user_idx")
+  @@index([guildId, tenantId], map: "reaction_self_user_roles_guild_tenant_idx")
+}
+
+model reaction_emoji_links {
+  id          Int      @id @default(autoincrement())
+  guildId     String   @db.VarChar(255)
+  tenantId    String   @db.VarChar(255)
+  channelId   String   @db.VarChar(255)
+  messageId   String   @db.VarChar(255)
+  emoji       String   @db.VarChar(255)
+  roleIds     Json     @default("[]") @db.Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([guildId, tenantId, messageId, emoji], map: "reaction_emoji_links_unique")
+  @@index([guildId, messageId, tenantId], map: "reaction_emoji_links_guild_message_idx")
+}
