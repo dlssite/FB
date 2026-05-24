@@ -12,38 +12,58 @@ import { client } from '../../../../core/FlamebornClient';
 async function fixGuildMembersWithProgress(tenantId: string, guildId: string, interaction: ChatInputCommandInteraction) {
   const guild = client.guilds.cache.get(guildId);
   if (!guild) {
-    return { processed: 0, errors: 0 };
+    return { processed: 0, errors: 0, rolesModified: 0 };
   }
 
   await HeaderRoleService.refreshGuild(client, tenantId, guildId);
   const groups = HeaderRoleService.getGroups(guildId);
   if (!groups.length) {
-    return { processed: 0, errors: 0 };
+    return { processed: 0, errors: 0, rolesModified: 0 };
   }
 
   await guild.members.fetch().catch(() => null);
   let processed = 0;
   let errors = 0;
+  let rolesModified = 0;
   let lastUpdate = Date.now();
 
   for (const member of guild.members.cache.values()) {
     if (member.user.bot) continue;
     processed += 1;
     try {
-      await HeaderRoleService.syncHeaderRoles(member, tenantId, guildId);
+      const currentRoleIds = new Set(member.roles.cache.keys());
+      
+      for (const group of groups) {
+        const hasChildRole = group.childRoleIds.some(id => currentRoleIds.has(id));
+        const hasHeader = currentRoleIds.has(group.headerRoleId);
+
+        if (hasChildRole && !hasHeader) {
+          await member.roles.add(group.headerRoleId).catch((err) => {
+            console.error(`Failed to add role to ${member.user.tag}:`, err);
+            throw err;
+          });
+          rolesModified += 1;
+        } else if (!hasChildRole && hasHeader) {
+          await member.roles.remove(group.headerRoleId).catch((err) => {
+            console.error(`Failed to remove role from ${member.user.tag}:`, err);
+            throw err;
+          });
+          rolesModified += 1;
+        }
+      }
     } catch (err) {
       errors += 1;
     }
 
     if (Date.now() - lastUpdate > 3000) {
       await interaction.editReply({
-        content: `⏳ Fixing header roles... **${processed}** members processed${errors ? `, ${errors} errors` : ''}`,
+        content: `⏳ Fixing header roles... **${processed}** members processed, **${rolesModified}** roles modified${errors ? `, ${errors} errors` : ''}`,
       }).catch(() => null);
       lastUpdate = Date.now();
     }
   }
 
-  return { processed, errors };
+  return { processed, errors, rolesModified };
 }
 
 export default {
@@ -98,10 +118,10 @@ export default {
 
       await HeaderRoleRepository.addHeaderRoleId(tenantId, guildId, headerRole.id);
       await HeaderRoleService.refreshGuild(client, tenantId, guildId);
-      const { processed, errors } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
+      const { processed, errors, rolesModified } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
 
       await replyV2(interaction, ContainerService.simple(
-        `✅ <@&${headerRole.id}> is now configured as a header role and existing members have been updated. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
+        `✅ <@&${headerRole.id}> is now configured as a header role. Processed ${processed} members, **${rolesModified}** roles modified${errors ? `, ${errors} errors` : ''}.`,
         { interaction },
       ));
       return;
@@ -167,9 +187,9 @@ export default {
         { interaction },
       ));
 
-      const { processed, errors } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
+      const { processed, errors, rolesModified } = await fixGuildMembersWithProgress(tenantId, guildId, interaction);
       await replyV2(interaction, ContainerService.simple(
-        `✅ Header role sync complete. Processed ${processed} members${errors ? ` with ${errors} errors` : ''}.`,
+        `✅ Header role sync complete. Processed ${processed} members, **${rolesModified}** roles modified${errors ? ` with ${errors} errors` : ''}.`,
         { interaction },
       ));
       return;
