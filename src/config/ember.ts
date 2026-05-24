@@ -130,6 +130,7 @@ const baseConfig: FlamebornConfig = {
     profile: { active: true, name: 'Profile', description: 'User profiles.', emoji: '👤' },
     fun: { active: true, name: 'Fun', description: 'Fun games.', emoji: '🎉' },
     activity: { active: true, name: 'Activity', description: 'Analytics.', emoji: '📊' },
+    reaction: { active: true, name: 'Reactions', description: 'Reaction roles and automated reaction handlers.', emoji: '🔁' },
   },
   shop: {
     currency: 'embers',

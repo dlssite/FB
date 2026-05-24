@@ -532,6 +532,12 @@ export const flamebornConfig: FlamebornConfig = {
       description: 'StatBot-grade server and user engagement analytics.',
       emoji: '📊'
     },
+    reaction: {
+      active: true,
+      name: 'Reaction Engine',
+      description: 'Automated reaction handlers and reaction-role management.',
+      emoji: '🔁'
+    },
   },
 
   /**

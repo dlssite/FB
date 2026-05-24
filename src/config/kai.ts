@@ -103,6 +103,7 @@ const baseConfig: FlamebornConfig = {
     profile: { active: true, name: 'Profile', description: 'Profile.', emoji: '👤' },
     fun: { active: true, name: 'Fun', description: 'Fun.', emoji: '🎉' },
     activity: { active: true, name: 'Activity', description: 'Analytics.', emoji: '📊' },
+    reaction: { active: true, name: 'Reactions', description: 'Reaction roles and automated reaction handlers.', emoji: '🔁' },
   },
   shop: { currency: 'embers', taxRate: 0.05, enableTrading: true, categories: ['garage', 'housing', 'crafting', 'consumables'], emojis: { garage: '🚗', housing: '🏡', crafting: '⚒️', consumables: '🧪', default: '📦' }, news: { enabled: true, channelId: '1372134440539324548', broadcastOnNewTemplate: true, broadcastOnBigSale: true, broadcastOnAuctionStart: true }, assets: { marketBanner: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455' } },
   invite: { defaultFakeThresholdDays: 7, assets: { statsBanner: 'https://placehold.co/800x200.png?text=STATS', leaderboardBanner: 'https://placehold.co/800x200.png?text=LEADERBOARD' } },
