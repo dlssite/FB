@@ -1895,6 +1895,7 @@ model welcome_settings {
   welcomeOutOn                 Boolean? @default(false)
   welcomeDmOn                  Boolean? @default(false)
   welcomeRoleId                String?  @db.VarChar(255)
+  headerRoleIds                Json?    @db.Json
   welcomeInChannelId           String?  @db.VarChar(255)
   welcomeOutChannelId          String?  @db.VarChar(255)
   welcomeInEmbedText           String?

@@ -77,6 +77,12 @@ async function bootstrap() {
     setInterval(() => LevelingService.tickTopLevelerRole(), 300000); // Every 5 mins
   }
 
+  if (flamebornConfig.modules.utility?.active) {
+    const { HeaderRoleService } = await import('./modules/utility/services/HeaderRoleService');
+    client.once('ready', () => HeaderRoleService.refreshAll(client).catch(console.error));
+    setInterval(() => HeaderRoleService.refreshAll(client), 300000); // Every 5 mins
+  }
+
   if (flamebornConfig.modules.birthday?.active) {
     const { BirthdayService } = await import('./modules/birthday/services/BirthdayService');
     BirthdayService.startBirthdayWorker(client);
