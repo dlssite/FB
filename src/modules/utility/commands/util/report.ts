@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'disc
 import { UtilityRepository } from '../../database/UtilityRepository';
 import { AutomodRepository } from '../../../automod/database/AutomodRepository';
 import { TenantRepository } from '../../../../repositories/TenantRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -18,11 +18,11 @@ export default {
     const tenantId = await TenantRepository.getTenantForGuild(guildId) || process.env.TENANT_ID || 'tenant_alpha_01';
 
     if (target.id === interaction.user.id) {
-      return await interaction.editReply(ContainerService.simple('❌ You cannot report yourself.', { color: '#EA5455' }));
+      return await replyV2(interaction, ContainerService.simple('❌ You cannot report yourself.', { color: '#EA5455' }));
     }
 
     if (target.bot) {
-      return await interaction.editReply(ContainerService.simple('❌ You cannot report bots.', { color: '#EA5455' }));
+      return await replyV2(interaction, ContainerService.simple('❌ You cannot report bots.', { color: '#EA5455' }));
     }
 
     // 1. Save to Database via Repository
@@ -56,6 +56,6 @@ export default {
       }
     }
 
-    await interaction.editReply(ContainerService.simple('✅ Your report has been submitted to the server staff. Thank you for helping keep the community safe!', { color: '#28C76F' }));
+    await replyV2(interaction, ContainerService.simple('✅ Your report has been submitted to the server staff. Thank you for helping keep the community safe!', { color: '#28C76F' }));
   },
 };

@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -41,7 +41,7 @@ export default {
           });
         }
       } catch (err) {
-        return await interaction.editReply(ContainerService.simple('❌ Failed to fetch the replied message.', { color: '#EA5455' }));
+        return await replyV2(interaction, ContainerService.simple('❌ Failed to fetch the replied message.', { color: '#EA5455' }));
       }
     } else if (rawSource) {
       const emojiRegex = /<(a?):([a-zA-Z0-9_]+):([0-9]+)>/;
@@ -58,7 +58,7 @@ export default {
     }
 
     if (stealables.length === 0) {
-      return await interaction.editReply(ContainerService.simple('❌ No valid emojis, stickers, or images found to steal.', { color: '#EA5455' }));
+      return await replyV2(interaction, ContainerService.simple('❌ No valid emojis, stickers, or images found to steal.', { color: '#EA5455' }));
     }
 
     // 2. Filter Duplicates & Execute

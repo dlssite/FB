@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { TerritoryRepository } from '../../database/TerritoryRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -18,8 +18,7 @@ export default {
     const territories = await TerritoryRepository.listByGuild(tenantId, guildId);
 
     if (territories.length === 0) {
-      return await interaction.editReply(
-        ContainerService.simple('❌ No nations registered in this server yet.')
+      return await replyV2(interaction, ContainerService.simple('❌ No nations registered in this server yet.')
       );
     }
 

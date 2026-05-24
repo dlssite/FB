@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, ChannelType } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { flamebornConfig } from '../../../../config/flameborn.config';
 
 export default {
@@ -27,7 +27,7 @@ export default {
       fields.push({ name: '✨ Server Features', value: `\`${guild.features.join('`, `')}\`` });
     }
 
-    await interaction.editReply(ContainerService.create({
+    await replyV2(interaction, ContainerService.create({
       title: `${guild.name} [${guild.id}]`,
       thumbnail: guild.iconURL({ size: 256 }) || undefined,
       media: guild.banner ? [guild.bannerURL({ size: 1024 })!] : [flamebornConfig.assets.statsBanner],

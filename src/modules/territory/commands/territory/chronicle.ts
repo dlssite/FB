@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { TerritoryPowerService } from '../../services/TerritoryPowerService';
 import { TerritoryPowerRepository } from '../../database/TerritoryPowerRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -36,13 +36,13 @@ export default {
       territory = governed[0];
     }
 
-    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.'));
+    if (!territory) return replyV2(interaction, ContainerService.simple('❌ Territory not found or multiple options exist.'));
 
     try {
       const history = await TerritoryPowerRepository.getHistoryByNation(tenantId, guildId, territory.id, limit);
 
       if (history.length === 0) {
-        return interaction.editReply(ContainerService.simple(`ℹ️ No actions recorded for **${territory.name}** yet.`));
+        return replyV2(interaction, ContainerService.simple(`ℹ️ No actions recorded for **${territory.name}** yet.`));
       }
 
       const list = history.map(h => {
@@ -59,7 +59,7 @@ export default {
       });
       await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`));
+      await replyV2(interaction, ContainerService.simple(`❌ Error: ${err.message}`));
     }
   }
 };

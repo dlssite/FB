@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { BoosterService } from '../../services/BoosterService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -20,24 +20,24 @@ export default {
     if (!color.startsWith('#')) color = '#' + color;
     const hexRegex = /^#([A-Fa-f0-9]{6})$/;
     if (!hexRegex.test(color)) {
-      return interaction.editReply(ContainerService.simple('❌ Invalid hex color provided. Use format: #FFFFFF', { color: 'Red' }) as any);
+      return replyV2(interaction, ContainerService.simple('❌ Invalid hex color provided. Use format: #FFFFFF', { color: 'Red' }) as any);
     }
 
     const member = interaction.member as GuildMember;
     const status = await BoosterService.getTierStatus(context.tenantId, interaction.guild.id, interaction.user.id, member);
 
     if (status.tier < 2) {
-      return interaction.editReply(ContainerService.simple('❌ **Tier 2 Required**\nYou must be actively boosting the server 2 or more times to forge a custom identity.', { color: 'Red' }) as any);
+      return replyV2(interaction, ContainerService.simple('❌ **Tier 2 Required**\nYou must be actively boosting the server 2 or more times to forge a custom identity.', { color: 'Red' }) as any);
     }
 
     try {
       const result = await BoosterService.forgeCustomRole(context.tenantId, interaction.guild, interaction.user.id, name, color);
       
       const actionText = result.action === 'created' ? 'forged' : 'updated';
-      await interaction.editReply(ContainerService.simple(`✨ **Identity ${actionText}!**\nYour custom role <@&${result.roleId}> has been synchronized to the ecosystem.`, { color: color }) as any);
+      await replyV2(interaction, ContainerService.simple(`✨ **Identity ${actionText}!**\nYour custom role <@&${result.roleId}> has been synchronized to the ecosystem.`, { color: color }) as any);
     } catch (err) {
       console.error(err);
-      await interaction.editReply(ContainerService.simple('❌ An error occurred while managing your role. Make sure the bot has permissions to create roles.', { color: 'Red' }) as any);
+      await replyV2(interaction, ContainerService.simple('❌ An error occurred while managing your role. Make sure the bot has permissions to create roles.', { color: 'Red' }) as any);
     }
   }
 };

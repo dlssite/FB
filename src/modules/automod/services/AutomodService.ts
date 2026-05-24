@@ -35,8 +35,25 @@ export class AutomodService {
 
     // 3. Anti-Invite
     if (enabledModules.antiInvite) {
-      const inviteRegex = /(discord\.(gg|io|me|li)|discordapp\.com\/invite|discord\.com\/invite)\/[a-zA-Z0-9]+/i;
-      if (inviteRegex.test(content)) {
+      const inviteCore = [
+        'discordapp.com/invite',
+        'discord.com/invite',
+        'discord.gg',
+        'dsc.gg',
+        'invite.gg',
+      ];
+
+      const obf = (s: string) => s.split('').map(c => `[${c}${c.toUpperCase()}][^a-zA-Z0-9]{0,2}`).join('');
+      const inviteRegex = new RegExp(`${inviteCore.map(obf).join('|')}[^a-zA-Z0-9]{0,8}[a-z0-9-]{2,}`, 'iu');
+
+      const isWhitelisted = (text?: string) => {
+        if (!text) return false;
+        const wl = Array.isArray(settings.inviteWhitelist) ? settings.inviteWhitelist : [];
+        const lower = text.toLowerCase();
+        return wl.some((w: string) => lower.includes((w || '').toLowerCase()));
+      };
+
+      if (inviteRegex.test(content) && !isWhitelisted(content)) {
         await this.handleViolation(message, 'Anti-Invite Link', tenantId, 'INVITE');
         await AutomodRepository.logViolation(
           message.guild.id,
@@ -71,15 +88,62 @@ export class AutomodService {
 
     // 5. Anti-Link
     if (enabledModules.antiLink) {
+      const sanitize = (text = '') => (text || '').replace(/[\s\\\u200B-\u200D\uFEFF[\](){}<>|`'".,;:!~_=-]/g, '').toLowerCase();
+
+      const domainRegex = /(?:(?:https?:\/\/)?(?:www\.)?)?((?:[a-z0-9\u00a1-\uffff][^a-zA-Z0-9]{0,2}){2,}\.(?:[a-z\u00a1-\uffff]{2,}))(?:\/[\^\s]*)?/giu;
+
+      const shorteners = ['bit.ly','tinyurl.com','t.co','ow.ly','is.gd','cutt.ly','shrtco.de','linktr.ee'];
+      const obf = (s: string) => s.split('').map(c => `[${c}${c.toUpperCase()}][^a-zA-Z0-9]{0,2}`).join('');
+      const shortenerRegex = new RegExp(shorteners.map(obf).join('|'), 'iu');
+
+      const isSafeGifUrl = (u?: string) => {
+        if (!u) return false;
+        const lower = u.toLowerCase();
+        return (
+          lower.includes('cdn.discordapp.com') ||
+          lower.includes('media.discordapp.net') ||
+          lower.includes('media.tenor.com') ||
+          lower.includes('tenor.com') ||
+          lower.includes('giphy.com') ||
+          /\.(gif|webp|mp4)(\?|$)/.test(lower)
+        );
+      };
+
+      const isWhitelisted = (text?: string) => {
+        if (!text) return false;
+        const wl = Array.isArray(settings.linkWhitelist) ? settings.linkWhitelist : [];
+        const lower = (text || '').toLowerCase();
+        return wl.some((w: string) => lower.includes((w || '').toLowerCase()));
+      };
+
+      // Check attachments and embeds first for safe GIFs
+      if (message.attachments.size > 0) {
+        for (const att of message.attachments.values()) {
+          if (isSafeGifUrl(att.url)) return false; // allow safe media attachments
+        }
+      }
+
+      if (message.embeds && message.embeds.length > 0) {
+        for (const e of message.embeds) {
+          const combined = `${e.url || ''} ${e.title || ''} ${e.description || ''}`;
+          if (isSafeGifUrl(combined)) return false;
+        }
+      }
+
       const urlRegex = /(https?:\/\/[^\s]+)/g;
-      if (urlRegex.test(content)) {
+      const found = content.match(urlRegex) || [];
+
+      const hasShortener = shortenerRegex.test(sanitize(message.content || ''));
+
+      // If any URL is present and not whitelisted and not a safe GIF, treat as violation
+      if ((found.length > 0 || hasShortener) && !isWhitelisted(message.content) && !found.some(u => isSafeGifUrl(u))) {
         await this.handleViolation(message, 'External Links', tenantId, 'LINK');
         await AutomodRepository.logViolation(
           message.guild.id,
           tenantId,
           message.author.id,
           'LINK',
-          content.match(urlRegex)?.[0],
+          found[0] || (hasShortener ? 'shortened_url' : undefined),
           'deleted'
         );
         return true;

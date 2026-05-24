@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'disc
 import { UtilityRepository } from '../../database/UtilityRepository';
 import { getTenantContext } from '../../../../utils/context';
 import { Translator } from '../../../../core/Translator';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -16,7 +16,7 @@ export default {
 
     await UtilityRepository.setAFK(tenantId, guildId, interaction.user.id, reason);
 
-    await interaction.editReply(ContainerService.create({
+    await replyV2(interaction, ContainerService.create({
       title: '💤 AFK Status Set',
       description: Translator.t('utility', 'afk.success', lang, { reason }),
       color: '#7367F0',

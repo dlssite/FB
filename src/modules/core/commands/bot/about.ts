@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -7,7 +7,7 @@ export default {
       .setDescription('Learn about the Flameborn bot'),
       
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.editReply(ContainerService.create({
+    await replyV2(interaction, ContainerService.create({
       title: '🤖 About Flameborn',
       description: 'Flameborn is a production-grade, multi-tenant bot designed for elite server management and community engagement.',
       fields: [

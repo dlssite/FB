@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { TerritoryRepository } from '../../database/TerritoryRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -17,8 +17,7 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.memberPermissions?.has('ManageGuild')) {
-      return await interaction.editReply(
-        ContainerService.simple('❌ You need ManageGuild permission to use this command.')
+      return await replyV2(interaction, ContainerService.simple('❌ You need ManageGuild permission to use this command.')
       );
     }
 
@@ -30,8 +29,7 @@ export default {
 
     const existing = await TerritoryRepository.getByCategoryId(tenantId, guildId, category.id);
     if (!existing) {
-      return await interaction.editReply(
-        ContainerService.simple('❌ Nation not found in this category.')
+      return await replyV2(interaction, ContainerService.simple('❌ Nation not found in this category.')
       );
     }
 

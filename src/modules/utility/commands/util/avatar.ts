@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 
 export default {
   data: (sub: SlashCommandSubcommandBuilder) =>
@@ -10,7 +10,7 @@ export default {
   async execute(interaction: ChatInputCommandInteraction) {
     const user = interaction.options.getUser('target') || interaction.user;
     
-    await interaction.editReply(ContainerService.create({
+    await replyV2(interaction, ContainerService.create({
       title: `Avatar for ${user.tag}`,
       media: [user.displayAvatarURL({ size: 1024 })],
       color: '#7367F0',

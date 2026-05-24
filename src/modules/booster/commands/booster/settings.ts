@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
 import { BoosterRepository } from '../../database/BoosterRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -15,7 +15,7 @@ export default {
     if (!context || !interaction.guild) return;
 
     if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-      return interaction.editReply(ContainerService.simple('❌ You need Administrator permissions to configure this.', { color: 'Red' }) as any);
+      return replyV2(interaction, ContainerService.simple('❌ You need Administrator permissions to configure this.', { color: 'Red' }) as any);
     }
 
     const channel = interaction.options.getChannel('channel');
@@ -26,11 +26,11 @@ export default {
     if (role) updateData.roleAnchorId = role.id;
 
     if (Object.keys(updateData).length === 0) {
-      return interaction.editReply(ContainerService.simple('❌ You must provide at least one setting to update.', { color: 'Red' }) as any);
+      return replyV2(interaction, ContainerService.simple('❌ You must provide at least one setting to update.', { color: 'Red' }) as any);
     }
 
     await BoosterRepository.updateSettings(context.tenantId, interaction.guild.id, updateData);
 
-    await interaction.editReply(ContainerService.simple('✅ Booster module settings updated successfully.', { color: '#28C76F' }) as any);
+    await replyV2(interaction, ContainerService.simple('✅ Booster module settings updated successfully.', { color: '#28C76F' }) as any);
   }
 };

@@ -28,18 +28,60 @@ export class WelcomeService {
 
     const messageText = PlaceholderService.parse(settings.welcomeInEmbedText || 'Welcome {user.mention} to {server.name}!', { member });
 
-    const welcomeContainer = ContainerService.create({
-      description: messageText,
-      color: settings.welcomeInEmbedColor as any || '#7367F0',
-      media: ['attachment://welcome-card.png']
-    });
+    // If a custom background URL is configured, upload first to obtain a CDN URL
+    if (settings.welcomeInBackgroundUrl && settings.welcomeInBackgroundUrl.startsWith('http')) {
+      try {
+        const uploadMsg = await channel.send({ files: [attachment] });
+        const uploaded = uploadMsg && uploadMsg.attachments && uploadMsg.attachments.first();
+        const imageUrl = uploaded ? uploaded.url : undefined;
 
-    await channel.send({
-      content: messageText,
-      components: welcomeContainer.components,
-      flags: MessageFlags.IsComponentsV2,
-      files: [attachment]
-    }).catch(console.error);
+        const welcomeContainer = ContainerService.create({
+          description: messageText,
+          color: settings.welcomeInEmbedColor as any || '#7367F0',
+          media: imageUrl ? [imageUrl] : []
+        });
+
+        // Send the container message referencing the uploaded CDN image
+        await channel.send({
+          content: messageText,
+          components: welcomeContainer.components,
+          flags: MessageFlags.IsComponentsV2
+        }).catch(console.error);
+
+        // Cleanup the temporary upload message
+        if (uploadMsg && imageUrl) {
+          try { await uploadMsg.delete().catch(() => {}); } catch {}
+        }
+      } catch (err) {
+        // Fallback to sending as attachment if upload fails
+        const welcomeContainer = ContainerService.create({
+          description: messageText,
+          color: settings.welcomeInEmbedColor as any || '#7367F0',
+          media: ['attachment://welcome-card.png']
+        });
+
+        await channel.send({
+          content: messageText,
+          components: welcomeContainer.components,
+          flags: MessageFlags.IsComponentsV2,
+          files: [attachment]
+        }).catch(console.error);
+      }
+    } else {
+      // No custom background configured — send the generated canvas directly as the panel image
+      const welcomeContainer = ContainerService.create({
+        description: messageText,
+        color: settings.welcomeInEmbedColor as any || '#7367F0',
+        media: ['attachment://welcome-card.png']
+      });
+
+      await channel.send({
+        content: messageText,
+        components: welcomeContainer.components,
+        flags: MessageFlags.IsComponentsV2,
+        files: [attachment]
+      }).catch(console.error);
+    }
   }
 
   /**

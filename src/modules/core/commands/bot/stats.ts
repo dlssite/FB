@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, version } from 'discord.js';
 import os from 'node:os';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { flamebornConfig } from '../../../../config/flameborn.config';
 
 export default {
@@ -12,7 +12,7 @@ export default {
     const uptime = process.uptime();
     const memory = process.memoryUsage().heapUsed / 1024 / 1024;
     
-    await interaction.editReply(ContainerService.create({
+    await replyV2(interaction, ContainerService.create({
       title: '📊 System Metrics',
       media: [flamebornConfig.assets.statsBanner],
       fields: [

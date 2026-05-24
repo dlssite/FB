@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { TerritoryPowerService } from '../../services/TerritoryPowerService';
 import { TerritoryRepository } from '../../database/TerritoryRepository';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -24,7 +24,7 @@ export default {
 
     const actor = interaction.member as GuildMember;
     const target = await interaction.guild?.members.fetch(targetUser.id);
-    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.'));
+    if (!target) return replyV2(interaction, ContainerService.simple('❌ Target user not found.'));
 
     // 1. Resolve which territory to act on
     const governed = await TerritoryPowerService.resolveGovernedTerritories(tenantId, guildId, actor);
@@ -56,14 +56,14 @@ export default {
 
     if (!territory) {
       if (governed.length > 1) {
-        return interaction.editReply(ContainerService.simple(`⚠️ You govern multiple territories. Please specify one: ${governed.map(t => `\`${t.name}\``).join(', ')}`));
+        return replyV2(interaction, ContainerService.simple(`⚠️ You govern multiple territories. Please specify one: ${governed.map(t => `\`${t.name}\``).join(', ')}`));
       }
-      return interaction.editReply(ContainerService.simple('❌ You do not have Patron authority over any such territory.'));
+      return replyV2(interaction, ContainerService.simple('❌ You do not have Patron authority over any such territory.'));
     }
 
     // 2. Hierarchy Check
     const check = await TerritoryPowerService.canGovernTarget(actor, target, territory);
-    if (!check.allowed) return interaction.editReply(ContainerService.simple(`❌ ${check.reason}`));
+    if (!check.allowed) return replyV2(interaction, ContainerService.simple(`❌ ${check.reason}`));
 
     // 3. Execution
     try {
@@ -79,7 +79,7 @@ export default {
       });
       await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error executing banishment: ${err.message}`));
+      await replyV2(interaction, ContainerService.simple(`❌ Error executing banishment: ${err.message}`));
     }
   }
 };

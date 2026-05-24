@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { TerritoryPowerService } from '../../services/TerritoryPowerService';
-import { ContainerService } from '../../../../utils/container';
+import { ContainerService, replyV2 } from '../../../../utils/container';
 import { tenantStorage } from '../../../../utils/context';
 
 export default {
@@ -23,7 +23,7 @@ export default {
 
     const actor = interaction.member as GuildMember;
     const target = await interaction.guild?.members.fetch(targetUser.id);
-    if (!target) return interaction.editReply(ContainerService.simple('❌ Target user not found.'));
+    if (!target) return replyV2(interaction, ContainerService.simple('❌ Target user not found.'));
 
     const governed = await TerritoryPowerService.resolveGovernedTerritories(tenantId, guildId, actor);
     let territory = null;
@@ -46,10 +46,10 @@ export default {
       territory = governed[0];
     }
 
-    if (!territory) return interaction.editReply(ContainerService.simple('❌ Territory not found or multiple options exist.'));
+    if (!territory) return replyV2(interaction, ContainerService.simple('❌ Territory not found or multiple options exist.'));
 
     const check = await TerritoryPowerService.canGovernTarget(actor, target, territory);
-    if (!check.allowed) return interaction.editReply(ContainerService.simple(`❌ ${check.reason}`));
+    if (!check.allowed) return replyV2(interaction, ContainerService.simple(`❌ ${check.reason}`));
 
     try {
       await TerritoryPowerService.executeExile(target, territory, reason);
@@ -64,7 +64,7 @@ export default {
       });
       await interaction.editReply(response);
     } catch (err: any) {
-      await interaction.editReply(ContainerService.simple(`❌ Error: ${err.message}`));
+      await replyV2(interaction, ContainerService.simple(`❌ Error: ${err.message}`));
     }
   }
 };

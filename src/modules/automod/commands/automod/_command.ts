@@ -153,6 +153,33 @@ export default {
           opt.setName('user')
             .setDescription('User to view/reset (required for view/reset)')
         )
+    )
+    .addSubcommand(sub =>
+      sub.setName('whitelist')
+        .setDescription('Manage automod whitelists for links and invites')
+        .addStringOption(opt =>
+          opt.setName('action')
+            .setDescription('Action to perform')
+            .addChoices(
+              { name: 'Add', value: 'add' },
+              { name: 'Remove', value: 'remove' },
+              { name: 'List', value: 'list' }
+            )
+            .setRequired(true)
+        )
+        .addStringOption(opt =>
+          opt.setName('type')
+            .setDescription('Whitelist type')
+            .addChoices(
+              { name: 'Link', value: 'link' },
+              { name: 'Invite', value: 'invite' }
+            )
+            .setRequired(true)
+        )
+        .addStringOption(opt =>
+          opt.setName('value')
+            .setDescription('Value to add/remove (url or domain)')
+        )
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -171,9 +198,69 @@ export default {
       return await handlePunishments(interaction, tenantId, guildId);
     } else if (subcommand === 'violations') {
       return await handleViolations(interaction, tenantId, guildId);
+    } else if (subcommand === 'whitelist') {
+      return await handleWhitelist(interaction, tenantId, guildId);
     }
   },
 };
+
+async function handleWhitelist(interaction: ChatInputCommandInteraction, tenantId: string, guildId: string) {
+  const action = interaction.options.getString('action', true);
+  const type = interaction.options.getString('type', true) as 'link' | 'invite';
+  const value = interaction.options.getString('value');
+
+  const settings = await AutomodRepository.getSettings(tenantId, guildId) || {};
+  const linkWhitelist = Array.isArray(settings.linkWhitelist) ? settings.linkWhitelist.slice() : [];
+  const inviteWhitelist = Array.isArray(settings.inviteWhitelist) ? settings.inviteWhitelist.slice() : [];
+
+  const save = async () => {
+    await AutomodRepository.updateSettings(tenantId, guildId, {
+      linkWhitelist,
+      inviteWhitelist,
+    }).catch(async () => {
+      await AutomodRepository.upsertSettings(tenantId, guildId, { linkWhitelist, inviteWhitelist });
+    });
+  };
+
+  if (action === 'add') {
+    if (!value) {
+      const container = ContainerService.buildCreate({ title: '❌ Error', description: 'You must provide a value to add', color: '#dc3545', interaction });
+      return await replyV2(interaction, { components: [container] });
+    }
+    const list = type === 'link' ? linkWhitelist : inviteWhitelist;
+    if (list.includes(value)) {
+      const container = ContainerService.buildCreate({ title: 'ℹ️ Already Present', description: `${type} whitelist already contains that value.`, color: '#6c757d', interaction });
+      return await replyV2(interaction, { components: [container] });
+    }
+    list.push(value);
+    await save();
+    const container = ContainerService.buildCreate({ title: '✅ Whitelist Updated', description: `Added **${value}** to ${type} whitelist.`, color: '#28a745', interaction });
+    return await replyV2(interaction, { components: [container] });
+  }
+
+  if (action === 'remove') {
+    if (!value) {
+      const container = ContainerService.buildCreate({ title: '❌ Error', description: 'You must provide a value to remove', color: '#dc3545', interaction });
+      return await replyV2(interaction, { components: [container] });
+    }
+    const list = type === 'link' ? linkWhitelist : inviteWhitelist;
+    const idx = list.indexOf(value);
+    if (idx === -1) {
+      const container = ContainerService.buildCreate({ title: 'ℹ️ Not Found', description: `${type} whitelist does not contain that value.`, color: '#6c757d', interaction });
+      return await replyV2(interaction, { components: [container] });
+    }
+    list.splice(idx, 1);
+    await save();
+    const container = ContainerService.buildCreate({ title: '✅ Whitelist Updated', description: `Removed **${value}** from ${type} whitelist.`, color: '#28a745', interaction });
+    return await replyV2(interaction, { components: [container] });
+  }
+
+  if (action === 'list') {
+    const list = type === 'link' ? linkWhitelist : inviteWhitelist;
+    const container = ContainerService.buildCreate({ title: `📋 ${type.charAt(0).toUpperCase() + type.slice(1)} Whitelist`, description: list.length ? list.map((v: string, i: number) => `${i+1}. ${v}`).join('\n') : 'No entries', color: '#7367F0', interaction });
+    return await replyV2(interaction, { components: [container] });
+  }
+}
 
 async function handleConfig(interaction: ChatInputCommandInteraction, tenantId: string, guildId: string) {
   const settings = await AutomodRepository.getSettings(tenantId, guildId);

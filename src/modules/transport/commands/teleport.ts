@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { TerritoryRepository } from '../../territory/database/TerritoryRepository';
 import { TerritoryPowerService } from '../../territory/services/TerritoryPowerService';
-import { ContainerService } from '../../../utils/container';
+import { ContainerService, replyV2 } from '../../../utils/container';
 
 export default {
   data: new SlashCommandBuilder()
@@ -19,13 +19,13 @@ export default {
 
     // 1. Permission Check (Moderator Level)
     if (!member.permissions.has(PermissionFlagsBits.ManageRoles) && !member.permissions.has(PermissionFlagsBits.ManageGuild)) {
-      return interaction.editReply(ContainerService.simple('❌ You do not have permission to use staff teleportation.'));
+      return replyV2(interaction, ContainerService.simple('❌ You do not have permission to use staff teleportation.'));
     }
 
     // 2. Resolve Nation
     const allNations = await TerritoryRepository.listByGuild(tenantId, guildId);
     const nation = allNations.find(n => n.name.toLowerCase() === nationName.toLowerCase());
-    if (!nation) return interaction.editReply(ContainerService.simple(`❌ Nation **${nationName}** not found.`));
+    if (!nation) return replyV2(interaction, ContainerService.simple(`❌ Nation **${nationName}** not found.`));
 
     // 3. Teleport Logic
     const targetMember = await guild.members.fetch(targetUser.id);
@@ -47,6 +47,6 @@ export default {
       null
     ).catch(() => {});
 
-    return interaction.editReply(ContainerService.simple(`✅ Successfully teleported **${targetUser.tag}** to **${nation.name}**.`));
+    return replyV2(interaction, ContainerService.simple(`✅ Successfully teleported **${targetUser.tag}** to **${nation.name}**.`));
   }
 };
