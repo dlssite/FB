@@ -13,6 +13,7 @@ import { flamebornConfig } from '../../../config/flameborn.config';
  * Requires owner permission
  */
 export default {
+  isGroup: true,
   data: (subcommand: SlashCommandSubcommandGroupBuilder) =>
     subcommand
       .setName('admin')
