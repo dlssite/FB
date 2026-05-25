@@ -1442,13 +1442,15 @@ model temp_voice_configs {
 }
 
 model tenants {
-  tenantId            String             @id @db.VarChar(255)
-  name                String             @db.VarChar(255)
-  ownerId             String?            @db.VarChar(255)
-  forceDisabledAddons Json?              @default("[]") @db.Json
-  createdAt           DateTime           @db.Timestamptz(6)
-  updatedAt           DateTime           @db.Timestamptz(6)
-  guild_tenant_map    guild_tenant_map[]
+  tenantId               String                     @id @db.VarChar(255)
+  name                   String                     @db.VarChar(255)
+  ownerId                String?                    @db.VarChar(255)
+  forceDisabledAddons    Json?                      @default("[]") @db.Json
+  createdAt              DateTime                   @db.Timestamptz(6)
+  updatedAt              DateTime                   @db.Timestamptz(6)
+  guild_tenant_map       guild_tenant_map[]
+  module_tenant_configs  module_tenant_config[]
+  tenant_details         tenant_details?
 }
 
 model ticket_configs {
@@ -2261,7 +2263,59 @@ model shop_storefront_listings {
 
   storefront   shop_storefronts @relation(fields: [storefrontId], references: [id], onDelete: Cascade)
 
-  @@index([guildId, tenantId])
+  @@index([guildId, tenantId], map: "shop_storefront_listings_guild_tenant")
+}
+
+// ==========================================
+// TENANT MANAGEMENT & MODULE CONFIGURATION
+// ==========================================
+
+model module_tenant_config {
+  id           Int      @id @default(autoincrement())
+  moduleName   String   @db.VarChar(255) // e.g., "economy", "leveling", "moderation"
+  tenantId     String   @db.VarChar(255) // Which tenant this module is configured for
+  isActive     Boolean  @default(true) // Whether this module is enabled for this tenant
+  config       Json?    @db.Json // Module-specific configuration
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+
+  tenant       tenants  @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  @@unique([moduleName, tenantId], map: "module_tenant_config_unique")
+  @@index([tenantId], map: "module_tenant_config_tenant_idx")
+  @@index([moduleName], map: "module_tenant_config_module_idx")
+}
+
+model tenant_details {
+  id              Int      @id @default(autoincrement())
+  tenantId        String   @unique @db.VarChar(255)
+  description     String?  @db.Text // Tenant description
+  metadata        Json?    @db.Json // Additional metadata { "region", "tier", "features", etc }
+  totalGuilds     Int      @default(0) // Cached count
+  totalUsers      Int      @default(0) // Cached count
+  isVerified      Boolean  @default(false)
+  isPremium       Boolean  @default(false)
+  customization   Json?    @db.Json // Theme, branding colors, etc
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  tenant          tenants  @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  @@index([isVerified], map: "tenant_details_verified_idx")
+  @@index([isPremium], map: "tenant_details_premium_idx")
+}
+
+model tenant_module_activity {
+  id           Int      @id @default(autoincrement())
+  tenantId     String   @db.VarChar(255)
+  moduleName   String   @db.VarChar(255)
+  actionType   String   @db.VarChar(255) // "activated", "deactivated", "configured", "error"
+  userId       String?  @db.VarChar(255) // Who performed the action
+  details      Json?    @db.Json // Action details and results
+  timestamp    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([tenantId, moduleName], map: "tenant_module_activity_tenant_module")
+  @@index([timestamp], map: "tenant_module_activity_timestamp")
 }
 
 model shop_auctions {

@@ -538,6 +538,12 @@ export const flamebornConfig: FlamebornConfig = {
       description: 'Automated reaction handlers and reaction-role management.',
       emoji: '🔁'
     },
+    tenant: {
+      active: true,
+      name: 'Tenant Management',
+      description: 'Multi-tenant system management and module configuration.',
+      emoji: '🏢'
+    },
   },
 
   /**
