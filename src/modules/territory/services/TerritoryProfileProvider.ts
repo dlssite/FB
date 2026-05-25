@@ -2,6 +2,7 @@ import { ProfileProvider } from '../../profile/services/ProfileProvider';
 import { prisma } from '../../../database/client';
 import { InventoryService } from '../../shop/services/InventoryService';
 import { shopRegistry } from '../../shop/catalog/engine/Registry';
+import { TerritoryRepository } from '../database/TerritoryRepository';
 
 export class TerritoryProfileProvider implements ProfileProvider {
   moduleName = 'territory';
@@ -59,7 +60,7 @@ export class TerritoryProfileProvider implements ProfileProvider {
     ];
   }
 
-  async getAiData(tenantId: string, guildId: string, userId: string) {
+  async getAiData(tenantId: string, guildId: string, userId: string, guild?: any) {
     if (!guildId) return {};
 
     await shopRegistry.loadCatalog();
@@ -81,11 +82,20 @@ export class TerritoryProfileProvider implements ProfileProvider {
     ]);
 
     let currentLocation = null;
+    let currentLocationPatrons: any[] = [];
+    
     if (latestTravel && latestTravel.toNationId) {
       const nation = await prisma.transport_nations.findUnique({
         where: { id: latestTravel.toNationId }
       });
-      if (nation) currentLocation = nation.name;
+      if (nation) {
+        currentLocation = nation.name;
+        
+        // Fetch patrons if guild is available
+        if (guild) {
+          currentLocationPatrons = await TerritoryRepository.getNationPatrons(guildId, latestTravel.toNationId, guild);
+        }
+      }
     }
 
     const buildingCounts: Record<string, number> = {};
@@ -99,6 +109,7 @@ export class TerritoryProfileProvider implements ProfileProvider {
 
     return {
       currentLocation,
+      currentLocationPatrons: currentLocationPatrons.map(p => ({ username: p.username, tag: p.tag })),
       buildings: buildingCounts,
       totalBuildings: buildings.length,
       vehicles: vehicles.map(v => ({ name: v.name, condition: v.condition }))

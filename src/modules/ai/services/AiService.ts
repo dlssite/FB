@@ -11,6 +11,7 @@ import { ProfileService } from '../../profile/services/ProfileService';
 import { getPersonaByName } from '../personas';
 import { ConversationSummarizer } from './ConversationSummarizer';
 import { IntentDetector } from './IntentDetector';
+import { NationContextProvider } from './NationContextProvider';
 
 // ─── Provider Client Caches ────────────────────────────────────────────────
 const openrouterClients = new Map<string, OpenRouter>();
@@ -184,7 +185,9 @@ export class AiService {
       ? {
           ...userContext,
           adminTitle: profile?.adminTitle || undefined,
-          isFirstVisit
+          isFirstVisit,
+          guildId,
+          tenantId
         }
       : {
           roleName: 'Member',
@@ -192,11 +195,13 @@ export class AiService {
           displayName: 'a citizen',
           guildName: 'the realm',
           adminTitle: undefined,
-          isFirstVisit
+          isFirstVisit,
+          guildId,
+          tenantId
         };
 
     // 6. Build system prompt & tools (use enrichedContext which has isFirstVisit flag)
-    const systemPrompt = this.buildSystemPrompt(userId, settings?.persona, facts, enrichedContext, cachedProfile, crossUserContext);
+    const systemPrompt = await this.buildSystemPrompt(userId, settings?.persona, facts, enrichedContext, cachedProfile, crossUserContext, message?.guild);
     Logger.debug(`[AI] Built system prompt with isFirstVisit=${enrichedContext.isFirstVisit}, hasActions=${!!cachedProfile?.actions}, hasCrossUserContext=${crossUserContext.length > 0}`);
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -464,14 +469,15 @@ export class AiService {
   }
 
   // ─── Prompt Builder ────────────────────────────────────────────────────
-  private static buildSystemPrompt(
+  private static async buildSystemPrompt(
     userId: string,
     persona?: string | null,
     facts: any[] = [],
-    userContext?: { roleName: string; isAdmin: boolean; displayName?: string; guildName?: string; adminTitle?: string; secondHighestRole?: string; isFirstVisit?: boolean },
+    userContext?: { roleName: string; isAdmin: boolean; displayName?: string; guildName?: string; adminTitle?: string; secondHighestRole?: string; isFirstVisit?: boolean; guildId?: string; tenantId?: string },
     cachedProfile?: CachedUserProfile | null,
-    crossUserContext?: string
-  ): string {
+    crossUserContext?: string,
+    guildObj?: any
+  ): Promise<string> {
     // Load persona by name, fallback to default from config
     let prompt: string;
     
@@ -676,9 +682,20 @@ Use SPECIFIC tools for specific queries. ONLY use get_user_profile for full prof
 - If a citizen mentions another citizen (e.g. @Elli), their User ID is inside the mention: extract it naturally.
 - If a citizen asks for help with commands, modules, or how to use a specific feature, tell them to use the \`/help\` command to access the Command Atlas.`;
 
-    // Add cross-user context if available
     if (crossUserContext) {
       prompt += `\n\n### Multi-User Channel Context:${crossUserContext}\n---\nREMEMBER: When summarizing or explaining other users' conversations, acknowledge their presence and cite them by name. Use "they/them" pronouns for others, never conflate their conversation with the current user's.`;
+    }
+
+    // Add nation and patron context if available
+    if (guildObj && userContext?.guildId && userContext?.tenantId) {
+      try {
+        const nationContext = await NationContextProvider.generateNationContext(userContext.tenantId, userContext.guildId, guildObj);
+        if (nationContext) {
+          prompt += `\n\n${nationContext}`;
+        }
+      } catch (error) {
+        Logger.warn(`[AI] Failed to load nation context: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
 
     return prompt;

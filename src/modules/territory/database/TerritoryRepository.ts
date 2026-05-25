@@ -104,4 +104,73 @@ export class TerritoryRepository {
       },
     });
   }
+
+  /**
+   * Fetches all users with patron role for a specific nation.
+   * Returns user IDs that have the patron role.
+   */
+  static async getNationPatrons(guildId: string, nationId: number, guild: any): Promise<{ id: string; username: string; tag: string }[]> {
+    try {
+      const nation = await prisma.transport_nations.findUnique({
+        where: { id: nationId },
+      });
+
+      if (!nation || !nation.patronRoleId) return [];
+
+      const role = guild.roles.cache.get(nation.patronRoleId);
+      if (!role) return [];
+
+      const patrons = role.members.map((member: any) => ({
+        id: member.id,
+        username: member.user.username,
+        tag: member.user.tag,
+      }));
+
+      return patrons;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * Fetches nation information with patron details.
+   */
+  static async getNationWithPatrons(guildId: string, nationId: number, guild: any) {
+    const nation = await prisma.transport_nations.findUnique({
+      where: { id: nationId },
+    });
+
+    if (!nation) return null;
+
+    const patrons = await this.getNationPatrons(guildId, nationId, guild);
+
+    return {
+      ...nation,
+      patrons,
+    };
+  }
+
+  /**
+   * Lists all territories for a guild with patron information.
+   */
+  static async listByGuildWithPatrons(tenantId: string, guildId: string, guild: any) {
+    const nations = await prisma.transport_nations.findMany({
+      where: {
+        guildId,
+        tenantId,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    const nationsWithPatrons = await Promise.all(
+      nations.map(async (nation) => ({
+        ...nation,
+        patrons: await this.getNationPatrons(guildId, nation.id, guild),
+      }))
+    );
+
+    return nationsWithPatrons;
+  }
 }
