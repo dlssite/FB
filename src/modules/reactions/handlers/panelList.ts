@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, MessageFlags, EmbedBuilder } from 'discord
 import { Logger } from '../../../utils/logger';
 import { RoutingService } from '../../../services/RoutingService';
 import { AddonService } from '../../../services/AddonService';
-import { ReactionRepository } from '../../database/ReactionRepository';
+import { ReactionRepository } from '../database/ReactionRepository';
 import { EmbedService } from '../../../utils/embed';
 import { replyV2, ContainerService } from '../../../utils/container';
 
@@ -33,7 +33,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       return await replyV2(interaction, container);
     }
 
-    const fields = panels.map(panel => ({
+    const fields = panels.map((panel: any) => ({
       name: `${panel.title} (ID: ${panel.id})`,
       value: `📝 ${panel.items.length} roles | <#${panel.channelId}>\n${panel.description || 'No description'}`,
       inline: false

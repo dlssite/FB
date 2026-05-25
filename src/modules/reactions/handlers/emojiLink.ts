@@ -2,8 +2,8 @@ import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { Logger } from '../../../utils/logger';
 import { RoutingService } from '../../../services/RoutingService';
 import { AddonService } from '../../../services/AddonService';
-import { ReactionRepository } from '../../database/ReactionRepository';
-import { RoleAssignmentService } from '../../services/RoleAssignmentService';
+import { ReactionRepository } from '../database/ReactionRepository';
+import { RoleAssignmentService } from '../services/RoleAssignmentService';
 import { EmbedService } from '../../../utils/embed';
 import { replyV2, ContainerService } from '../../../utils/container';
 
