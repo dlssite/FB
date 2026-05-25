@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import { Logger } from '../../../../utils/logger';
-import { RoutingService } from '../../../../services/RoutingService';
-import { AddonService } from '../../../../services/AddonService';
+import { Logger } from '../../../utils/logger';
+import { RoutingService } from '../../../services/RoutingService';
+import { AddonService } from '../../../services/AddonService';
 import { ReactionRepository } from '../../database/ReactionRepository';
 import { RoleAssignmentService } from '../../services/RoleAssignmentService';
-import { EmbedService } from '../../../../utils/embed';
-import { replyV2, ContainerService } from '../../../../utils/container';
+import { EmbedService } from '../../../utils/embed';
+import { replyV2, ContainerService } from '../../../utils/container';
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.guild || !interaction.member) return;
