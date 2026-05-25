@@ -1,0 +1,19 @@
+{
+  "panel": {
+    "create": "Créer un nouveau panneau de réaction",
+    "list": "Lister tous les panneaux de réaction",
+    "delete": "Supprimer un panneau de réaction"
+  },
+  "item": {
+    "add": "Ajouter un élément de réaction à un panneau",
+    "remove": "Supprimer un élément de réaction d'un panneau"
+  },
+  "emoji": {
+    "link": "Lier une réaction emoji à un rôle",
+    "unlink": "Supprimer un lien de réaction emoji",
+    "list": "Lister les liens de réaction emoji"
+  },
+  "stats": "Afficher les statistiques du panneau",
+  "module": "Système de gestion de rôles par auto-réaction",
+  "description": "Système avancé d'attribution de rôles par auto-réaction avec sélection déroulante et réactions emoji"
+}

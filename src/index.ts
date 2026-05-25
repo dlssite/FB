@@ -5,8 +5,7 @@ import { loadEvents } from './core/eventLoader';
 import { startApiServer } from './api/server';
 import { Translator } from './core/Translator';
 import { TenantService } from './services/TenantService';
-import { loadFlamebornConfig } from './config/loadConfig';
-import { setFlamebornConfig } from './config/configProvider';
+import { flamebornConfig } from './config/flameborn.config';
 import './network/mothership'; // Init Mothership connection
 
 import { Logger } from './utils/logger';
@@ -16,9 +15,6 @@ let isShuttingDown = false;
 
 async function bootstrap() {
   Logger.info('Starting Flameborn Prototype...', 'SYSTEM' as any);
-
-  const flamebornConfig = loadFlamebornConfig();
-  setFlamebornConfig(flamebornConfig);
 
   // 0. Legal Check (Mirroring legacy bot safety)
   if (!flamebornConfig.legal.acceptTOS || !flamebornConfig.legal.dataCollection) {

@@ -1,7 +1,7 @@
-import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { TenantService } from '../../../services/TenantService';
-import { ContainerService, replyV2 } from '../../../utils/container';
-import { flamebornConfig } from '../../../config/flameborn.config';
+import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { TenantService } from '../../../../services/TenantService';
+import { ContainerService, replyV2 } from '../../../../utils/container';
+import { flamebornConfig } from '../../../../config/flameborn.config';
 
 export default {
   data: (subcommand: SlashCommandSubcommandBuilder) =>
@@ -17,8 +17,6 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     try {
-      await interaction.deferReply();
-
       const filterTenantId = interaction.options.getString('tenant');
 
       if (filterTenantId) {
@@ -99,18 +97,18 @@ export default {
       }
 
       const container = ContainerService.create({
-        title: '📦 All Modules & Tenant Assignments',
-        description: `Total Modules: **${allModules.length}**\nConfigured: **${moduleStats.size}**`,
+        title: '📦 Module Statistics',
+        description: `Configured Modules: **${allModules.length}**`,
         color: '#00B4DB',
         fields,
         footer: true,
       });
 
-      await replyV2(interaction, container, true);
+      return await replyV2(interaction, container, true);
     } catch (error) {
       await replyV2(
         interaction,
-        ContainerService.simple(`❌ Error listing modules: ${error}`, { color: '#EA5455' }),
+        ContainerService.simple(`❌ Error fetching modules: ${error}`, { color: '#EA5455' }),
         true
       );
     }

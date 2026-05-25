@@ -9,8 +9,6 @@ export default {
       .addStringOption(opt => opt.setName('name').setDescription('New name (only applies if stealing a single item)')),
       
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-    
     let rawSource = interaction.options.getString('source');
     const customName = interaction.options.getString('name');
     const guild = interaction.guild;

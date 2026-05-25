@@ -1,0 +1,19 @@
+{
+  "panel": {
+    "create": "Create a new reaction panel",
+    "list": "List all reaction panels",
+    "delete": "Delete a reaction panel"
+  },
+  "item": {
+    "add": "Add a reaction item to a panel",
+    "remove": "Remove a reaction item from a panel"
+  },
+  "emoji": {
+    "link": "Link an emoji reaction to a role",
+    "unlink": "Remove an emoji reaction link",
+    "list": "List emoji reaction links"
+  },
+  "stats": "View panel statistics",
+  "module": "Self-reaction role management system",
+  "description": "Advanced self-reaction role assignment system with dropdown selection and emoji link reactions"
+}

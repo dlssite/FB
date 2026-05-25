@@ -1,0 +1,9 @@
+{
+  "status": "Afficher l'état actuel du locataire et de la guilde",
+  "list": "Lister tous les locataires dans la base de données",
+  "modules": "Lister tous les modules et leurs affectations de locataires",
+  "info": "Obtenir des informations détaillées sur un locataire spécifique",
+  "admin": "Commandes de gestion administrative des locataires",
+  "module": "Gérer et afficher les informations des locataires",
+  "description": "Gestion multi-locataire et configuration des modules"
+}

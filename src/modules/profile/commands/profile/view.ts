@@ -19,10 +19,6 @@ export default {
     const tenantId = context.tenantId;
     const guildId = interaction.guildId || '';
 
-    if (!interaction.deferred && !interaction.replied) {
-      await interaction.deferReply({ ephemeral: false });
-    }
-
     const targetUser = interaction.options.getUser('target') || interaction.user;
     const isOwner = targetUser.id === interaction.user.id;
     const isAdmin = (interaction.member?.permissions as PermissionsBitField)?.has(PermissionsBitField.Flags.Administrator) || false;

@@ -8,7 +8,7 @@ export default {
     .setDMPermission(false),
   
   async execute(interaction: any) {
-    // This will be replaced by subcommand routing from commandLoader
-    // Subcommands: status, modules, list, info, admin
+    // This will be replaced by command loader's subcommand routing
+    // Subcommands: status, modules, list, info, admin (group)
   }
 };

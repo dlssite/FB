@@ -1,12 +1,10 @@
 import {
   SlashCommandSubcommandGroupBuilder,
   ChatInputCommandInteraction,
-  EmbedBuilder,
-  PermissionFlagsBits,
 } from 'discord.js';
-import { TenantService } from '../../../services/TenantService';
-import { ContainerService, replyV2 } from '../../../utils/container';
-import { flamebornConfig } from '../../../config/flameborn.config';
+import { TenantService } from '../../../../services/TenantService';
+import { ContainerService, replyV2 } from '../../../../utils/container';
+import { flamebornConfig } from '../../../../config/flameborn.config';
 
 /**
  * Admin subcommands for tenant management

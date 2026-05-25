@@ -1,6 +1,7 @@
-import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { TenantService } from '../../../services/TenantService';
-import { ContainerService, replyV2 } from '../../../utils/container';
+import { SlashCommandSubcommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { TenantService } from '../../../../services/TenantService';
+import { ContainerService, replyV2 } from '../../../../utils/container';
+import { flamebornConfig } from '../../../../config/flameborn.config';
 
 export default {
   data: (subcommand: SlashCommandSubcommandBuilder) =>
@@ -10,8 +11,6 @@ export default {
 
   async execute(interaction: ChatInputCommandInteraction) {
     try {
-      await interaction.deferReply();
-
       const tenants = await TenantService.listAllTenants();
 
       if (tenants.length === 0) {

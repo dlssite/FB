@@ -1,0 +1,9 @@
+{
+  "status": "Show current tenant and guild status",
+  "list": "List all tenants in the database",
+  "modules": "List all modules and their tenant assignments",
+  "info": "Get detailed information about a specific tenant",
+  "admin": "Administrative tenant management commands",
+  "module": "Manage and view tenant information",
+  "description": "Multi-tenant management and module configuration"
+}
