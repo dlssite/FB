@@ -7,15 +7,15 @@ import {
 } from 'discord.js';
 import { Logger } from '../../../utils/logger';
 
-import * as panelCreate from './reactions/panelCreate';
-import * as itemAdd from './reactions/itemAdd';
-import * as itemRemove from './reactions/itemRemove';
-import * as panelList from './reactions/panelList';
-import * as panelDelete from './reactions/panelDelete';
-import * as stats from './reactions/stats';
-import * as emojiLink from './reactions/emojiLink';
-import * as emojiUnlink from './reactions/emojiUnlink';
-import * as emojiLinksList from './reactions/emojiLinksList';
+import * as panelCreate from '../handlers/panelCreate';
+import * as itemAdd from '../handlers/itemAdd';
+import * as itemRemove from '../handlers/itemRemove';
+import * as panelList from '../handlers/panelList';
+import * as panelDelete from '../handlers/panelDelete';
+import * as stats from '../handlers/stats';
+import * as emojiLink from '../handlers/emojiLink';
+import * as emojiUnlink from '../handlers/emojiUnlink';
+import * as emojiLinksList from '../handlers/emojiLinksList';
 
 export default {
   data: new SlashCommandBuilder()
