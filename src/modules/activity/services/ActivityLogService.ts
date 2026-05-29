@@ -37,11 +37,14 @@ export interface ActivityLoggerConfig {
   serverLogChannelId?: string;
   botLogTypes?: ActivityLogType[];
   serverLogTypes?: ActivityLogType[];
+  inactivityRoleId?: string;
+  inactivityDays?: number;
 }
 
 const DEFAULT_LOG_CONFIG: ActivityLoggerConfig = {
   botLogTypes: [],
-  serverLogTypes: []
+  serverLogTypes: [],
+  inactivityDays: 7
 };
 
 const BOT_LOG_TYPE_LABELS: Record<string, string> = {
@@ -447,6 +450,9 @@ export class ActivityLogService {
     const botTypes = (settings.botLogTypes || []).map(type => this.getTypeReadable(type)).join('\n') || '*None*';
     const serverTypes = (settings.serverLogTypes || []).map(type => this.getTypeReadable(type)).join('\n') || '*None*';
 
+    const inactivityRole = settings.inactivityRoleId ? `<@&${settings.inactivityRoleId}>` : '*Not configured*';
+    const inactivityThreshold = settings.inactivityDays ? `${settings.inactivityDays} days` : '*Not configured*';
+
     return ContainerService.create({
       title: '📜 Activity Logger Configuration',
       description: '**Bot Logs** and **Server Logs** can be configured independently.',
@@ -454,7 +460,9 @@ export class ActivityLogService {
         { name: 'Bot Log Channel', value: botChannel },
         { name: 'Bot Log Types', value: botTypes },
         { name: 'Server Log Channel', value: serverChannel },
-        { name: 'Server Log Types', value: serverTypes }
+        { name: 'Server Log Types', value: serverTypes },
+        { name: 'Inactive Role', value: inactivityRole },
+        { name: 'Inactivity Threshold', value: inactivityThreshold }
       ],
       color: '#7367F0',
       footer: `Activity Logger • ${tenantId}`

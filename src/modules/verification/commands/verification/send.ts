@@ -3,12 +3,7 @@ import {
   ChatInputCommandInteraction,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-  ContainerBuilder,
-  TextDisplayBuilder,
-  MessageFlags,
-  MediaGalleryBuilder,
-  MediaGalleryItemBuilder
+  ButtonStyle
 } from 'discord.js';
 import { flamebornConfig } from '../../../../config/flameborn.config';
 import { tenantStorage } from '../../../../utils/context';
@@ -29,15 +24,14 @@ export default {
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(verifyBtn);
 
-    const { ContainerService } = await import('../../../../utils/container');
+    const { ContainerService, sendV2, replyV2 } = await import('../../../../utils/container');
     const containerData = ContainerService.create({
       image: flamebornConfig.assets.verificationBanner || undefined,
-      description: `# 🛡️ Security Verification\nWelcome! To gain access to the rest of the server, please click the button below to start the verification and onboarding process.`,
+      description: `# 🛡️ Security Verification\nWelcome! To gain access to the rest of the server, please click the button below to start the verification process.`,
       components: [row]
     });
 
-    await (interaction.channel as any)?.send(containerData);
-    
-    await interaction.editReply({ content: '✅ Verification prompt sent.' });
+    await sendV2(interaction.channel as any, containerData).catch(() => {});
+    await replyV2(interaction, ContainerService.simple('✅ Verification prompt sent.', { interaction }), true);
   }
 };

@@ -2,7 +2,9 @@ import { PrismaClient } from '@prisma/client';
 import { RedisService } from '../../../services/RedisService';
 import { Logger } from '../../../utils/logger';
 import { Canvas, Path2D } from 'skia-canvas';
-import { AttachmentBuilder } from 'discord.js';
+import { AttachmentBuilder, Client } from 'discord.js';
+import { RoutingService } from '../../../services/RoutingService';
+import { ActivityLogService } from './ActivityLogService';
 
 const prisma = new PrismaClient();
 
@@ -70,6 +72,80 @@ export class ActivityService {
     const today = new Date().toISOString().substring(0, 10);
     const userKey = `activity:user:${tenantId}:${guildId}:${userId}:${today}`;
     await RedisService.client.hincrby(userKey, 'voiceTime', durationSeconds);
+  }
+
+  static async getUsersActiveSince(tenantId: string, guildId: string, cutoffDate: Date) {
+    const activeUserIds = new Set<string>();
+
+    const dbLogs = await prisma.activity_logs.findMany({
+      where: {
+        tenantId,
+        guildId,
+        date: { gte: cutoffDate },
+        messages: { gt: 0 }
+      },
+      select: { userId: true }
+    });
+
+    dbLogs.forEach(log => activeUserIds.add(log.userId));
+
+    const pattern = `activity:user:${tenantId}:${guildId}:*:*`;
+    const keys = await RedisService.client.keys(pattern);
+    for (const key of keys) {
+      const parts = key.split(':'); // ['activity', 'user', tenantId, guildId, userId, date]
+      const userId = parts[4];
+      const dateStr = parts[5];
+      if (!dateStr) continue;
+      const date = new Date(dateStr);
+      if (date >= cutoffDate) {
+        const data = await RedisService.client.hgetall(key);
+        if (data && parseInt(data.messages || '0', 10) > 0) {
+          activeUserIds.add(userId);
+        }
+      }
+    }
+
+    return activeUserIds;
+  }
+
+  static async applyInactiveRoles(client: Client) {
+    for (const guild of client.guilds.cache.values()) {
+      try {
+        const tenantId = await RoutingService.resolveTenantId(guild.id, 'activity');
+        const settings = await ActivityLogService.getSettings(tenantId, guild.id);
+        const roleId = settings.inactivityRoleId;
+        const days = settings.inactivityDays;
+
+        if (!roleId || !days || days < 1) continue;
+
+        const role = guild.roles.cache.get(roleId) || await guild.roles.fetch(roleId).catch(() => null);
+        if (!role) continue;
+
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+
+        const activeUserIds = await this.getUsersActiveSince(tenantId, guild.id, cutoff);
+
+        const members = await guild.members.fetch().catch(() => guild.members.cache);
+        for (const member of members.values()) {
+          if (member.user.bot) continue;
+          if (member.joinedAt && member.joinedAt > cutoff) continue;
+
+          const isActive = activeUserIds.has(member.id);
+          const hasInactiveRole = member.roles.cache.has(roleId);
+
+          if (isActive && hasInactiveRole) {
+            await member.roles.remove(roleId, 'Member became active again').catch(() => null);
+          }
+
+          if (!isActive && !hasInactiveRole && member.joinedAt && member.joinedAt <= cutoff) {
+            await member.roles.add(roleId, 'Member marked inactive by activity tracker').catch(() => null);
+          }
+        }
+      } catch (error) {
+        Logger.error('[ACTIVITY] Error applying inactive roles', error);
+      }
+    }
   }
 
   /**

@@ -445,7 +445,7 @@ export const flamebornConfig: FlamebornConfig = {
     verification: {
       active: true,
       name: 'Smart Verification',
-      description: 'Advanced onboarding wizard with CAPTCHAs and auto-header roles.',
+      description: 'Advanced security verification with CAPTCHAs and auto-header support.',
       emoji: '🛡️'
     },
     transportation: {

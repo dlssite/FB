@@ -38,8 +38,46 @@ export default {
     );
     if (!isVerificationInteraction) return;
 
-    // Defer IMMEDIATELY before any async work to beat Discord's 3s window
+    // If this interaction should open a modal, do it immediately (before any awaits)
     const isModalTrigger = customId.startsWith('verify_math_modal_trigger_') || customId === 'verify_access_code_modal_trigger';
+    if (isModalTrigger) {
+      // Handle math captcha modal trigger
+      if (customId.startsWith('verify_math_modal_trigger_')) {
+        const answer = customId.replace('verify_math_modal_trigger_', '');
+        const modal = new ModalBuilder()
+          .setCustomId(`verify_math_modal_submit_${answer}`)
+          .setTitle('Math Captcha');
+
+        const input = new TextInputBuilder()
+          .setCustomId('captcha_answer')
+          .setLabel('Solve the math problem')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
+        if (interaction.isButton()) await (interaction as ButtonInteraction).showModal(modal).catch(() => {});
+        return;
+      }
+
+      // Handle access code modal trigger
+      if (customId === 'verify_access_code_modal_trigger') {
+        const modal = new ModalBuilder()
+          .setCustomId(`verify_access_code_modal_submit`)
+          .setTitle('Access Code');
+
+        const input = new TextInputBuilder()
+          .setCustomId('access_code_input')
+          .setLabel('Enter the server access code')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
+        if (interaction.isButton()) await (interaction as ButtonInteraction).showModal(modal).catch(() => {});
+        return;
+      }
+    }
+
+    // Defer IMMEDIATELY before any other async work to beat Discord's 3s window
     if (!isModalTrigger) {
       if (customId.startsWith('verify_start_')) {
         await (interaction as ButtonInteraction).deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
@@ -69,45 +107,14 @@ export default {
         await VerificationService.sendCaptchaStep(interaction, settings);
       }
 
-      // --- STEP 2: CAPTCHA (MATH MODAL TRIGGER) ---
-      else if (customId.startsWith('verify_math_modal_trigger_')) {
-        const answer = customId.replace('verify_math_modal_trigger_', '');
-        const modal = new ModalBuilder()
-          .setCustomId(`verify_math_modal_submit_${answer}`)
-          .setTitle('Math Captcha');
-
-        const input = new TextInputBuilder()
-          .setCustomId('captcha_answer')
-          .setLabel('Solve the math problem')
-          .setStyle(TextInputStyle.Short)
-          .setRequired(true);
-
-        modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
-        if (interaction.isButton()) await interaction.showModal(modal);
-      }
-
-      // --- STEP 2: CAPTCHA (ACCESS CODE MODAL TRIGGER) ---
-      else if (customId === 'verify_access_code_modal_trigger') {
-        const modal = new ModalBuilder()
-          .setCustomId(`verify_access_code_modal_submit`)
-          .setTitle('Access Code');
-
-        const input = new TextInputBuilder()
-          .setCustomId('access_code_input')
-          .setLabel('Enter the server access code')
-          .setStyle(TextInputStyle.Short)
-          .setRequired(true);
-
-        modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
-        if (interaction.isButton()) await interaction.showModal(modal);
-      }
+      // Modal triggers are handled earlier (shown immediately to avoid token expiry)
 
       else if (customId.startsWith('verify_captcha_color_')) {
         const status = customId.replace('verify_captcha_color_', '');
         if (status === 'fail') {
           return await interaction.followUp({ content: '❌ Incorrect. Try again!', flags: MessageFlags.Ephemeral });
         }
-        await VerificationService.sendRolesStep(interaction, tenantId, guildId);
+        await VerificationService.completeVerification(interaction, tenantId, guildId);
       }
 
       // --- STEP 3: ROLE SELECTION ---
@@ -144,7 +151,7 @@ export default {
           return await interaction.followUp({ content: '❌ Incorrect answer. Try again!', flags: MessageFlags.Ephemeral });
         }
 
-        await VerificationService.sendRolesStep(interaction, tenantId, guildId);
+        await VerificationService.completeVerification(interaction, tenantId, guildId);
       }
 
       // --- MODAL SUBMIT (ACCESS CODE) ---
@@ -156,7 +163,7 @@ export default {
           return await interaction.followUp({ content: '❌ Incorrect access code. Try again!', flags: MessageFlags.Ephemeral });
         }
 
-        await VerificationService.sendRolesStep(interaction, tenantId, guildId);
+        await VerificationService.completeVerification(interaction, tenantId, guildId);
       }
     });
   }

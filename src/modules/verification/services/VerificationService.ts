@@ -1,23 +1,15 @@
 import { 
-  Client, 
-  User, 
   GuildMember, 
   ButtonInteraction, 
   StringSelectMenuInteraction,
-  ContainerBuilder, 
-  TextDisplayBuilder, 
   ActionRowBuilder, 
   ButtonBuilder, 
   ButtonStyle, 
-  StringSelectMenuBuilder,
-  MessageFlags,
-  SeparatorBuilder,
-  SeparatorSpacingSize,
-  MediaGalleryBuilder,
-  MediaGalleryItemBuilder
+  StringSelectMenuBuilder
 } from 'discord.js';
 import { VerificationRepository } from '../database/VerificationRepository';
 import { CaptchaService } from './CaptchaService';
+import { HeaderRoleService } from '../../utility/services/HeaderRoleService';
 import { flamebornConfig } from '../../../config/flameborn.config';
 import { replyV2 } from '../../../utils/container';
 
@@ -105,8 +97,8 @@ export class VerificationService {
         .setStyle(ButtonStyle.Primary);
       rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(codeBtn));
     } else {
-      // Skip to roles if no captcha
-      return await this.sendRolesStep(interaction, settings.tenantId, settings.guildId);
+      // Skip optional role selection and complete verification directly.
+      return await this.completeVerification(interaction, settings.tenantId, settings.guildId);
     }
 
     const { ContainerService } = await import('../../../utils/container');
@@ -149,7 +141,7 @@ export class VerificationService {
 
     const finishBtn = new ButtonBuilder()
       .setCustomId(`verify_finish_roles`)
-      .setLabel('Complete Onboarding')
+      .setLabel('Finish Verification')
       .setStyle(ButtonStyle.Success);
 
     rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(finishBtn));
@@ -157,7 +149,7 @@ export class VerificationService {
     const { ContainerService } = await import('../../../utils/container');
     const containerData = ContainerService.create({
       title: 'Role Selection',
-      description: 'Customize your profile before entering the server!',
+      description: 'Select any optional roles now, then finish verification.',
       components: rows
     });
 
@@ -203,8 +195,37 @@ export class VerificationService {
     if (!settings || !settings.unverifiedRoleId) return;
 
     // Filter out @everyone and the unverified role itself
+    let headerGroups = HeaderRoleService.getGroups(guildId);
+    if (!headerGroups.length) {
+      await HeaderRoleService.refreshGuild(member.client, tenantId, guildId).catch(() => {});
+      headerGroups = HeaderRoleService.getGroups(guildId);
+    }
+
+    // Allow guilds to configure specific roles to preserve during seizure.
+    // We store optional JSON in settings.panelConfig which may contain:
+    // { "excludeRoleIds": ["id1","id2"], "excludeHeaderRoleIds": ["headerId"] }
+    let excludeRoleIds: string[] = [];
+    let excludeHeaderRoleIds: string[] = [];
+    try {
+      const cfg = settings.panelConfig ? JSON.parse(settings.panelConfig) : {};
+      excludeRoleIds = Array.isArray(cfg.excludeRoleIds) ? cfg.excludeRoleIds : [];
+      excludeHeaderRoleIds = Array.isArray(cfg.excludeHeaderRoleIds) ? cfg.excludeHeaderRoleIds : [];
+    } catch (err) {
+      excludeRoleIds = [];
+      excludeHeaderRoleIds = [];
+    }
+
+    // Only preserve header roles that are specifically configured to be preserved
+    const preservedHeaderRoleIds = new Set(
+      headerGroups.map(group => group.headerRoleId).filter(Boolean).filter(id => excludeHeaderRoleIds.includes(id))
+    );
+
     const currentRoles = member.roles.cache
-      .filter(r => r.id !== guildId && r.id !== settings.unverifiedRoleId)
+      .filter(r => r.id !== guildId && r.id !== settings.unverifiedRoleId && !preservedHeaderRoleIds.has(r.id))
+      .map(r => r.id);
+
+    const preservedRoles = member.roles.cache
+      .filter(r => preservedHeaderRoleIds.has(r.id) || excludeRoleIds.includes(r.id))
       .map(r => r.id);
 
     // Only backup if they actually have roles to lose
@@ -212,8 +233,8 @@ export class VerificationService {
       await VerificationRepository.saveBackup(tenantId, guildId, member.id, currentRoles);
     }
     
-    // Set to only unverified role
-    await member.roles.set([settings.unverifiedRoleId]).catch(() => {});
+    // Preserve the unverified role and any header roles the member already has.
+    await member.roles.set([settings.unverifiedRoleId, ...preservedRoles]).catch(() => {});
   }
 
   /**

@@ -2147,6 +2147,7 @@ model verification_settings {
   minAccountAgeDays  Int      @default(0)
   captchaType        String   @default("none") @db.VarChar(50) // none, math, color, access_code
   rulesContent       String?  @db.Text
+  panelConfig        String?
   createdAt          DateTime @default(now()) @db.Timestamptz(6)
   updatedAt          DateTime @updatedAt @db.Timestamptz(6)
 

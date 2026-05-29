@@ -3,6 +3,6 @@ import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('verification')
-    .setDescription('🛡️ Smart Verification & Onboarding')
+    .setDescription('🛡️ Smart Verification')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 };
