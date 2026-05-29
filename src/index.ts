@@ -65,6 +65,8 @@ async function bootstrap() {
     const { ActivityService } = await import('./modules/activity/services/ActivityService');
     // Flush telemetry buffer from Redis to PostgreSQL every 5 minutes
     setInterval(() => ActivityService.flushTelemetryToDb(), 300000);
+    // Apply inactive role tracking every 5 minutes
+    setInterval(() => ActivityService.applyInactiveRoles(client), 300000);
   }
 
   if (flamebornConfig.modules.leveling?.active) {

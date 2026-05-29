@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { RedisService } from '../../../services/RedisService';
 import { Logger } from '../../../utils/logger';
 import { Canvas, Path2D } from 'skia-canvas';
-import { AttachmentBuilder, Client } from 'discord.js';
+import { AttachmentBuilder, Client, Guild } from 'discord.js';
 import { RoutingService } from '../../../services/RoutingService';
 import { ActivityLogService } from './ActivityLogService';
 
@@ -106,6 +106,25 @@ export class ActivityService {
     }
 
     return activeUserIds;
+  }
+
+  static async getInactiveMembers(guild: Guild, tenantId: string, days: number) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const activeUserIds = await this.getUsersActiveSince(tenantId, guild.id, cutoff);
+    const members = await guild.members.fetch().catch(() => guild.members.cache);
+    const inactiveMemberIds: string[] = [];
+
+    for (const member of members.values()) {
+      if (member.user.bot) continue;
+      if (member.joinedAt && member.joinedAt > cutoff) continue;
+      if (!activeUserIds.has(member.id)) {
+        inactiveMemberIds.push(member.id);
+      }
+    }
+
+    return inactiveMemberIds;
   }
 
   static async applyInactiveRoles(client: Client) {

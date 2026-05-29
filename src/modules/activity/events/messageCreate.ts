@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import { ActivityService } from '../services/ActivityService';
+import { ActivityLogService } from '../services/ActivityLogService';
 import { RoutingService } from '../../../services/RoutingService';
 import { GuildService } from '../../../services/GuildService';
 import { RedisService } from '../../../services/RedisService';
@@ -13,6 +14,15 @@ export default {
     try {
       const guildId = message.guildId!;
       const tenantId = await RoutingService.resolveTenantId(guildId, 'activity');
+
+      // Remove inactive role when a member sends a message
+      if (message.member) {
+        const settings = await ActivityLogService.getSettings(tenantId, guildId);
+        const inactivityRoleId = settings.inactivityRoleId;
+        if (inactivityRoleId && message.member.roles.cache.has(inactivityRoleId)) {
+          await message.member.roles.remove(inactivityRoleId, 'Member became active again').catch(() => null);
+        }
+      }
 
       // 1. Cache message for audit trail
       const cacheKey = `activity:msgcache:${tenantId}:${message.id}`;

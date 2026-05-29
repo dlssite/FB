@@ -38,8 +38,23 @@ export default {
               .setRequired(true)
               .addChoices(
                 { name: 'Growth (Joins/Leaves Chart)', value: 'growth' },
-                { name: 'Channel Hotspots', value: 'hotspots' }
+                { name: 'Channel Hotspots', value: 'hotspots' },
+                { name: 'Inactive Members', value: 'inactive' }
               )
+         )
+    )
+    .addSubcommand(sub =>
+      sub.setName('inactive')
+         .setDescription('⚠️ Configure inactivity tracking and auto-assign the inactive role.')
+         .addRoleOption(opt =>
+           opt.setName('role')
+              .setDescription('Role to assign to inactive server members')
+         )
+         .addIntegerOption(opt =>
+           opt.setName('duration')
+              .setDescription('Days of no messages before a member is marked inactive')
+              .setMinValue(1)
+              .setMaxValue(30)
          )
     )
     .addSubcommand(sub =>
@@ -174,6 +189,52 @@ export default {
       return;
     }
 
+    if (subcommand === 'inactive') {
+      if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+        return await replyV2(interaction, ContainerService.simple('❌ You need Manage Server permissions to configure inactivity tracking.', { interaction }));
+      }
+
+      const role = interaction.options.getRole('role');
+      const duration = interaction.options.getInteger('duration');
+      const current = await ActivityLogService.getSettings(tenantId, guildId);
+
+      if (!role && duration === null) {
+        const roleDisplay = current.inactivityRoleId ? `<@&${current.inactivityRoleId}>` : '*Not configured*';
+        const daysDisplay = current.inactivityDays ? `${current.inactivityDays} days` : '*Not configured*';
+        return await replyV2(interaction, ContainerService.create({
+          title: '⚠️ Inactivity Tracker Status',
+          description: 'Current inactive role and threshold configuration.',
+          fields: [
+            { name: 'Inactive Role', value: roleDisplay },
+            { name: 'Inactivity Duration', value: daysDisplay }
+          ],
+          color: '#FF9F43',
+          footer: true,
+          interaction
+        }));
+      }
+
+      const updatedConfig = {
+        ...current,
+        inactivityRoleId: role ? role.id : current.inactivityRoleId,
+        inactivityDays: duration ?? current.inactivityDays
+      };
+
+      await ActivityLogService.upsertSettings(tenantId, guildId, updatedConfig);
+
+      return await replyV2(interaction, ContainerService.create({
+        title: '✅ Inactivity Tracker Updated',
+        description: 'Inactive members will now be assigned the configured role when they have not sent messages within the threshold.',
+        fields: [
+          { name: 'Inactive Role', value: updatedConfig.inactivityRoleId ? `<@&${updatedConfig.inactivityRoleId}>` : '*Not configured*' },
+          { name: 'Inactivity Duration', value: updatedConfig.inactivityDays ? `${updatedConfig.inactivityDays} days` : '*Not configured*' }
+        ],
+        color: '#28C76F',
+        footer: true,
+        interaction
+      }));
+    }
+
     // ==========================================
     // 2. SUBCOMMAND: SERVER TELEMETRY
     // ==========================================
@@ -256,6 +317,108 @@ export default {
         // Send V2 stats container first, then follow up with the canvas chart
         await replyV2(interaction, embed);
         await interaction.followUp({ files: [attachment] });
+        return;
+      }
+
+      if (type === 'inactive') {
+        const settings = await ActivityLogService.getSettings(tenantId, guildId);
+        const days = settings.inactivityDays || 7;
+        const inactiveIds = await ActivityService.getInactiveMembers(interaction.guild!, tenantId, days);
+
+        const PAGE_SIZE = 10;
+        let page = 0;
+        const totalPages = Math.max(1, Math.ceil(inactiveIds.length / PAGE_SIZE));
+
+        const buildInactiveContainer = (currentPage: number) => {
+          const pageIds = inactiveIds.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+          const inactiveList = pageIds.length
+            ? pageIds.map(id => `<@${id}>`).join('\n')
+            : '*No inactive members found on this page.*';
+
+          const controls = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId('activity_inactive_prev')
+              .setLabel('◀ Prev')
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(currentPage === 0),
+            new ButtonBuilder()
+              .setCustomId('activity_inactive_next')
+              .setLabel('Next ▶')
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(currentPage >= totalPages - 1)
+          );
+
+          return ContainerService.create({
+            title: '⚠️ Inactive Members Report',
+            description: `Members who have not sent any messages in the last ${days} day${days === 1 ? '' : 's'}.`,
+            fields: [
+              { name: 'Total Inactive Members', value: inactiveIds.length.toString(), inline: true },
+              { name: 'Page', value: `${currentPage + 1}/${totalPages}`, inline: true },
+              { name: 'Inactive Members', value: inactiveList }
+            ],
+            components: [controls],
+            color: '#FF9F43',
+            footer: true,
+            interaction
+          });
+        };
+
+        const initial = buildInactiveContainer(page);
+        await replyV2(interaction, initial);
+        const response = await interaction.fetchReply();
+
+        const collector = response.createMessageComponentCollector({
+          time: flamebornConfig.behavior.collectorTimeout || 60000
+        });
+
+        collector.on('collect', async (i: any) => {
+          if (i.user.id !== interaction.user.id) {
+            return await replyV2(i, ContainerService.simple('❌ You cannot interact with this report.', { interaction: i }));
+          }
+
+          await i.deferUpdate();
+
+          if (i.customId === 'activity_inactive_prev' && page > 0) {
+            page -= 1;
+          } else if (i.customId === 'activity_inactive_next' && page < totalPages - 1) {
+            page += 1;
+          }
+
+          const updated = buildInactiveContainer(page);
+          await replyV2(i, updated);
+        });
+
+        collector.on('end', async () => {
+          const expiredControls = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId('activity_inactive_prev')
+              .setLabel('◀ Prev')
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true),
+            new ButtonBuilder()
+              .setCustomId('activity_inactive_next')
+              .setLabel('Next ▶')
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true)
+          );
+
+          const expired = ContainerService.create({
+            title: '⚠️ Inactive Members Report (Expired)',
+            description: `Members who have not sent any messages in the last ${days} day${days === 1 ? '' : 's'}.`,
+            fields: [
+              { name: 'Total Inactive Members', value: inactiveIds.length.toString(), inline: true },
+              { name: 'Page', value: `${page + 1}/${totalPages}`, inline: true },
+              { name: 'Inactive Members', value: inactiveIds.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(id => `<@${id}>`).join('\n') || '*No inactive members found on this page.*' }
+            ],
+            components: [expiredControls],
+            color: '#FF9F43',
+            footer: true,
+            interaction
+          });
+
+          await replyV2(interaction, expired).catch(() => {});
+        });
+
         return;
       }
 
