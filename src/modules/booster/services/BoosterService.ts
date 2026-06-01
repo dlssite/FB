@@ -14,17 +14,10 @@ export class BoosterService {
     
     // Calculate via Discord native if member object is provided
     if (member && member.premiumSince) {
-      // In a real bot we might look at roles, but we'll assume premiumSince means 1 boost by default,
-      // or we can calculate based on roles if the server uses 'Booster' role counting.
-      // Discord API doesn't expose EXACT boost count per user easily without checking roles.
-      // For this system, we'll assume: premiumSince = at least 1. We might need a way to track 2+.
-      // As a prototype, we'll check if they have the booster role.
-      activeBoosts = 1; // Base case: they are a booster
-      
-      // Look for custom tracking (some bots use roles to mark "2x Booster").
-      // For FBT, we'll assume any booster is Tier 2 for testing, or we can check role count if applicable.
-      // We will default to 2 boosts for testing Tier 2 functionality if they are boosting.
-      activeBoosts = 2; 
+      // If the member has a premiumSince timestamp, treat as at least 1 active boost.
+      // Discord doesn't expose an exact per-user boost count reliably via the standard API,
+      // so we default to 1. Servers that track multiple boosts via roles can extend this.
+      activeBoosts = 1;
     }
 
     // Is the user a buddy?

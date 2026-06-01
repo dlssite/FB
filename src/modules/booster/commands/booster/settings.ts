@@ -22,7 +22,10 @@ export default {
     const role = interaction.options.getRole('anchor_role');
 
     const updateData: any = {};
-    if (channel) updateData.boosterChannelId = channel.id;
+    if (channel) {
+      updateData.boosterChannelId = channel.id;
+      updateData.boosterOn = true;
+    }
     if (role) updateData.roleAnchorId = role.id;
 
     if (Object.keys(updateData).length === 0) {

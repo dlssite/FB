@@ -82,7 +82,7 @@ export class BoosterRepository {
   /**
    * Upserts the booster settings for a guild.
    */
-   static async updateSettings(tenantId: string, guildId: string, data: { boosterChannelId?: string, roleAnchorId?: string }) {
+   static async updateSettings(tenantId: string, guildId: string, data: { boosterChannelId?: string, roleAnchorId?: string, boosterOn?: boolean }) {
      const now = new Date();
      return await prisma.booster_settings.upsert({
        where: { guildId_tenantId: { guildId, tenantId } },
