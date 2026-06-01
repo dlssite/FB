@@ -76,7 +76,7 @@ export class BoosterService {
         // DB says it exists but Discord deleted it. We will recreate.
       } else {
         // Edit existing
-        discordRole = await discordRole.edit({ name, colors: hexColor as any });
+        discordRole = await discordRole.edit({ name, color: hexColor as any });
         return { success: true, roleId: discordRole.id, action: 'edited' };
       }
     }
@@ -84,7 +84,7 @@ export class BoosterService {
     // Create new
     discordRole = await guild.roles.create({
       name,
-      colors: hexColor as any,
+      color: hexColor as any,
       position: position > 0 ? position : undefined,
       reason: `Booster custom role creation for ${ownerId}`
     });
