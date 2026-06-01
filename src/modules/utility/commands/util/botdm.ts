@@ -116,6 +116,7 @@ export default {
     const roleIds = target === 'role' && filterRole ? [filterRole.id] : [];
     const userIds = target === 'specific_users' && specificUser ? [specificUser.id] : [];
     const mediaUrls = mediaUrl ? [mediaUrl] : [];
+    const messageText = message ?? undefined;
 
     // Send DM broadcast
     const result = await BotDMService.broadcastDM({
@@ -125,7 +126,7 @@ export default {
       targetType: target,
       roleIds,
       userIds,
-      messageText: message,
+      messageText,
       mediaUrls,
       guild: interaction.guild!
     });
