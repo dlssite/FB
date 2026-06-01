@@ -2623,3 +2623,24 @@ model reaction_emoji_links {
   @@unique([guildId, tenantId, messageId, emoji], map: "reaction_emoji_links_unique")
   @@index([guildId, messageId, tenantId], map: "reaction_emoji_links_guild_message_idx")
 }
+
+model bot_dm_broadcasts {
+  id            Int      @id @default(autoincrement())
+  guildId       String   @db.VarChar(255)
+  tenantId      String   @db.VarChar(255)
+  broadcasterId String   @db.VarChar(255)
+  targetType    String   @db.VarChar(50) // "all", "role", "specific_users"
+  roleIds       Json     @default("[]") @db.Json // Array of role IDs to filter
+  userIds       Json     @default("[]") @db.Json // Array of specific user IDs
+  messageText   String?
+  mediaUrls     Json     @default("[]") @db.Json // Array of image/video URLs
+  totalRecipients Int    @default(0)
+  successCount  Int      @default(0)
+  failureCount  Int      @default(0)
+  status        String   @default("pending") @db.VarChar(50) // pending, in_progress, completed
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  completedAt   DateTime? @db.Timestamptz(6)
+
+  @@index([guildId, tenantId], map: "bot_dm_broadcasts_guild_tenant_idx")
+  @@index([broadcasterId], map: "bot_dm_broadcasts_broadcaster_idx")
+}

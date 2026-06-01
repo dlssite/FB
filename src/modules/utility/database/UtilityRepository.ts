@@ -57,4 +57,69 @@ export class UtilityRepository {
       }
     });
   }
+
+  /**
+   * Creates a new bot DM broadcast
+   */
+  static async createBotDMBroadcast(data: {
+    tenantId: string;
+    guildId: string;
+    broadcasterId: string;
+    targetType: 'all' | 'role' | 'specific_users';
+    roleIds?: string[];
+    userIds?: string[];
+    messageText?: string;
+    mediaUrls?: string[];
+    totalRecipients: number;
+  }) {
+    return await prisma.bot_dm_broadcasts.create({
+      data: {
+        tenantId: data.tenantId,
+        guildId: data.guildId,
+        broadcasterId: data.broadcasterId,
+        targetType: data.targetType,
+        roleIds: data.roleIds || [],
+        userIds: data.userIds || [],
+        messageText: data.messageText,
+        mediaUrls: data.mediaUrls || [],
+        totalRecipients: data.totalRecipients,
+        status: 'pending'
+      }
+    });
+  }
+
+  /**
+   * Updates bot DM broadcast status and counts
+   */
+  static async updateBotDMBroadcast(broadcastId: number, data: {
+    status?: 'pending' | 'in_progress' | 'completed';
+    successCount?: number;
+    failureCount?: number;
+    completedAt?: Date;
+  }) {
+    return await prisma.bot_dm_broadcasts.update({
+      where: { id: broadcastId },
+      data
+    });
+  }
+
+  /**
+   * Gets bot DM broadcast by ID
+   */
+  static async getBotDMBroadcast(broadcastId: number) {
+    return await prisma.bot_dm_broadcasts.findUnique({
+      where: { id: broadcastId }
+    });
+  }
+
+  /**
+   * Gets all bot DM broadcasts for a guild
+   */
+  static async getBotDMBroadcastsForGuild(tenantId: string, guildId: string, limit = 10) {
+    return await prisma.bot_dm_broadcasts.findMany({
+      where: { tenantId, guildId },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    });
+  }
 }
