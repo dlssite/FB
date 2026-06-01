@@ -15,14 +15,25 @@ export default {
       const prefix = settings?.prefix || '!';
       const lang = settings?.lang || 'en';
 
+      const allowedRoleIds = settings?.botAllowedRoleIds
+        ? Array.isArray(settings.botAllowedRoleIds)
+          ? settings.botAllowedRoleIds
+          : JSON.parse(settings.botAllowedRoleIds as any)
+        : [];
+
+      const allowedRolesText = allowedRoleIds.length > 0
+        ? allowedRoleIds.map((id: string) => `<@&${id}>`).join(', ')
+        : '*No restrictions configured*';
+
       const embed = new EmbedBuilder()
         .setTitle('⚙️ Server Configuration')
         .setColor('#7367F0')
         .addFields(
           { name: '🔤 Prefix', value: `\`${prefix}\``, inline: true },
           { name: '🌐 Language', value: lang === 'en' ? '🇺🇸 English' : lang === 'fr' ? '🇫🇷 Français' : lang, inline: true },
+          { name: '🔐 Bot Access Roles', value: allowedRolesText, inline: false },
           { name: '\u200B', value: '\u200B', inline: false },
-          { name: '💡 Tip', value: `Use \`${prefix}prefix <new>\` to change prefix or \`/lang\` to change language`, inline: false }
+          { name: '💡 Tip', value: `Use \`/bot restrict\` to manage access roles for bot usage.`, inline: false }
         )
         .setFooter({ text: `Guild ID: ${guildId}` })
         .setTimestamp();

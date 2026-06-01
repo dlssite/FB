@@ -105,6 +105,12 @@ export class GuildService {
     return result;
   }
 
+  static async updateBotAllowedRoles(tenantId: string, guildId: string, roleIds: string[]) {
+    const result = await GuildRepository.updateBotAllowedRoles(tenantId, guildId, roleIds);
+    this.invalidateCache(guildId);
+    return result;
+  }
+
   static async getAllGuildSettings() {
     return await prisma.server_settings.findMany();
   }

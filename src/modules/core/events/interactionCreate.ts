@@ -1,4 +1,4 @@
-import { Events, Interaction, MessageFlags } from 'discord.js';
+import { Events, Interaction, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { tenantStorage } from '../../../utils/context';
 import { FlamebornClient } from '../../../core/FlamebornClient';
 
@@ -76,8 +76,39 @@ export default {
       const lang = settings?.lang || 'en';
       (interaction as any).lang = lang;
 
+      const botAllowedRoleIds = settings?.botAllowedRoleIds
+        ? Array.isArray(settings.botAllowedRoleIds)
+          ? settings.botAllowedRoleIds
+          : JSON.parse(settings.botAllowedRoleIds as any)
+        : [];
+
+      const botName = interaction.client?.user?.username || settings?.botName || 'this bot';
+      const isAdmin = (interaction.member as any)?.permissions?.has([
+        PermissionFlagsBits.Administrator,
+        PermissionFlagsBits.ManageGuild
+      ]);
+      if (command && botAllowedRoleIds.length > 0 && !isAdmin) {
+        const roleCache = (interaction.member as any)?.roles?.cache;
+        const hasAllowedRole = roleCache && botAllowedRoleIds.some((roleId: string) => roleCache.has(roleId));
+
+        if (!hasAllowedRole) {
+          const botName = interaction.client?.user?.username || 'Flameborn';
+          const requiredRoles = botAllowedRoleIds
+            .map((roleId: string) => {
+              const role = interaction.guild?.roles.cache.get(roleId);
+              return role ? `\`${role.name}\`` : `\`${roleId}\``;
+            })
+            .join(', ');
+          const message = `❌ You dont have access to ${botName}. You need ${requiredRoles} to use this flameborn.`;
+          if (interaction.isChatInputCommand()) {
+            if (interaction.deferred) await interaction.editReply({ content: message });
+            else await interaction.reply({ content: message, flags: [MessageFlags.Ephemeral] });
+          }
+          return;
+        }
+      }
+
       // 5. Global Command Ratelimiter (3 commands / 5s)
-      const isAdmin = (interaction.member as any)?.permissions?.has('Administrator');
       if (command && !isAdmin) {
         const cooldownKey = `ratelimit:${interaction.user.id}`;
         const current = await RedisService.client.incr(cooldownKey);

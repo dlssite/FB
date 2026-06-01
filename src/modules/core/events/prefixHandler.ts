@@ -9,6 +9,19 @@ import { RoutingService } from '../../../services/RoutingService';
 import { ActivityLogService } from '../../activity/services/ActivityLogService';
 import { replyV2 } from '../../../utils/container';
 
+function parseRoleIds(raw: any): string[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export default {
   name: Events.MessageCreate,
   once: false,
@@ -57,6 +70,26 @@ export default {
           : `❌ The **${command.module.toUpperCase()}** module is currently disabled by a server administrator.`;
         return await message.reply({ content: errorMsg });
       }
+    }
+
+    // 4. Bot access role restriction
+    const botAllowedRoleIds = parseRoleIds(settings?.botAllowedRoleIds);
+    const hasManagePermissions = message.member?.permissions.has('Administrator') || message.member?.permissions.has('ManageGuild');
+    const hasAllowedRole = message.member?.roles?.cache
+      ? botAllowedRoleIds.some(roleId => message.member!.roles.cache.has(roleId))
+      : false;
+
+    if (botAllowedRoleIds.length > 0 && !hasManagePermissions && !hasAllowedRole) {
+      const botName = client.user?.username || 'Flameborn';
+      const requiredRoles = botAllowedRoleIds
+        .map(roleId => {
+          const role = message.guild?.roles.cache.get(roleId);
+          return role ? `\`${role.name}\`` : `\`${roleId}\``;
+        })
+        .join(', ');
+      return await message.reply({
+        content: `❌ You dont have access to ${botName}. You need ${requiredRoles} to use this flameborn.`
+      });
     }
 
     // 4. Permission Check

@@ -119,4 +119,21 @@ export class GuildRepository {
       },
     });
   }
+
+  static async updateBotAllowedRoles(tenantId: string, guildId: string, roleIds: string[]) {
+    return await prisma.server_settings.upsert({
+      where: {
+        guildId_tenantId: {
+          guildId,
+          tenantId,
+        },
+      },
+      update: { botAllowedRoleIds: roleIds },
+      create: {
+        guildId,
+        tenantId,
+        botAllowedRoleIds: roleIds,
+      },
+    });
+  }
 }

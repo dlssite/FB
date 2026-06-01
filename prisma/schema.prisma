@@ -1283,6 +1283,7 @@ model server_settings {
   botAvatarUrl              String?  @db.VarChar(255)
   botBannerUrl              String?  @db.VarChar(255)
   botBio                    String?
+  botAllowedRoleIds         Json?    @default("[]") @db.Json
   activeAddons              Json     @default("{}") @db.Json
   activityLogConfig         Json?    @default("{}") @db.Json
   economySettings           Json     @default("{\"currencyName\":\"Coins\",\"currencySymbol\":\"🪙\",\"startBalance\":500,\"dailyReward\":250,\"workMin\":50,\"workMax\":150,\"crimeMin\":100,\"crimeMax\":300,\"taxRate\":0}") @db.Json
