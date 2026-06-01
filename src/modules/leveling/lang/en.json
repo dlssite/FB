@@ -24,7 +24,9 @@
     "toggle_on": "🧬 Module Enabled",
     "toggle_off": "🧬 Module Disabled",
     "toggle_desc": "The Neural Progression system has been **{{state}}** for this server.",
-    "override_success": "🛠️ Neural Override Successful"
+    "override_success": "🛠️ Neural Override Successful",
+    "reset_success": "🛠️ Server Leveling Progress Reset",
+    "reset_desc": "All citizens in this server have been returned to **Level 1**, **0 XP**, and **Prestige 0**."
   },
   "prestige": {
     "title": "✨ Neural Ascension Complete",

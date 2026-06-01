@@ -10,6 +10,7 @@ Welcome to the Flameborn Neural Progression system. This module tracks your enga
 
 ## 🛠️ Administrative Commands
 - **`/level manage`** (Alias: `!setxp`, `!setlvl`): Manually override a citizen's Level or XP.
+- **`/level reset`**: Reset all server leveling XP, levels, and prestige for every citizen.
 - **`/level toggle`** (Alias: `!leveltoggle`): Enable or disable the leveling engine.
 - **`/level settings`**: Configure global settings like the Top Leveler role and role stacking.
 - **`/level roles`**: Map specific levels to Discord roles.

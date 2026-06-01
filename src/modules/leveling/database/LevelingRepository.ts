@@ -46,6 +46,20 @@ export class LevelingRepository {
   }
 
   /**
+   * Reset all user leveling progress in a guild.
+   */
+  static async resetGuild(tenantId: string, guildId: string) {
+    return await prisma.users.updateMany({
+      where: { tenantId, guildId },
+      data: {
+        xp: 0,
+        level: 1,
+        prestige: 0,
+      },
+    });
+  }
+
+  /**
    * Fetch leveling settings for a guild with Redis caching.
    */
   static async getSettings(tenantId: string, guildId: string) {
