@@ -72,7 +72,7 @@ export class UtilityRepository {
     mediaUrls?: string[];
     totalRecipients: number;
   }) {
-    return await prisma.bot_dm_broadcasts.create({
+    return await (prisma as any).bot_dm_broadcasts.create({
       data: {
         tenantId: data.tenantId,
         guildId: data.guildId,
@@ -97,7 +97,7 @@ export class UtilityRepository {
     failureCount?: number;
     completedAt?: Date;
   }) {
-    return await prisma.bot_dm_broadcasts.update({
+    return await (prisma as any).bot_dm_broadcasts.update({
       where: { id: broadcastId },
       data
     });
@@ -107,7 +107,7 @@ export class UtilityRepository {
    * Gets bot DM broadcast by ID
    */
   static async getBotDMBroadcast(broadcastId: number) {
-    return await prisma.bot_dm_broadcasts.findUnique({
+    return await (prisma as any).bot_dm_broadcasts.findUnique({
       where: { id: broadcastId }
     });
   }
@@ -116,7 +116,7 @@ export class UtilityRepository {
    * Gets all bot DM broadcasts for a guild
    */
   static async getBotDMBroadcastsForGuild(tenantId: string, guildId: string, limit = 10) {
-    return await prisma.bot_dm_broadcasts.findMany({
+    return await (prisma as any).bot_dm_broadcasts.findMany({
       where: { tenantId, guildId },
       orderBy: { createdAt: 'desc' },
       take: limit

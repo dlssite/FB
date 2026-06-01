@@ -47,7 +47,7 @@ export default {
     }
 
     // Build history field
-    const historyLines = broadcasts.map((b, idx) => {
+    const historyLines = broadcasts.map((b: any, idx: number) => {
       const date = new Date(b.createdAt).toLocaleDateString();
       const targetLabel = 
         b.targetType === 'all' ? '👥 All'

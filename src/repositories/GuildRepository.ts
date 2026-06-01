@@ -128,12 +128,12 @@ export class GuildRepository {
           tenantId,
         },
       },
-      update: { botAllowedRoleIds: roleIds },
+      update: { botAllowedRoleIds: roleIds } as any,
       create: {
         guildId,
         tenantId,
         botAllowedRoleIds: roleIds,
-      },
+      } as any,
     });
   }
 }
